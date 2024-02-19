@@ -4,13 +4,13 @@ function checkAuthenticated(req, res, next){
     if(req.isAuthenticated()){
         return next();
     }
-    res.redirect('/admin/welcomeAdmin');
+    res.redirect('/backend/welcomeAdmin');
 }
 
 //if admin is authenticated you cant go out till you sign out
 function checkNotAuthenticated(req, res,next){
     if(req.isAuthenticated()){
-       return res.redirect('/admin/dashboard')
+       return res.redirect('/backend/dashboard')
     }
     //keeps inside dashboard
    next()
