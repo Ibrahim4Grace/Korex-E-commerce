@@ -3,14 +3,17 @@ const express = require('express');
 const router = express.Router();
 const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/authentication');
 
-const { spinner, indexPage } = require('../controller/landingPageController');
+const { spinner, indexPage,detailsPage,shopPage,contactPage,contactPagePost,checkouttPage,cartPage} = require('../controller/landingPageController');
 
 router.get('/', checkNotAuthenticated, spinner, indexPage);
 router.get('/index', checkNotAuthenticated, indexPage);
-// router.get('/about', checkNotAuthenticated, aboutPage);
-// router.get('/service', checkNotAuthenticated, servicePage)
-// router.get('/contact', checkNotAuthenticated, contactPage);
-// router.post('/contactPagePost', checkNotAuthenticated, contactPagePost);
+router.get('/detail', checkNotAuthenticated, detailsPage);
+router.get('/shop', checkNotAuthenticated, shopPage)
+router.get('/contact', checkNotAuthenticated, contactPage)
+router.post('/contact', checkNotAuthenticated, contactPagePost)
+router.get('/checkout', checkNotAuthenticated, checkouttPage)
+router.get('/cart', checkNotAuthenticated, cartPage)
+
 
 
 module.exports = router;

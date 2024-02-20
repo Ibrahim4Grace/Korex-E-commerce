@@ -1,0 +1,30 @@
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0); /* Initially hidden and scaled down */
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    transition: transform 0.3s ease; /* Smooth transition */
+    max-width: 400px; /* Adjust the maximum width as needed */
+    width: 80%; /* Adjust the width as needed */
+  }
+
+  /* Close button styles */
+  .popup-close {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #888;
+  }
+
+  /* Close button hover effect */
+  .popup-close:hover {
+    color: #333;
+  }

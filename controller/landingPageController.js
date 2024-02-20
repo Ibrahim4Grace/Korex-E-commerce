@@ -26,18 +26,30 @@ const indexPage = (req, res) => {
     }, 3000);
 };
 
-// const aboutPage = (req, res) => {
-//     res.render('about');
-// };
-// const servicePage = (req, res) => {
-//     res.render('service');
-// };
+const detailsPage = (req, res) => {
+    res.render('detail');
+};
+
+const shopPage = (req, res) => {
+    res.render('shop');
+};
+
+const contactPage = (req, res) => {
+    res.render('contact');
+};
+
+const contactPagePost = (req, res) => {
+
+};
+
+const checkouttPage = (req, res) => {
+    res.render('checkout');
+};
+
+const cartPage = (req, res) => {
+    res.render('cart');
+};
 
 
-// const contactPage = (req, res) => {
-//     res.render('contact');
-// };
 
-
-
-module.exports = ({ spinner, indexPage});
+module.exports = ({ spinner, indexPage,detailsPage,shopPage,contactPage,contactPagePost,checkouttPage,cartPage});
