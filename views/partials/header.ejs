@@ -15,8 +15,10 @@
                 <div class="btn-group">
                     <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">My Account</button>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <button class="dropdown-item" type="button">Sign in</button>
-                        <button class="dropdown-item" type="button">Sign up</button>
+                        <!-- <button class="dropdown-item" type="button">Sign in</button> -->
+                        <button type="button" class="dropdown-item" data-toggle="modal" data-target="#loginModal">Sign in</button>
+                        <a href="/user/register"><button class="dropdown-item" type="button">Sign up</button> </a>
+                        <!-- <button class="dropdown-item" type="button">Sign up</button> -->
                     </div>
                 </div>
                 <div class="btn-group mx-2">
@@ -84,20 +86,25 @@
                         <div class="nav-item dropdown dropright">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Dresses <i class="fa fa-angle-right float-right mt-1"></i></a>
                             <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
-                                <a href="" class="dropdown-item">Men's Dresses</a>
-                                <a href="" class="dropdown-item">Women's Dresses</a>
-                                <a href="" class="dropdown-item">Baby's Dresses</a>
+                                <a href="/dresses" class="dropdown-item">Dresses</a>
+                                <a href="/babyDresses" class="dropdown-item">Baby's Dresses</a>
                             </div>
                         </div>
-                        <a href="" class="nav-item nav-link">Shirts</a>
-                        <a href="" class="nav-item nav-link">Jeans</a>
-                        <a href="" class="nav-item nav-link">Swimwear</a>
-                        <a href="" class="nav-item nav-link">Sleepwear</a>
-                        <a href="" class="nav-item nav-link">Sportswear</a>
-                        <a href="" class="nav-item nav-link">Jumpsuits</a>
-                        <a href="" class="nav-item nav-link">Blazers</a>
-                        <a href="" class="nav-item nav-link">Jackets</a>
-                        <a href="" class="nav-item nav-link">Shoes</a>
+                        <div class="nav-item dropdown dropright">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Shoes <i class="fa fa-angle-right float-right mt-1"></i></a>
+                            <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
+                                <a href="/loafers" class="nav-item nav-link">Loafers</a>
+                                <a href="/sneakers" class="nav-item nav-link">Sneakers</a>
+                            </div>
+                        </div>
+                        <a href="/shirt" class="nav-item nav-link">Shirts</a>
+                        <a href="/jeans" class="nav-item nav-link">Jeans</a>
+                        <a href="/swimwear" class="nav-item nav-link">Swimwear</a>
+                        <a href="/sleepwear" class="nav-item nav-link">Sleepwear</a>
+                        <a href="/sportswear" class="nav-item nav-link">Sportswear</a>
+                        <a href="/jumpsuits" class="nav-item nav-link">Jumpsuits</a>
+                        <a href="/blazers" class="nav-item nav-link">Blazers</a>
+                        <a href="/jackets" class="nav-item nav-link">Jackets</a>
                     </div>
                 </nav>
             </div>
@@ -140,3 +147,33 @@
         </div>
     </div>
     <!-- Navbar End -->
+
+
+
+    <!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Sign In</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Your login form goes here -->
+                <form action="/login" method="post">
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

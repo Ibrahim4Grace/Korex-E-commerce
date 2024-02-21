@@ -4,7 +4,7 @@ const ejs = require(`ejs`);
 const nodemailer = require(`nodemailer`);
 const app = express();
 // const ContactUs = require("../models/contactUs");
-// const  shippingLabel  = require('../models/shippingLabel');
+
 
 // Send email to the applicant
 const transporter = nodemailer.createTransport({
