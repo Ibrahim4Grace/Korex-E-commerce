@@ -9,7 +9,7 @@
     <meta content="KorexShop" name="description">
 
     <!-- Favicon -->
-    <link href="../img/logo.PNG" rel="icon">
+    <link rel="icon" href="<%= process.env.BASE_URL || 'http://localhost:8080' %>/img/logo.PNG">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -19,12 +19,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
 
     <!-- Libraries Stylesheet -->
-    <link href="../lib/animate/animate.min.css" rel="stylesheet">
-    <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
-
+    <link rel="stylesheet" type="text/css" href="<%= process.env.BASE_URL || 'http://localhost:8080' %>/lib/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="<%= process.env.BASE_URL || 'http://localhost:8080' %>/lib/owlcarousel/assets/owl.carousel.min.css">
     <!-- Customized Bootstrap Stylesheet -->
-    <link href="../css/style.css" rel="stylesheet">
-    <link href="../css/landingPage.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="<%= process.env.BASE_URL || 'http://localhost:8080' %>/css/style.css">
+    <link rel="stylesheet" type="text/css" href="<%= process.env.BASE_URL || 'http://localhost:8080' %>/css/landingPage.css">
 </head>
 
 <body>

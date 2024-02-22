@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/authentication');
 
-const {registerUser,upload,registerUserPost,verifyEmail,verificationFailed,resendVerificationEmail,forgetPassword,forgetPasswordPost,loginUser,loginUserPost } = require('../controller/authController');
+const {registerUser,upload,registerUserPost,verifyEmail,verificationFailed,resendVerificationEmail,forgetPassword,forgetPasswordPost,resettingPassword,resettingPasswordPost,loginUser,loginUserPost } = require('../controller/authController');
 
 
 // Registration route
@@ -19,6 +19,8 @@ router.post('/resendVerificationEmail', resendVerificationEmail);
 //forgetPassword Routes
 router.get('/forgetPassword', forgetPassword);
 router.post('/forgetPasswordPost', forgetPasswordPost);
+router.get('/resettingPassword/:id/:token', resettingPassword);
+router.post('/resettingPasswordPost', resettingPasswordPost);
 
 // Login route
 router.get('/login', loginUser);

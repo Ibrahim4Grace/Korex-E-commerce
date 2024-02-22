@@ -188,7 +188,6 @@ const verifyEmail = async (req, res) => {
             // Token has expired
             return res.status(400).render('user/verification-failed', {
                 errors: [{ msg: 'Verification link has expired. Please request a new one.' }],
-                instructions: 'If you did not receive the verification email or if your verification link has expired, you can request a new one by clicking on the button below:'
             });
         }
      
@@ -268,30 +267,17 @@ const resendVerificationEmail = async (req, res) => {
         const user = await User.findOne({ customerEmail: customerEmail });
 
         if (!user) {
-            req.flash('error_msg', 'User not found');
-            return res.redirect('/user/login');
+            return res.status(400).json({ error: 'User not found' });
         }
 
         // Check if the user is already verified
-        if (user.isVerified) {
-            return res.status(400).render('user/verification-failed', {
+          if (user.isVerified) {
+            return res.status(400).render('user/login', {
                 errors: [{ msg: 'User is already verified' }],
             });
         }
 
-        // Check if the verification token has expired (1 hour expiration)
-        const expirationTime = 60 * 60 * 1000; // 1 hour in milliseconds
-        const currentTime = Date.now();
-        const tokenCreationTime = user.date_added || 0; // Use 0 if date_added not available
-
-        if (currentTime - tokenCreationTime > expirationTime) {
-            // Token has expired
-            return res.status(400).render('user/verification-failed', {
-                errors: [{ msg: 'Verification link has expired. Please request a new one.' }],
-                instructions: 'If you did not receive the verification email or if your verification link has expired, you can request a new one by clicking on the button below:'
-            });
-        }
-
+    
         // Generate a new verification token
         const newVerificationToken = crypto.randomBytes(20).toString('hex');
 
@@ -306,18 +292,10 @@ const resendVerificationEmail = async (req, res) => {
             from: process.env.NODEMAILER_EMAIL,
             to: user.customerEmail,
             subject: 'Verify Your Email - Korex StyleHub',
-             html: `<p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
-
-            <p>Dear ${user.customerFirstName} ${user.customerLastName},</p>
-
-            <p>Thank you for registering with Korex StyleHub! We're excited to have you on board.</p>
-            <p>In order to complete your registration and access all the features of our platform, please verify your email address by clicking the link below:</p>
-
-            <p><a href="${verificationLink}">Verify Email Address</a></p>
-            <p>If you didn't request this verification, please ignore this email.</p>
-
-            <p>If you encounter any issues or need further assistance, feel free to contact our support team at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
-            <p>Best regards,<br>The Korex StyleHub Team</p>`,
+            html: `<p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+            <p>Click <a href="${verificationLink}">here</a> to verify your email address.</p>
+            <p>Best regards,<br>
+            The Korex StyleHub Team</p>`,
             attachments: [
                 {
                     filename: 'companyLogo.jpg',
@@ -331,7 +309,7 @@ const resendVerificationEmail = async (req, res) => {
             if (error) {
                 console.log('Email sending error:', error);
                 req.flash('error_msg', 'Failed to resend verification email');
-                return res.redirect('/user/login');
+                return res.redirect('/user/verification-failed');
             } else {
                 console.log('Email sent:', info.response);
                 req.flash('success_msg', "Verification email resent successfully");
@@ -342,8 +320,8 @@ const resendVerificationEmail = async (req, res) => {
         console.error('Error in resendVerificationEmail:', error);
         return res.status(500).json({ error: 'An error occurred during email verification. Please try again or contact support.' });
     }
+   
 };
-
 
 // Forget Password
 const forgetPassword = (req, res) =>{
@@ -416,7 +394,6 @@ const forgetPasswordPost = async (req, res) =>{
                 });
                 req.flash('success_msg', 'Kindly check your email to reset your password.');
                 res.redirect('/user/login'); 
-
             }
         }catch(err) {
             console.error('Error:', err.message);
@@ -424,6 +401,145 @@ const forgetPasswordPost = async (req, res) =>{
         }
 };
 
+//  RESET PASSWORD SECTION
+const resettingPassword = async (req, res) => {
+    const { id, token } = req.params;
+    let errors = [];
+    let user;
+
+    try {
+        user = await User.findById(id);
+
+        // check if this id exists in the db
+        if (!user) {
+            errors.push({ msg: 'Invalid id...' });
+            return res.render('user/forgetPassword', { errors, customerEmail: '' });
+        }
+
+        const secret = process.env.JWT_SECRET + user.customerPassword;
+
+        try {
+            const payload = jwt.verify(token, secret);
+            // If the token is valid, render the reset password view
+            res.render('user/resetPassword', { id, token, customerEmail: user.customerEmail });
+        } catch (error) {
+            console.error('Error:', error.message);
+
+            if (error.name === 'TokenExpiredError') {
+              // Redirect the user to a page for expired links
+                return res.status(400).render('user/forgetPassword', {
+                    errors: [{ msg: 'The password reset link has expired. Please request a new one.' }],
+                    customerEmail: ''
+                });
+            } else if (error.name === 'JsonWebTokenError') {
+                return res.status(400).render('user/forgetPassword', {
+                    errors: [{ msg: 'Invalid token. Please make sure the link is correct.' }],
+                    customerEmail: ''
+                });
+            } else {
+                // Handle other errors as needed
+                return res.status(500).render('user/forgetPassword', {
+                    errors: [{ msg: 'Error resetting password. Please try again.' }],
+                    customerEmail: ''
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error.message);
+        return res.status(500).render('user/forgetPassword', {
+            errors: [{ msg: 'Error resetting password. Please try again.' }],
+            customerEmail: ''
+        });
+    }
+};
+
+const resettingPasswordPost = async (req, res) => {
+    const { id, token, customerPassword, customerPassword1 } = req.body;
+
+    let errors = [];
+    let user;  // Declare user variable outside the try block
+
+    try {
+        user = await User.findById(id);
+
+        // check if this id exists in the db
+        if (!user) {
+            errors.push({ msg: 'Invalid id...' });
+            return res.render('user/forgetPassword', {
+                errors,
+                customerEmail: ''
+            });
+        }
+
+        // check passwords match
+        if (customerPassword !== customerPassword1) {
+            errors.push({ msg: 'Passwords do not match' });
+        }
+
+        // Check password length
+        if (customerPassword.length < 6) {
+            errors.push({ msg: 'Password should be at least 6 characters' });
+        }
+
+        const secret = process.env.JWT_SECRET + user.customerPassword;
+        const payload = jwt.verify(token, secret);
+
+        // Hash the new password before saving
+        const hashedPassword = await bcrypt.hash(customerPassword, 10);
+        user.customerPassword = hashedPassword;
+
+        // Reset accountLocked to false
+        user.accountLocked = false;
+
+        // Save the user object to persist the changes
+        await user.save();
+
+        let phoneNumber = process.env.COMPANY_NUMBER;
+        let emailAddress = process.env.COMPANY_EMAIL;
+        // Send password change notification
+        let msg = `
+        <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+        <p>Dear ${user.customerFirstName} ${user.customerLastName},</p>
+        
+        <p>We hope this message finds you well. We wanted to inform you about a recent update regarding your password.</p>
+    
+        <p>If you didn't make this change, kindly contact our department at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
+
+        <p>We appreciate your continued dedication and patronization to our StyleHub team. Thank you for choosing to be a part of Korex StyleHub...</p>
+    
+        <p>Best regards,<br>
+        The Korex StyleHub Team </p>`;
+
+        const mailOptions = {
+            from: process.env.NODEMAILER_EMAIL,
+            to: user.customerEmail,
+            subject: 'Password Changed Confirmation',
+            html: msg,
+            attachments: [
+                {
+                    filename: 'companyLogo.jpg',
+                    path: './public/img/companyLogo.jpg',
+                    cid: 'companyLogo'
+                }
+            ]
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log('Email sending error:', error);
+            } else {
+                console.log('Email sent:', info.response);
+            }
+        });
+
+        req.flash('success_msg', 'Password Successfully Updated. Please Login');
+        res.redirect('/user/login');
+    } catch (error) {
+        console.log(error.message);
+        req.flash('error_msg', 'Error updating password. Please try again.');
+        res.render('user/forgetPassword', { errors, customerEmail: user ? user.customerEmail : '' });
+    }  
+}
 
 // User login
 const loginUser = (req, res) =>{
@@ -463,4 +579,4 @@ const loginUserPost = async (req, res) => {
 
 
 
-module.exports = ({registerUser,upload,registerUserPost,verifyEmail,resendVerificationEmail,verificationFailed,forgetPassword,forgetPasswordPost,loginUser,loginUserPost  });
+module.exports = ({registerUser,upload,registerUserPost,verifyEmail,resendVerificationEmail,verificationFailed,forgetPassword,forgetPasswordPost,resettingPassword,resettingPasswordPost,loginUser,loginUserPost  });
