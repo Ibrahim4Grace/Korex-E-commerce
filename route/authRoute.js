@@ -3,14 +3,28 @@ const express = require('express');
 const router = express.Router();
 const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/authentication');
 
-const {registerUser,registerUserPost,loginUser } = require('../controller/authController');
+const {registerUser,upload,registerUserPost,verifyEmail,verificationFailed,resendVerificationEmail,forgetPassword,forgetPasswordPost,loginUser,loginUserPost } = require('../controller/authController');
 
 
 // Registration route
 router.get('/register', registerUser);
-router.post('/registerUserPost', registerUserPost)
+router.post('/registerUserPost', upload.single('image'), registerUserPost)
+
+// Email verification routes
+router.get('/verify-email/:id/:token',  verifyEmail);
+router.get('/verification-failed',  verificationFailed);
+router.post('/resendVerificationEmail', resendVerificationEmail);
+
+
+//forgetPassword Routes
+router.get('/forgetPassword', forgetPassword);
+router.post('/forgetPasswordPost', forgetPasswordPost);
+
 // Login route
-router.post('/login', loginUser);
+router.get('/login', loginUser);
+router.post('/loginUserPost', loginUserPost);
+
+
 
 // router.get('/', checkNotAuthenticated, spinner, indexPage);
 // router.get('/index', checkNotAuthenticated, indexPage);

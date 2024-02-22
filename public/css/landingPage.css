@@ -41,3 +41,171 @@
 .mx-t3{
   margin-top: -1rem;
 }
+
+
+
+.login-page {
+  height: 100vh;
+  width: 100%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+.colors{color:#fff}
+
+.form {
+  position: relative;
+  filter: drop-shadow(0 0 2px #000000);
+  border-radius: 5px;
+  width: 360px;
+  padding: 40px;
+  box-shadow: 5px 5px 25px rgba(0,0,0,.2);  
+  background-color: #3D464D;
+}
+
+.form img {
+  position: absolute;
+  height: 20px;
+  top: 230px;
+  right: 60px;
+  cursor: pointer;
+}
+
+.form input {
+  outline: 0;
+  background: #f2f2f2;
+  border-radius: 4px;
+  width: 100%;
+  border: 0;
+  margin: 15px 0;
+  padding: 15px;
+  font-size: 14px;
+}
+
+.form input:focus {
+  box-shadow: 0 0 5px 0 rgba(106, 98, 210);
+}
+
+span {
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.form button {
+  outline: 0;
+  background: #333;
+  width: 100%;
+  border: 0;
+  margin-top: 10px;
+  border-radius: 3px;
+  padding: 15px;
+  color: #ffffff;
+  font-size: 15px;
+  -webkit-transition: all 0.3 ease;
+  transition: all 0.4s ease-in-out;
+  cursor: pointer;
+}
+
+.form button:hover,
+.form button:active,
+.form button:focus {
+  background: black;
+  color: #fff;
+}
+
+.message {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.form .message a {
+  font-size: 14px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.social-login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.social-login button {
+  width: 100%;
+  border-radius: 30px;
+}
+
+.social-login button:first-child {
+  margin-right: 5px;
+}
+
+.social-login button:last-child {
+  margin-left: 5px;
+}
+.animate {
+  height: 100%;
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.animate > li {
+  position: absolute;
+  height: 50px;
+  width: 50px;
+  top: 100%;
+  left: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  z-index: -1;
+  overflow: hidden;
+  animation: move 10s linear infinite;
+}
+
+.animate > li:nth-last-of-type(2) {
+  left: 70px;
+  animation-delay: 3.5s;
+  height: 15px;
+  width: 15px;
+}
+
+.animate > li:nth-last-of-type(3) {
+  left: 140px;
+  animation-delay: 3s;
+}
+
+.animate > li:nth-last-of-type(4) {
+  left: 210px;
+  animation-delay: 5.5s;
+}
+
+.animate > li:nth-last-of-type(5) {
+  left: 280px;
+  animation-delay: 1.8s;
+  height: 65px;
+  width: 65px;
+}
+
+.animate > li:nth-last-of-type(6) {
+  left: 140px;
+  animation-delay: 6.8s;
+  height: 25px;
+  width: 25px;
+}
+
+.animate > li:nth-last-of-type(7) {
+  left: 280px;
+  animation-delay: 5s;
+  height: 35px;
+  width: 35px;
+}
+
+@keyframes move {
+  to {
+      top: -50px;
+      transform: rotate(360deg);
+  }
+}
+
+

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Korex StyleHub</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="KorexShop" name="keywords">
+    <meta content="KorexShop" name="description">
+
+    <!-- Favicon -->
+    <link href="../img/logo.PNG" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">  
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="../lib/animate/animate.min.css" rel="stylesheet">
+    <link href="../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="../css/style.css" rel="stylesheet">
+    <link href="../css/landingPage.css" rel="stylesheet">
+</head>
+
+<body>
+   
+    <!-- Navbar Start -->
+    <%- include (`../partials/header`); -%>
+    <!-- Navbar End -->
+
+    <div class="login-page">
+        <div class="form">
+            <form action="/user/resendVerificationEmail" method="post">
+                <h2 class="colors">Request New Verification Email</h2>
+
+                <%- include ('../partials/messages'); -%>
+
+                <input type="email" name="customerEmail" class="form-control" placeholder="Enter your email">
+                <button type="submit">Request</button>
+            
+               <!-- Include animation elements here -->
+               <ul class="animate">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer Start -->
+    <%- include (`../partials/footer`); -%>
+    <!-- Footer End -->
+
+
+
+</body>
+
+</html>

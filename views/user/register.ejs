@@ -3,13 +3,13 @@
 
 <head>
     <meta charset="utf-8">
-    <title>KorexShop</title>
+    <title>Korex StyleHub</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="KorexShop" name="keywords">
-    <meta content="KorexShop" name="description">
+    <meta content="Korex StyleHub" name="keywords">
+    <meta content="Korex StyleHub" name="description">
 
     <!-- Favicon -->
-    <link href="../img/logo.jpg" rel="icon">
+    <link href="../img/logo.PNG" rel="icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -126,11 +126,8 @@
           <label for="pass2">Confirm Password</label>
           <input type="Password" name="customerPassword1" class="form-control" placeholder="Re-enter your password." value="<%= typeof customerPassword1 != 'undefined' ? customerPassword1 : '' %>" required>
         </div>
-        <input type="hidden" name="role" class="form-control" required>
-        <div class="col-sm-12">
-          <input type="checkbox" class="form-check d-inline" id="chb" required><label for="chb" class="form-check-label">&nbsp;I accept all terms and conditions.
-          </label>
-        </div>
+        <input type="hidden" value="User" name="role" class="form-control" required>
+       
   
         <div class="col-sm-12 form-group mb-0">
           <button class="btn btn-primary float-right">Submit</button>

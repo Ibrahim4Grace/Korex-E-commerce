@@ -11,6 +11,7 @@ if (process.env.NODE_ENV !== 'production'){
   const connectToMongoDB = require('./database/conn');
   const cors = require('cors');
   const MongoDBStore = require('connect-mongodb-session')(session);
+  const cookieParser = require('cookie-parser'); //for our jwt storage
   const morgan = require('morgan');
 //   const Chat = require('./models/chat');
   const bodyParser = require('body-parser');
@@ -57,26 +58,26 @@ if (process.env.NODE_ENV !== 'production'){
   });
     
   
-  const store = new MongoDBStore({
-    uri: process.env.MONGODB_URI,
-    collection: 'sessions'
-  });
+  // const store = new MongoDBStore({
+  //   uri: process.env.MONGODB_URI,
+  //   collection: 'sessions'
+  // });
   
   
-  //Catch errors
-  store.on('error', function(error) {
-    console.error(error);
-  });
+  // //Catch errors
+  // store.on('error', function(error) {
+  //   console.error(error);
+  // });
   
   
   app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: store,
-    cookie: {
-      maxAge: 1000 * 60 * 60, // Set maxAge to 1 hour
-    },
+    // store: store,
+    // cookie: {
+    //   maxAge: 1000 * 60 * 60, // Set maxAge to 1 hour
+    // },
   }));
   
   
@@ -88,6 +89,7 @@ if (process.env.NODE_ENV !== 'production'){
   app.use(express.static(__dirname + "/public/"));
   app.use(express.urlencoded({ extended: false }));
   app.use(bodyParser.json());
+  app.use(cookieParser());
   
   
        //creating global variable for color changing
@@ -116,6 +118,7 @@ if (process.env.NODE_ENV !== 'production'){
   //IMPORT THE ROUTE FILES
   app.use('/', require('./route/landingPageRoute'));
   app.use('/user', require('./route/authRoute'));
+  app.use('/', require('./route/authRoute'));//declared endpoint
 //   app.use('/', require('./route/loginRoute')); //declared endpoint
 //   app.use('/users', require('./route/userRoute'));
 //   app.use('/', require('./route/userRoute'));//declared endpoint

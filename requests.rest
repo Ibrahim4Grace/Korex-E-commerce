@@ -1,0 +1,9 @@
+
+
+
+POST http://localhost:8080/loginUser
+Content-Type: : application/json
+
+{
+    "username":"korex"
+}
