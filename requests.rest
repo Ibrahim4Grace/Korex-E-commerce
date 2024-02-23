@@ -1,9 +1,11 @@
 
 
 
-POST http://localhost:8080/loginUser
+POST http://localhost:8080/loginUserPost
+
 Content-Type: : application/json
 
 {
-    "username":"korex"
+    "customerUsername": "User1",
+    "customerPassword": "123456"
 }

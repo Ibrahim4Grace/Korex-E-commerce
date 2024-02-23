@@ -2,8 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/authentication');
+const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
-const {registerUser,upload,registerUserPost,verifyEmail,verificationFailed,resendVerificationEmail,forgetPassword,forgetPasswordPost,resettingPassword,resettingPasswordPost,loginUser,loginUserPost } = require('../controller/authController');
+const {registerUser,upload,registerUserPost,verifyEmail,verificationFailed,resendVerificationEmail,forgetPassword,forgetPasswordPost,resettingPassword,resettingPasswordPost,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
 
 
 // Registration route
@@ -22,10 +23,15 @@ router.post('/forgetPasswordPost', forgetPasswordPost);
 router.get('/resettingPassword/:id/:token', resettingPassword);
 router.post('/resettingPasswordPost', resettingPasswordPost);
 
-// Login route
+// Login route with verifyAccessToken middleware
 router.get('/login', loginUser);
-router.post('/loginUserPost', loginUserPost);
+router.post('/loginUserPost',  loginUserPost);
 
+// //refresh route with verifyRefreshToken middleware
+// router.post('/refresh-token', verifyRefreshToken, refreshToken);
+
+//logout route
+router.get("/logout", logoutUser);
 
 
 // router.get('/', checkNotAuthenticated, spinner, indexPage);

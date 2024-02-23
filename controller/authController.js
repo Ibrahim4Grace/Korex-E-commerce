@@ -546,37 +546,104 @@ const loginUser = (req, res) =>{
     res.render('user/login')
 };
 
-
 const loginUserPost = async (req, res) => {
     try {
         const { customerUsername, customerPassword } = req.body;
 
-        const user = await User.findOne({ customerUsername:customerUsername });
+        // Find the user by their username
+        const user = await User.findOne({ customerUsername });
+
         if (!user) {
-        return res.status(401).json({ error: 'Authentication faile' });
+            return res.status(401).json({ error: 'Authentication failed' });
         }
 
+        // Compare the provided password with the hashed password stored in the database
         const passwordMatch = await bcrypt.compare(customerPassword, user.customerPassword);
+        
         if (!passwordMatch) {
-        return res.status(401).json({ error: 'Authentication failed' });
+            return res.status(401).json({ error: 'Authentication failed' });
         }
 
-        // const token = jwt.sign(userId: user._id ,  `${process.env.JWT_SECRET}`, {
-        // expiresIn: '1h',
-        // });
+        // Generate an access token
+        const accessToken = jwt.sign(
+            { id: user._id, role: 'User' },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '30m' }
+        );
 
-        // const token = jwt.sign( user, `${process.env.ACCESS_TOKEN_SECRET}`, {expiresIn: '1h', });
+        // Generate a refresh token
+        const refreshToken = jwt.sign(
+            { id: user._id, role: 'User' },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '7d' }
+        );
 
-        //when user login, access token will have the user information storedin the session token
-        const accessToken = jwt.sign( user, process.env.ACCESS_TOKEN_SECRET);
-        res.status(200).json({ accessToken:accessToken });
+        // Output the generated tokens to the console
+        console.log('Generated access token:', accessToken);
+        console.log('Generated refresh token:', refreshToken);
 
-        } catch (error) {
+        // Store the tokens in cookies
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: true, // Ensures the cookie is sent only over HTTPS
+            sameSite: 'strict', // Prevents the cookie from being sent in cross-origin requests
+            maxAge: 30 * 60 * 1000 // 30 minutes expiration
+        });
+    
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true, // Ensures the cookie is sent only over HTTPS
+            sameSite: 'strict', // Prevents the cookie from being sent in cross-origin requests
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days expiration
+        });
+
+        // Send the tokens in the response
+        res.status(200).json({ message: 'Login successful', accessToken, refreshToken });
+
+    } catch (error) {
+        // If an error occurs during the login process, return a 500 error response
+        console.error('Error during login:', error);
         res.status(500).json({ error: 'Login failed' });
-    } 
-}
+    }
+};
 
 
+// const refreshToken = (req, res) => {
+//     const accessToken = generateAccessToken({ userId: req.userId });
+//     res.status(200).json({ accessToken });
+// };
+
+// function generateAccessToken(user){
+//     return jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, process.env.ACCESS_TOKEN_SECRET,{expiresIn:'30m'})
+// }
 
 
-module.exports = ({registerUser,upload,registerUserPost,verifyEmail,resendVerificationEmail,verificationFailed,forgetPassword,forgetPasswordPost,resettingPassword,resettingPasswordPost,loginUser,loginUserPost  });
+// function generateRefreshToken(user){
+//     return jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET, process.env.REFRESH_TOKEN_SECRET,{expiresIn:'30m'})//aday
+// }
+
+const logoutUser = async (req, res) => {
+    try {
+        if (!req.user) {
+            console.log("Logout failed. User not authenticated.");
+            return res.redirect("/login");
+        }
+
+        // Clear all cookies related to authentication
+        res.clearCookie("accessToken");
+        res.clearCookie("refreshToken");
+
+        // Optionally, you may add token revocation logic here
+
+        console.log("Logout successful!");
+        res.redirect("/login");
+    } catch (error) {
+        console.error("Logout failed:", error);
+        res.redirect("/home");
+    }
+};
+
+
+module.exports = ({registerUser,upload,registerUserPost,verifyEmail,resendVerificationEmail,verificationFailed,forgetPassword,forgetPasswordPost,resettingPassword,resettingPasswordPost,loginUser,loginUserPost,logoutUser  });
+
+

@@ -21,6 +21,9 @@ if (process.env.NODE_ENV !== 'production'){
 //   const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
 //   const chatIoSetup = require("./sockets/socket");
 //   const notificationIoSetup = require("./sockets/notification");
+const cron = require('node-cron');
+const cleanupInactiveUsers = require('./utils/cleanupInactiveUsers');
+
   const ejs = require('ejs');
   const app = express();
   const server = http.createServer(app);
@@ -32,15 +35,16 @@ if (process.env.NODE_ENV !== 'production'){
     next();
   });
   
+
   
-//   const trustedOrigins = [process.env.BASE_URL];
-//   app.use(cors({
-//     origin: process.env.NODE_ENV === 'production' ? trustedOrigins : '*',
-//     credentials: true,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//     allowedHeaders: ['Content-Type', 'Authorization'],
-//     exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
-//   }));
+  const trustedOrigins = [process.env.BASE_URL];
+  app.use(cors({
+    origin: process.env.NODE_ENV === 'production' ? trustedOrigins : '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
+  }));
   
   
   // Connect to MongoDB using this method because it returns a promise
@@ -57,6 +61,7 @@ if (process.env.NODE_ENV !== 'production'){
       console.error('Unable to start the server:', err.message);
   });
     
+
   
   // const store = new MongoDBStore({
   //   uri: process.env.MONGODB_URI,
@@ -109,7 +114,7 @@ if (process.env.NODE_ENV !== 'production'){
   app.use(morgan('tiny'));
   app.disable('x-powered-by'); //less hacker know about our stack
   
-  
+
   
 //   const chatIo = chatIoSetup(server, app, wrap, Chat);
 //   const notificationIo = notificationIoSetup(io);
