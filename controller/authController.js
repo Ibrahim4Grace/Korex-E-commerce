@@ -9,6 +9,8 @@ const Admin = require('../models/Admin');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
+const {userSchema} = require('../middleware/inputValidation');
+
 
 
 // Send email to the applicant
@@ -31,83 +33,177 @@ const registerUser = async (req, res) => {
     res.render('user/register')
 };
 
-    //CUSTOMER IMAGE FOLDER
-    let storage = multer.diskStorage({
-        destination: (req, file, cb) => {
-            cb(null, './public/customerImage/')
-        },
-        filename: (req, file, cb) => {
-            cb(null, file.fieldname + '_' + Date.now())
+// Define multer storage configuration
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        // Validate file type (e.g., allow only images)
+        if (!file.mimetype.startsWith('image')) {
+            return cb(new Error('Only images are allowed'));
         }
-  });
-    
+        cb(null, './public/customerImage/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + '_' + Date.now())
+    }
+});
+
+// Initialize multer middleware
 const upload = multer({ storage: storage });
 
+// const registerUserPost = async (req, res) => {
+//     try {
+
+//         // Validate user input against Joi schema
+//         const userResult = await userSchema.validateAsync(req.body);
+
+//         // Check if user with the same email or username already exists
+//         const userExists = await User.findOne({ $or: [{ customerEmail: userResult.customerEmail }, { customerUsername: userResult.customerUsername }] });
+
+//         if (userExists) {
+//             if (userExists.customerEmail === userResult.customerEmail) {
+//                 throw new Error(`${userResult.customerEmail} already registered`);
+//             }
+//             if (userExists.customerUsername === userResult.customerUsername) {
+//                 throw new Error(`${userResult.customerUsername} already registered`);
+//             }
+//             return res.status(409).json({ success: false, errors: [{ msg: 'Email or username already registered' }] });
+//         }
+
+//         // If validation passes and user does not exist, proceed with registration
+//         const hashedPassword = await bcrypt.hash(userResult.customerPassword, 10);
+
+//         // Generate a unique verification token
+//         const verificationToken = crypto.randomBytes(20).toString('hex');
+
+//         // Save the user data to the database
+//         const newUser = new User({
+//             customerFirstName: userResult.customerFirstName,
+//             customerLastName: userResult.customerLastName,
+//             customerEmail: userResult.customerEmail,
+//             customerUsername: userResult.customerUsername,
+//             customerAddress: userResult.customerAddress,
+//             customerCity: userResult.customerCity,
+//             customerState: userResult.customerState,
+//             customerCountry: userResult.customerCountry,
+//             customerDob: userResult.customerDob,
+//             customerNumber: userResult.customerNumber,
+//             customerPassword: hashedPassword,
+//             role: 'User', // Assuming default role is 'User'
+//             verificationToken,
+//             date_added: Date.now(),
+//             // Assuming req.file contains uploaded image information
+//             image: {
+//                 data: fs.readFileSync(path.join(__dirname, '../public/customerImage/' + req.file.filename)),
+//                 contentType: 'image/png',
+//             },
+//         });
+//         await newUser.save();
+
+//         // Include the verification token in the email
+//         const hosting = process.env.BASE_URL || 'http://localhost:8080';
+//         const verificationLink = `${hosting}/verify-email/${encodeURIComponent(newUser.id)}/${encodeURIComponent(newUser.verificationToken)}`;
+
+//         // Email content for unverified user
+//         const unverifiedMsg = `
+//             <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+//             <p>Dear ${newUser.customerFirstName} ${newUser.customerLastName}, welcome to Korex StyleHub Service.</p>
+//             <p>Please click <a href="${verificationLink}">here</a> to verify your email address.</p>
+//             <p>If you didn't register, please ignore this email.</p>
+//             <p>Best regards, <br> The Korex StyleHub Team</p>`;
+
+//         // Configure email options
+//         const mailOptions = {
+//             from: process.env.NODEMAILER_EMAIL,
+//             to: newUser.customerEmail,
+//             subject: 'Welcome to Korex StyleHub!',
+//             html: unverifiedMsg,
+//             attachments: [
+//                 {
+//                     filename: 'companyLogo.jpg',
+//                     path: './public/img/companyLogo.jpg',
+//                     cid: 'companyLogo'
+//                 }
+//             ]
+//         };
+
+//         // Send email
+//         transporter.sendMail(mailOptions, (error, info) => {
+//             if (error) {
+//                 console.log('Email sending error:', error);
+//             } else {
+//                 console.log('Email sent:', info.response);
+//             }
+//         });
+
+//         // Send success response to the client
+//         res.json({ success: true });
+        
+//     }  catch (error) {
+//         let errors; // Declare errors variable
+//         if (error.isJoi) {
+//             // Joi validation error
+//             errors = error.details.map(err => ({
+//                 key: err.path[0],
+//                 msg: err.message
+//             }));
+//             return res.status(400).json({ success: false, errors });
+
+//         } else {
+//             // Other error occurred
+//             console.error(error);
+//             return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+//         }
+//     }
+// };
+
+
 const registerUserPost = async (req, res) => {
-    const { customerFirstName, customerLastName, customerEmail, customerUsername, customerAddress, customerCity,customerState, customerCountry, customerDob, customerNumber, customerPassword,customerPassword1, role } = req.body;
-
-    let errors = [];
-
-    if ( !customerFirstName || !customerLastName || !customerEmail || !customerUsername || !customerAddress || !customerCity || !customerState || !customerCountry || !customerDob || !customerNumber || !customerPassword || !customerPassword1 || !role ) {
-        errors.push({ msg: 'Please fill in all fields' });
-    }
-
-    if (customerPassword !== customerPassword1) {
-        errors.push({ msg: 'Password does not match' });
-    }
-
-    if (!customerPassword || customerPassword.length < 6) {
-        errors.push({ msg: 'Password should be at least 6 characters' });
-    }
-
     try {
 
-        const registeredAdminExists = await Admin.findOne({ $or: [{ adminEmail: customerEmail }, { adminUsername: customerUsername }] });
+        // Validate user input against Joi schema
+        const userResult = await userSchema.validateAsync(req.body);
 
-        if (registeredAdminExists) {
-            if (registeredAdminExists.adminEmail === customerEmail) {
-                errors.push({ msg: 'Email already registered' });
-            }
+        // Check if user with the same email or username already exists
+        const userExists = await User.findOne({ $or: [{ customerEmail: userResult.customerEmail }, { customerUsername: userResult.customerUsername }] });
 
-            if (registeredAdminExists.adminUsername === customerUsername) {
-                errors.push({ msg: 'Username already registered' });
+        if (userExists) {
+            if (userExists.customerEmail === userResult.customerEmail) {
+                throw new Error(`${userResult.customerEmail} already registered`);
             }
+            if (userExists.customerUsername === userResult.customerUsername) {
+                throw new Error(`${userResult.customerUsername} already registered`);
+            }
+            return res.status(409).json({ success: false, errors: [{ msg: 'Email or username already registered' }] });
         }
 
-        const registeredUserExists = await User.findOne({ $or: [{ customerEmail }, { customerUsername }]  });
+        // If validation passes and user does not exist, proceed with registration
+        const hashedPassword = await bcrypt.hash(userResult.customerPassword, 10);
 
-        if (registeredUserExists) {
-            if (registeredUserExists.customerEmail === customerEmail) {
-                errors.push({ msg: 'Email already registered' });
-            }
-
-            if (registeredUserExists.customerUsername === customerUsername) {
-                errors.push({ msg: 'Username already registered' });
-            }
-        }
-
-        if (errors.length > 0) {
-            return res.render('user/register', {
-                errors, customerFirstName, customerLastName, customerEmail, customerUsername, customerAddress, customerCity,customerState, customerCountry, customerDob, customerNumber, customerPassword,customerPassword1, role 
-            });
-        }
-           //Hash password
-        const hashedPassword = await bcrypt.hash(customerPassword, 10);
         // Generate a unique verification token
         const verificationToken = crypto.randomBytes(20).toString('hex');
 
+        // Save the user data to the database
         const newUser = new User({
-            customerFirstName, customerLastName, customerEmail, customerUsername, 
-            customerAddress, customerCity,customerState, customerCountry, customerDob, 
-            customerNumber, customerPassword:hashedPassword,role,
-            verificationToken, // Add verification token to user data
-            date_added: Date.now(), // Update the date_added field
+            customerFirstName: userResult.customerFirstName,
+            customerLastName: userResult.customerLastName,
+            customerEmail: userResult.customerEmail,
+            customerUsername: userResult.customerUsername,
+            customerAddress: userResult.customerAddress,
+            customerCity: userResult.customerCity,
+            customerState: userResult.customerState,
+            customerCountry: userResult.customerCountry,
+            customerDob: userResult.customerDob,
+            customerNumber: userResult.customerNumber,
+            customerPassword: hashedPassword,
+            role: 'User', // Assuming default role is 'User'
+            verificationToken,
+            date_added: Date.now(),
+            // Assuming req.file contains uploaded image information
             image: {
                 data: fs.readFileSync(path.join(__dirname, '../public/customerImage/' + req.file.filename)),
                 contentType: 'image/png',
             },
         });
-
         await newUser.save();
 
         // Include the verification token in the email
@@ -116,41 +212,54 @@ const registerUserPost = async (req, res) => {
 
         // Email content for unverified user
         const unverifiedMsg = `
-        <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
-        <p>Dear ${customerFirstName} ${customerLastName}, welcome to Korex StyleHub Service.</p>
-        <p>Please click <a href="${verificationLink}">here</a> to verify your email address.</p>
-        <p>If you didn't register, please ignore this email.</p>
-        <p>Best regards, <br> The Korex StyleHub Team</p>`;
+            <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+            <p>Dear ${newUser.customerFirstName} ${newUser.customerLastName}, welcome to Korex StyleHub Service.</p>
+            <p>Please click <a href="${verificationLink}">here</a> to verify your email address.</p>
+            <p>If you didn't register, please ignore this email.</p>
+            <p>Best regards, <br> The Korex StyleHub Team</p>`;
 
-
+        // Configure email options
         const mailOptions = {
-        from: process.env.NODEMAILER_EMAIL,
-        to: customerEmail,
-        subject: 'Welcome to Korex StyleHub!',
-        html: unverifiedMsg,
-        attachments: [
-            {
-                filename: 'companyLogo.jpg',
-                path: './public/img/companyLogo.jpg',
-                cid: 'companyLogo'
-            }
-        ]
+            from: process.env.NODEMAILER_EMAIL,
+            to: newUser.customerEmail,
+            subject: 'Welcome to Korex StyleHub!',
+            html: unverifiedMsg,
+            attachments: [
+                {
+                    filename: 'companyLogo.jpg',
+                    path: './public/img/companyLogo.jpg',
+                    cid: 'companyLogo'
+                }
+            ]
         };
 
-       transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log('Email sending error:', error);
+        // Send email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log('Email sending error:', error);
+            } else {
+                console.log('Email sent:', info.response);
+            }
+        });
+
+        // Send success response to the client
+        res.json({ success: true });
+    }  catch (error) {
+        let errors; // Declare errors variable
+        if (error.isJoi) {
+            // Joi validation error
+            errors = error.details.map(err => ({
+                key: err.path[0],
+                msg: err.message
+            }));
+            return res.status(400).json({ success: false, errors });
+
         } else {
-            console.log('Email sent:', info.response);
+            // Other error occurred
+            console.error(error);
+            return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
         }
-       });
-        req.flash('success_msg', 'Registration Successful. Confirm your email.');
-        res.redirect('/user/login');
-    } catch (error) {
-        console.error(error);
-        req.flash('error', 'An error occurred while processing your request.');
-        res.redirect('/user/register');
-    } 
+    }
 };
 
 // Verification endpoint

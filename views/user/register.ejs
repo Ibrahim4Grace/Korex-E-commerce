@@ -39,34 +39,36 @@
         <div class="row jumbotron box8">
             <div class="col-sm-12 mx-t3 mb-4">
                 <h2 class="text-center text-infos">Register</h2>
-            </div>
+            </div> 
+            <%- include ('../partials/messages'); -%>
             <div class="col-sm-6 form-group">
                 <label for="name-f">First Name</label>
-                <input type="text" class="form-control" name="customerFirstName" placeholder="Enter your first name." value="<%= typeof customerFirstName != 'undefined' ? customerFirstName : '' %>" required>
+                <input type="text" class="form-control" name="customerFirstName" placeholder="Enter your first name.">
+             
             </div>
             <div class="col-sm-6 form-group">
                 <label for="name-l">Last name</label>
-                <input type="text" class="form-control" name="customerLastName" placeholder="Enter your last name." value="<%= typeof customerLastName != 'undefined' ? customerLastName : '' %>" required>
+                <input type="text" class="form-control" name="customerLastName" placeholder="Enter your last name." value="<%= typeof customerLastName != 'undefined' ? customerLastName : '' %>" >
             </div>
             <div class="col-sm-6 form-group">
                 <label for="email">Email</label>
-                <input type="email" class="form-control" name="customerEmail" placeholder="Enter your email." value="<%= typeof customerEmail != 'undefined' ? customerEmail : '' %>" required>
+                <input type="email" class="form-control" name="customerEmail" placeholder="Enter your email." value="<%= typeof customerEmail != 'undefined' ? customerEmail : '' %>" >
             </div>
             <div class="col-sm-6 form-group">
                 <label for="address-1">Username</label>
-                <input type="text" class="form-control" name="customerUsername" placeholder="Enter username" value="<%= typeof customerUsername != 'undefined' ? customerUsername : '' %>" required>
+                <input type="text" class="form-control" name="customerUsername" placeholder="Enter username" value="<%= typeof customerUsername != 'undefined' ? customerUsername : '' %>" >
             </div>
             <div class="col-sm-6 form-group">
                 <label for="address-2">Address</label>
-                <input type="address" class="form-control" name="customerAddress" placeholder="Locality/House/Street no." value="<%= typeof customerAddress != 'undefined' ? customerAddress : '' %>" required>
+                <input type="address" class="form-control" name="customerAddress" placeholder="Locality/House/Street no." value="<%= typeof customerAddress != 'undefined' ? customerAddress : '' %>" >
             </div>
             <div class="col-sm-4 form-group">
                 <label for="city">City</label>
-                <input type="text" class="form-control" name="customerCity" placeholder="Enter city Name" value="<%= typeof customerCity != 'undefined' ? customerCity : '' %>" required>
+                <input type="text" class="form-control" name="customerCity" placeholder="Enter city Name" value="<%= typeof customerCity != 'undefined' ? customerCity : '' %>" >
             </div>
             <div class="col-sm-2 form-group">
                 <label for="state">State</label>
-                <input type="text" class="form-control" name="customerState" placeholder="Enter state" value="<%= typeof customerState != 'undefined' ? customerState : '' %>" required>
+                <input type="text" class="form-control" name="customerState" placeholder="Enter state" value="<%= typeof customerState != 'undefined' ? customerState : '' %>" >
             </div>
             <div class="col-sm-6 form-group">
                 <% const countries = [
@@ -96,7 +98,7 @@
                 "Wallis and Futuna", "Western Sahara", "Yemen", "Zambia", "Zimbabwe"]; %>
                 <label for="Country">Country</label>
                 <select class="form-control custom-select browser-default" name="customerCountry"
-                value="<%= typeof customerCountry != 'undefined' ? customerCountry : '' %>" required>
+                value="<%= typeof customerCountry != 'undefined' ? customerCountry : '' %>" >
                        <option value="">Select Country</option>
                  <% countries.forEach((country )=> { %>
                     <option value="<%- country  %>"><%- country  %></option>
@@ -108,25 +110,25 @@
 
         <div class="col-sm-6 form-group">
           <label for="Date">Date Of Birth</label>
-          <input type="Date" name="customerDob" class="form-control" placeholder="" value="<%= typeof customerDob != 'undefined' ? customerDob : '' %>" required>
+          <input type="Date" name="customerDob" class="form-control" placeholder="" value="<%= typeof customerDob != 'undefined' ? customerDob : '' %>" >
         </div>
         <div class="col-sm-6 form-group">
             <label for="pass">Phone Number</label>
-            <input type="text" name="customerNumber" class="form-control" placeholder="Enter your phone number."  value="<%= typeof customerNumber != 'undefined' ? customerNumber : '' %>" required>
+            <input type="text" name="customerNumber" class="form-control" placeholder="Enter your phone number."  value="<%= typeof customerNumber != 'undefined' ? customerNumber : '' %>" >
         </div>
         <div class="col-sm-6 form-group">
             <label for="pass">Image</label>
-            <input type="file" name="image" class="form-control" placeholder="Enter your password." required>
+            <input type="file" name="image" class="form-control" placeholder="Enter your password." >
         </div>
         <div class="col-sm-6 form-group">
           <label for="pass">Password</label>
-          <input type="Password" name="customerPassword" class="form-control" placeholder="Enter your password." value="<%= typeof customerPassword != 'undefined' ? customerPassword : '' %>" required>
+          <input type="Password" name="customerPassword" class="form-control" placeholder="Enter your password." value="<%= typeof customerPassword != 'undefined' ? customerPassword : '' %>" >
         </div>
         <div class="col-sm-6 form-group">
           <label for="pass2">Confirm Password</label>
-          <input type="Password" name="customerPassword1" class="form-control" placeholder="Re-enter your password." value="<%= typeof customerPassword1 != 'undefined' ? customerPassword1 : '' %>" required>
+          <input type="Password" name="customerPassword1" class="form-control" placeholder="Re-enter your password." value="<%= typeof customerPassword1 != 'undefined' ? customerPassword1 : '' %>" >
         </div>
-        <input type="hidden" value="User" name="role" class="form-control" required>
+        <input type="hidden" value="User" name="role" class="form-control" >
        
   
         <div class="col-sm-12 form-group mb-0">
@@ -137,8 +139,38 @@
     </form>
   </div>
 
+  <script>
+    document.getElementById('registrationForm').addEventListener('submit', async (event)=> {
+    event.preventDefault(); // Prevent default form submission
 
+  const formData = new FormData(event.target); // Get form data
 
+  try {
+    const response = await fetch('/user/registerUserPost', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      body: json.stringify(Object.fromEntries(formData)),
+    });
+
+    const responseData = await response.json();
+
+    if (responseData.ok) {
+      // Registration successful, redirect or show success message
+      window.location.href = '/user/login'; // Redirect to a success page
+    } else {
+      // Registration failed, display error messages
+    //   const errors = responseData.errors.map(error => error.msg);
+      console.error('Validation errors', responseData.errors);
+    }
+  } catch (error) {
+    console.error('Error: creating user', error);
+    alert('An error occurred while processing your request.');
+  }
+});
+
+  </script>
 
 
     <!-- Footer Start -->

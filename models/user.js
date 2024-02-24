@@ -50,14 +50,13 @@ const userSchema = new mongoose.Schema({
     },
     role:{
         type: String,
-        default: 'User'
     },
-//    Order: [
-//     {
-//         type: mongoose.Schema.Types.ObjectId,
-//         ref: 'Order'
-//     }
-//    ],
+   Order: [
+    {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Order'
+    }
+   ],
    failedLoginAttempts: {   
     type: Number,
     default: 0 
@@ -85,5 +84,4 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 module.exports =  User
-
 
