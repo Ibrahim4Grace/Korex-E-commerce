@@ -25,6 +25,8 @@ const emailAddress = process.env.COMPANY_EMAIL;
  //Login attempts Limit 
 const MAX_FAILED_ATTEMPTS = process.env.MAX_FAILED_ATTEMPTS;
 
+
+
 const registerUser = async (req, res) => {
     res.render('user/register')
 };
@@ -546,6 +548,72 @@ const loginUser = (req, res) =>{
     res.render('user/login')
 };
 
+// const loginUserPost = async (req, res) => {
+//     try {
+//         const { customerUsername, customerPassword } = req.body;
+
+//         // Find the user by their username
+//         const user = await User.findOne({ customerUsername });
+
+//         if (!user) {
+//             // return res.status(401).json({ error: 'Authentication failed' });
+//             req.flash('error_msg', 'Invalid username provided');
+//             return res.redirect('/user/login');
+//         }
+
+//         // Compare the provided password with the hashed password stored in the database
+//         const passwordMatch = await bcrypt.compare(customerPassword, user.customerPassword);
+        
+//         if (!passwordMatch) {
+//             // return res.status(401).json({ error: 'Authentication failed' });
+//             req.flash('error_msg', 'Invalid password provided');
+//             return res.redirect('/user/login');
+//         }
+
+//         // Generate an access token
+//         const accessToken = jwt.sign(
+//             { id: user._id, role: 'User' },
+//             process.env.ACCESS_TOKEN_SECRET,
+//             { expiresIn: '30m' }
+//         );
+
+//         // Generate a refresh token
+//         const refreshToken = jwt.sign(
+//             { id: user._id, role: 'User' },
+//             process.env.REFRESH_TOKEN_SECRET,
+//             { expiresIn: '7d' }
+//         );
+
+//         // Output the generated tokens to the console
+//         console.log('Generated access token:', accessToken);
+//         console.log('Generated refresh token:', refreshToken);
+
+//         // Store the tokens in cookies
+//         res.cookie('accessToken', accessToken, {
+//             httpOnly: true,
+//             secure: true, // Ensures the cookie is sent only over HTTPS
+//             sameSite: 'strict', // Prevents the cookie from being sent in cross-origin requests
+//             maxAge: 30 * 60 * 1000 // 30 minutes expiration
+//         });
+    
+//         res.cookie('refreshToken', refreshToken, {
+//             httpOnly: true,
+//             secure: true, // Ensures the cookie is sent only over HTTPS
+//             sameSite: 'strict', // Prevents the cookie from being sent in cross-origin requests
+//             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days expiration
+//         });
+
+//         // Send the tokens in the response
+//         // res.status(200).json({ message: 'Login successful', accessToken, refreshToken });
+//         res.redirect('/users/index');
+
+//     } catch (error) {
+//         // If an error occurs during the login process, return a 500 error response
+//         console.error('Error during login:', error);
+//         res.status(500).json({ error: 'Login failed' });
+//     }
+// };
+
 const loginUserPost = async (req, res) => {
     try {
         const { customerUsername, customerPassword } = req.body;
@@ -554,15 +622,46 @@ const loginUserPost = async (req, res) => {
         const user = await User.findOne({ customerUsername });
 
         if (!user) {
-            return res.status(401).json({ error: 'Authentication failed' });
+             // return res.status(401).json({ error: 'Authentication failed' });
+            // If user does not exist, redirect with error message
+            req.flash('error_msg', 'Invalid username provided');
+            return res.redirect('/user/login');
         }
 
         // Compare the provided password with the hashed password stored in the database
         const passwordMatch = await bcrypt.compare(customerPassword, user.customerPassword);
         
         if (!passwordMatch) {
-            return res.status(401).json({ error: 'Authentication failed' });
+            // If passwords do not match, increment failed login attempts
+            await User.updateOne({ customerUsername }, { $inc: { failedLoginAttempts: 1 } });
+
+            // Check if the account should be locked
+            const updatedUser = await User.findOne({ customerUsername });
+            if (updatedUser.failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
+                // Lock the account
+                await User.updateOne({ customerUsername }, { $set: { accountLocked: true } });
+                req.flash('error_msg', 'Account locked. Contact Korex for assistance or reset Password.');
+                return res.redirect('/user/login');
+            } else {
+                // Redirect with error message for invalid password
+                req.flash('error_msg', 'Invalid Password 2 attenmpts left before access disabled.');
+                return res.redirect('/user/login');
+            }
         }
+
+        // Check if user is verified and account is not locked
+        if (!user.isVerified) {
+            req.flash('error_msg', 'Please verify your email before logging in.');
+            return res.redirect('/user/login');
+        }
+
+        if (user.accountLocked) {
+            req.flash('error_msg', 'Account locked. Contact Korex for assistance.');
+            return res.redirect('/user/login');
+        }
+
+        // Successful login - reset failed login attempts
+        await User.updateOne({ customerUsername }, { $set: { failedLoginAttempts: 0 } });
 
         // Generate an access token
         const accessToken = jwt.sign(
@@ -597,8 +696,8 @@ const loginUserPost = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days expiration
         });
 
-        // Send the tokens in the response
-        res.status(200).json({ message: 'Login successful', accessToken, refreshToken });
+        // Redirect to the index page after successful login
+        res.redirect('/users/index');
 
     } catch (error) {
         // If an error occurs during the login process, return a 500 error response
@@ -606,6 +705,7 @@ const loginUserPost = async (req, res) => {
         res.status(500).json({ error: 'Login failed' });
     }
 };
+
 
 
 // const refreshToken = (req, res) => {

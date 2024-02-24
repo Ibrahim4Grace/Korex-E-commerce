@@ -124,6 +124,7 @@ const cleanupInactiveUsers = require('./utils/cleanupInactiveUsers');
   app.use('/', require('./route/landingPageRoute'));
   app.use('/user', require('./route/authRoute'));
   app.use('/', require('./route/authRoute'));//declared endpoint
+  app.use('/user', require('./route/userRoute'));
 //   app.use('/', require('./route/loginRoute')); //declared endpoint
 //   app.use('/users', require('./route/userRoute'));
 //   app.use('/', require('./route/userRoute'));//declared endpoint
