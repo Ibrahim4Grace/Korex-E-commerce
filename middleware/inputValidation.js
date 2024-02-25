@@ -19,7 +19,8 @@ const userSchema = Joi.object({
         .messages({
             'any.only': 'Passwords must match',
             'any.required': 'Please confirm password'
-        })
+        }),
+    role: Joi.string().valid('User').required()
 });
 
 module.exports = { userSchema };
