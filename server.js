@@ -21,8 +21,8 @@ if (process.env.NODE_ENV !== 'production'){
 //   const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
 //   const chatIoSetup = require("./sockets/socket");
 //   const notificationIoSetup = require("./sockets/notification");
-const cron = require('node-cron');
-const cleanupInactiveUsers = require('./utils/cleanupInactiveUsers');
+// const cron = require('node-cron');
+// const cleanupInactiveUsers = require('./utils/cleanupInactiveUsers');
 
   const ejs = require('ejs');
   const app = express();
@@ -61,28 +61,25 @@ const cleanupInactiveUsers = require('./utils/cleanupInactiveUsers');
       console.error('Unable to start the server:', err.message);
   });
     
-
-  
-  // const store = new MongoDBStore({
-  //   uri: process.env.MONGODB_URI,
-  //   collection: 'sessions'
-  // });
+  const store = new MongoDBStore({
+    uri: process.env.MONGODB_URI,
+    collection: 'sessions'
+  });
   
   
-  // //Catch errors
-  // store.on('error', function(error) {
-  //   console.error(error);
-  // });
-  
+  //Catch errors
+  store.on('error', function(error) {
+    console.error(error);
+  });
   
   app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    // store: store,
-    // cookie: {
-    //   maxAge: 1000 * 60 * 60, // Set maxAge to 1 hour
-    // },
+    store: store,
+    cookie: {
+      maxAge: 1000 * 60 * 60, // Set maxAge to 1 hour
+    },
   }));
   
   
@@ -94,6 +91,7 @@ const cleanupInactiveUsers = require('./utils/cleanupInactiveUsers');
   app.use(express.static(__dirname + "/public/"));
   app.use(express.urlencoded({ extended: false }));
   app.use(bodyParser.json());
+  // app.use(express());
   app.use(cookieParser());
   
   

@@ -4,7 +4,7 @@ const router = express.Router();
 const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/authentication');
 const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
-const {registerUser,upload,registerUserPost,verifyEmail,verificationFailed,resendVerificationEmail,forgetPassword,forgetPasswordPost,resettingPassword,resettingPasswordPost,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
+const {registerUser,upload,registerUserPost,verifyEmail,verificationFailed,resendVerificationEmail,forgetPassword,forgetPasswordPost,resetPassword,passwordResetExpired,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
 
 
 // Registration route
@@ -16,12 +16,15 @@ router.get('/verify-email/:id/:token',  verifyEmail);
 router.get('/verification-failed',  verificationFailed);
 router.post('/resendVerificationEmail', resendVerificationEmail);
 
-
 //forgetPassword Routes
 router.get('/forgetPassword', forgetPassword);
 router.post('/forgetPasswordPost', forgetPasswordPost);
-router.get('/resettingPassword/:id/:token', resettingPassword);
-router.post('/resettingPasswordPost', resettingPasswordPost);
+router.post('/resetPassword/:resetToken', resetPassword);
+// router.post('/resetPasswordPost/:token', resetPasswordPost);
+
+
+router.get('/passwordResetExpired', passwordResetExpired);
+
 
 // Login route with verifyAccessToken middleware
 router.get('/login', loginUser);

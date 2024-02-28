@@ -41,6 +41,8 @@
             <h2 class="colors">SIGN IN TO YOUR ACCOUNT</h2>
 
             <%- include ('../partials/messages'); -%>
+                <!-- New HTML element to display success message -->
+                <div id="successMessageContainer"></div>
 
             <input type="text" name="customerUsername" placeholder="Username" id="user" autocomplete="off" required/>
             <input oninput="return formvalid()" type="password" name="customerPassword" placeholder="Password" id="pass" autocomplete="off" required />
@@ -78,7 +80,18 @@
     <%- include (`../partials/footer`); -%>
     <!-- Footer End -->
 
-
+    <!-- JavaScript to extract and display success message -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const successMessage = urlParams.get('successMessage');
+            if (successMessage) {
+                // Display the success message in the container
+                const successMessageContainer = document.getElementById('successMessageContainer');
+                successMessageContainer.textContent = decodeURIComponent(successMessage);
+            }
+        });
+    </script>
 
 </body>
 

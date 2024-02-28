@@ -9,8 +9,8 @@ const Admin = require('../models/Admin');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
-const {userSchema} = require('../middleware/inputValidation');
-
+const userSchema = require('../middleware/userAuthValidation');
+const resetPasswordSchema = require('../middleware/resetPwdAuthValidation');
 
 
 // Send email to the applicant
@@ -53,7 +53,7 @@ const registerUserPost = async (req, res) => {
     try {
 
         // Validate user input against Joi schema
-        const userResult = await userSchema.validateAsync(req.body);
+        const userResult = await userSchema.validateAsync(req.body, {abortEarly: false});
 
         // Check if user with the same email or username already exists
         const userExists = await User.findOne({
@@ -95,25 +95,13 @@ const registerUserPost = async (req, res) => {
             verificationToken,
             date_added: Date.now(),
             // // Assuming req.file contains uploaded image information
-            // image: {
-            //     data: fs.readFileSync(path.join(__dirname, '../public/customerImage/' + req.file.filename)),
-            //     contentType: 'image/png',
-            // },
-        });
-        // await newUser.save();
-         // Save the user data to the database
-         const savedUser = await newUser.save();
-
-
-        // If req.file exists (i.e., image uploaded), save it to newUser
-        if (req.file) {
-            newUser.image = {
+            image: {
                 data: fs.readFileSync(path.join(__dirname, '../public/customerImage/' + req.file.filename)),
                 contentType: 'image/png',
-            };
-            await savedUser.save(); // Save user again to update image
-        }
-
+            },
+        });
+        await newUser.save();
+        
 
         // Include the verification token in the email
         const hosting = process.env.BASE_URL || 'http://localhost:8080';
@@ -350,192 +338,39 @@ const forgetPassword = (req, res) =>{
     res.render('user/forgetPassword')
 };
 
-const forgetPasswordPost = async (req, res) =>{
-    const {  customerEmail} = req.body;
-    let errors = [];
-
-        // Check required fields
-        if ( !customerEmail  ) {
-            req.flash('error', 'Please fill all fields');
-            return res.redirect('user/forgetPassword');
-        }
-        try {
-           // Check if the email is already registered in the User table
-           const user = await User.findOne({ customerEmail:customerEmail });
-           if (!user) {
-            errors.push({ msg: 'Email not found' });
-            res.render('user/forgetPassword', {
-                errors,
-                customerEmail   
-            });
-        } else {
-                // Fetch the user's name
-                const { customerFirstName,customerLastName } = user;
-                const secret = process.env.JWT_SECRET + user.customerPassword;
-                const payload = {
-                    customerEmail: user.customerEmail,
-                    id: user.id
-                };
-                const token = jwt.sign(payload, secret, { expiresIn: process.env.TOKEN_EXPIRATION_TIME });
-                const link = `${process.env.BASE_URL || 'http://localhost:8080'}/user/resetPassword/${user.id}/${token}`;
-
-                const msg =`
-                <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
-                <p>Dear ${customerFirstName} ${customerLastName},</p>
-
-                <p> We are writing to confirm your password recovery with Korex StyleHub.</p>
-                <p>Reset your password here: <a href="${link}">Click here to reset your password</a></p>
-
-                <p>If you didn't request this verification, please ignore this email.</p>
-
-                <p>If you encounter any issues or need further assistance, feel free to contact our support team at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
-
-                <p>Warm regards,<br>
-                Korex StyleHub</p>`;
-  
-                const mailOptions = {
-                    from: process.env.NODEMAILER_EMAIL,
-                    to: customerEmail,
-                    subject: 'Recover your password with Korex StyleHub!',
-                    html: msg,
-                    attachments: [
-                        {
-                            filename: 'companyLogo.jpg',
-                            path: './public/img/companyLogo.jpg',
-                            cid: 'companyLogo'
-                        }
-                    ]
-                };
-
-                transporter.sendMail(mailOptions, (error, info) => {
-                    if (error) {
-                        console.log('Email sending error:', error);
-                    } else {
-                        console.log('Email sent:', info.response);
-                    }
-                });
-                req.flash('success_msg', 'Kindly check your email to reset your password.');
-                res.redirect('/user/login'); 
-            }
-        }catch(err) {
-            console.error('Error:', err.message);
-            res.redirect('/user/forgetPassword'); 
-        }
-};
-
-//  RESET PASSWORD SECTION
-const resettingPassword = async (req, res) => {
-    const { id, token } = req.params;
-    let errors = [];
-    let user;
+const forgetPasswordPost = async (req, res) => {
+    const { customerEmail } = req.body;
 
     try {
-        user = await User.findById(id);
-
-        // check if this id exists in the db
+        const user = await User.findOne({ customerEmail });
         if (!user) {
-            errors.push({ msg: 'Invalid id...' });
-            return res.render('user/forgetPassword', { errors, customerEmail: '' });
+            return res.status(404).json({ success: false, errors: [{ msg: 'Email not found' }] });
         }
 
-        const secret = process.env.JWT_SECRET + user.customerPassword;
-
-        try {
-            const payload = jwt.verify(token, secret);
-            // If the token is valid, render the reset password view
-            res.render('user/resetPassword', { id, token, customerEmail: user.customerEmail });
-        } catch (error) {
-            console.error('Error:', error.message);
-
-            if (error.name === 'TokenExpiredError') {
-              // Redirect the user to a page for expired links
-                return res.status(400).render('user/forgetPassword', {
-                    errors: [{ msg: 'The password reset link has expired. Please request a new one.' }],
-                    customerEmail: ''
-                });
-            } else if (error.name === 'JsonWebTokenError') {
-                return res.status(400).render('user/forgetPassword', {
-                    errors: [{ msg: 'Invalid token. Please make sure the link is correct.' }],
-                    customerEmail: ''
-                });
-            } else {
-                // Handle other errors as needed
-                return res.status(500).render('user/forgetPassword', {
-                    errors: [{ msg: 'Error resetting password. Please try again.' }],
-                    customerEmail: ''
-                });
-            }
-        }
-    } catch (error) {
-        console.error('Error:', error.message);
-        return res.status(500).render('user/forgetPassword', {
-            errors: [{ msg: 'Error resetting password. Please try again.' }],
-            customerEmail: ''
-        });
-    }
-};
-
-const resettingPasswordPost = async (req, res) => {
-    const { id, token, customerPassword, customerPassword1 } = req.body;
-
-    let errors = [];
-    let user;  // Declare user variable outside the try block
-
-    try {
-        user = await User.findById(id);
-
-        // check if this id exists in the db
-        if (!user) {
-            errors.push({ msg: 'Invalid id...' });
-            return res.render('user/forgetPassword', {
-                errors,
-                customerEmail: ''
-            });
-        }
-
-        // check passwords match
-        if (customerPassword !== customerPassword1) {
-            errors.push({ msg: 'Passwords do not match' });
-        }
-
-        // Check password length
-        if (customerPassword.length < 6) {
-            errors.push({ msg: 'Password should be at least 6 characters' });
-        }
-
-        const secret = process.env.JWT_SECRET + user.customerPassword;
-        const payload = jwt.verify(token, secret);
-
-        // Hash the new password before saving
-        const hashedPassword = await bcrypt.hash(customerPassword, 10);
-        user.customerPassword = hashedPassword;
-
-        // Reset accountLocked to false
-        user.accountLocked = false;
-
-        // Save the user object to persist the changes
+        const resetToken = user.getResetPasswordToken();
         await user.save();
 
-        let phoneNumber = process.env.COMPANY_NUMBER;
-        let emailAddress = process.env.COMPANY_EMAIL;
-        // Send password change notification
-        let msg = `
-        <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
-        <p>Dear ${user.customerFirstName} ${user.customerLastName},</p>
-        
-        <p>We hope this message finds you well. We wanted to inform you about a recent update regarding your password.</p>
-    
-        <p>If you didn't make this change, kindly contact our department at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
+        const resetLink = `${process.env.BASE_URL || 'http://localhost:8080'}/user/resetPassword/${resetToken}`;
 
-        <p>We appreciate your continued dedication and patronization to our StyleHub team. Thank you for choosing to be a part of Korex StyleHub...</p>
-    
-        <p>Best regards,<br>
-        The Korex StyleHub Team </p>`;
+        const msg = `
+            <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+            <p>Dear ${user.customerFirstName} ${user.customerLastName},</p>
+
+            <p>We are writing to confirm your password recovery with Korex StyleHub.</p>
+            <p>Reset your password here: <a href="${resetLink}">Click here to reset your password</a></p>
+
+            <p>If you didn't request this verification, please ignore this email.</p>
+
+            <p>If you encounter any issues or need further assistance, feel free to contact our support team at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
+
+            <p>Warm regards,<br>
+            Korex StyleHub</p>
+        `;
 
         const mailOptions = {
             from: process.env.NODEMAILER_EMAIL,
             to: user.customerEmail,
-            subject: 'Password Changed Confirmation',
+            subject: 'Recover your password with Korex StyleHub!',
             html: msg,
             attachments: [
                 {
@@ -549,19 +384,149 @@ const resettingPasswordPost = async (req, res) => {
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.log('Email sending error:', error);
+                return res.status(500).json({ success: false, errors: [{ msg: 'Error sending email' }] });
             } else {
                 console.log('Email sent:', info.response);
+                return res.status(200).json({ success: true, message: 'Password reset link sent successfully' });
             }
         });
-
-        req.flash('success_msg', 'Password Successfully Updated. Please Login');
-        res.redirect('/user/login');
     } catch (error) {
-        console.log(error.message);
-        req.flash('error_msg', 'Error updating password. Please try again.');
-        res.render('user/forgetPassword', { errors, customerEmail: user ? user.customerEmail : '' });
-    }  
-}
+        console.log('Error in forgetPasswordPost:', error);
+        return res.status(500).json({ success: false, errors: [{ msg: 'Internal server error' }] });
+    }
+};
+
+
+//  RESET PASSWORD SECTION
+const resetPassword = async (req, res) => {
+    const {  customerNewPassword } = req.body;
+    const {resetToken} = req.params // Retrieve reset token from route parameters
+console.log("my token", resetToken)
+    // Hash the reset token for comparison
+    const hashedResetToken = crypto
+        .createHash('sha256')
+        .update(resetToken)
+        .digest('hex');
+
+    try {
+        // Find the user with the provided reset token and check if it's still valid
+        const user = await User.findOne({
+            resetPasswordToken: hashedResetToken,
+            resetPasswordExpires: { $gt: Date.now() },
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Invalid reset token' });
+        }
+
+        // // Check if the provided current password matches the password stored in the database
+        // const isPasswordMatch = await bcrypt.compare(customerPassword, user.customerPassword);
+        // if (!isPasswordMatch) {
+        //     return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+        // }
+
+        // If password matches, update the password to the new one
+        user.customerPassword = bcrypt.hashSync(customerNewPassword, 10);
+        user.resetPasswordToken = null;
+        user.resetPasswordExpires = null;
+        await user.save();
+
+        return res.status(200).json({ success: true, message: 'Password reset successfully' });
+    } catch (error) {
+        console.error('Error in resetPassword:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+
+
+// const resetPasswordPost = async (req, res) => {
+   
+// };
+
+
+
+
+
+// const resetPasswordPost = async (req, res) => {
+//     const { id, token, customerPassword, customerPassword1 } = req.body;
+//     let user;  // Declare user variable outside the try block
+//     // Check if the passwords match
+//     if (customerPassword !== customerPassword1) {
+//         return res.status(400).json({ success: false, error: 'Passwords do not match' });
+//     }
+
+//     // Check if the password meets the minimum length requirement
+//     if (customerPassword.length < 6) {
+//         return res.status(400).json({ success: false, error: 'Password should be at least 6 characters' });
+//     }
+
+//     try {
+//         // Find user by ID
+//         const user = await User.findById(id);
+//         if (!user) {
+//             return res.status(404).json({ success: false, error: 'User not found' });
+//         }
+
+//         // Verify the token
+//         const secret = process.env.JWT_SECRET_RESETPWD + user.customerPassword;
+//         let payload;
+//         try {
+//             payload = jwt.verify(token, secret);
+//         } catch (error) {
+//             return res.status(400).json({ success: false, error: 'Invalid or expired token' });
+//         }
+
+//         // Update user's password
+//         const hashedPassword = await bcrypt.hash(customerPassword, 10);
+//         user.customerPassword = hashedPassword;
+//         await user.save();
+
+//         // Send password change notification (email, etc.)
+//         // Code for sending email...
+
+//         // Send password change notification (email, etc.)
+//         let msg = `<p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+//                  <p>Dear ${user.customerFirstName} ${user.customerLastName},</p>
+//                  <p>We hope this message finds you well. We wanted to inform you about a recent update regarding your password.</p>
+//                  <p>If you didn't make this change, kindly contact our department at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
+//                  <p>We appreciate your continued dedication and patronization to our StyleHub team. Thank you for choosing to be a part of Korex StyleHub...</p>
+//                  <p>Best regards,<br>The Korex StyleHub Team </p>`;
+        
+//                 const mailOptions = {
+//                     from: process.env.NODEMAILER_EMAIL,
+//                     to: user.customerEmail,
+//                     subject: 'Password Changed Confirmation',
+//                     html: msg,
+//                     attachments: [
+//                         {
+//                                         filename: 'companyLogo.jpg',
+//                              path: './public/img/companyLogo.jpg',
+//                        cid: 'companyLogo'
+//                         }
+//                     ]
+//                 };
+        
+//                 transporter.sendMail(mailOptions, (error, info) => {
+//                     if (error) {
+//                         console.log('Email sending error:', error);
+//                     } else {
+//                         console.log('Email sent:', info.response);
+//                     }
+//                 });
+
+//         return res.json({ success: true, message: 'Password Successfully Updated. Please Login' });
+//     } catch (error) {
+//         console.error('Error:', error.message);
+//         return res.status(500).json({ success: false, error: 'An error occurred while processing your request.' });
+//     }
+// };
+
+
+
+const passwordResetExpired = (req, res) =>{
+    res.render('user/forgetPassword')
+};
 
 // User login
 const loginUser = (req, res) =>{
@@ -764,6 +729,6 @@ const logoutUser = async (req, res) => {
 };
 
 
-module.exports = ({registerUser,upload,registerUserPost,verifyEmail,resendVerificationEmail,verificationFailed,forgetPassword,forgetPasswordPost,resettingPassword,resettingPasswordPost,loginUser,loginUserPost,logoutUser  });
+module.exports = ({registerUser,upload,registerUserPost,verifyEmail,resendVerificationEmail,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,passwordResetExpired,loginUser,loginUserPost,logoutUser  });
 
 

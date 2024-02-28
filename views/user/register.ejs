@@ -35,7 +35,7 @@
 
 
  <div class="container mt-3">
-    <form id="registrationForm" action="/user/registerUserPost" method="post" enctype="multipart/form-data">
+    <form id="registrationForm" action="/user/registerUserPost" method="post">
         <div class="row jumbotron box8">
             <div class="col-sm-12 mx-t3 mb-4">
                 <h2 class="text-center text-infos">Register</h2>
@@ -117,7 +117,7 @@
        
   
             <div class="col-sm-12 form-group mb-0">
-                <button class="btn btn-primary float-right">Submit</button>
+                <button id="submitButton"  class="btn btn-primary float-right">Submit</button>
             </div>
   
         </div>
@@ -125,9 +125,14 @@
   </div>
 
   <script>
-
+                        //THIS ALLOW THE CLIENT SIDE TO COMMUNICATE WITH THE SERVER WITHOUT RELOADING PAGE ON SUBMISSION
 document.getElementById('registrationForm').addEventListener('submit', async (event) => {
     event.preventDefault(); // Prevent default form submission
+
+    // Change the appearance of the submit button to show a spinner
+    const submitButton = document.getElementById('submitButton');
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+    submitButton.disabled = true; // Disable the button while submitting
 
     const formData = new FormData(event.target); // Get form data
 
@@ -139,10 +144,11 @@ document.getElementById('registrationForm').addEventListener('submit', async (ev
         const responseData = await response.json();
 
         if (responseData.success) {
-            // Registration successful, show success message
-            alert(responseData.message);
-            window.location.href = '/user/login'; // Redirect to login page
-        } else {
+          // Redirect to login page with success message
+          const successMessage = encodeURIComponent(responseData.message);
+          window.location.href = `/user/login?successMessage=${successMessage}`;
+        }
+        else {
             // Registration failed, display error messages
             const errors = responseData.errors;
             errors.forEach(error => {
@@ -154,7 +160,7 @@ document.getElementById('registrationForm').addEventListener('submit', async (ev
                 }
             });
 
-                      // Check if email or username is already registered
+            // Check if email or username is already registered
             const emailAlreadyRegistered = errors.some(error => error.msg === 'Email already registered');
             const usernameAlreadyRegistered = errors.some(error => error.msg === 'Username already registered');
             if (emailAlreadyRegistered) {
@@ -168,11 +174,14 @@ document.getElementById('registrationForm').addEventListener('submit', async (ev
                     usernameErrorElement.innerText = 'Username already registered';
                 }
             }
-            
         }
     } catch (error) {
         console.error('Error: creating user', error);
         alert('An error occurred while processing your request.');
+    } finally {
+        // Restore the appearance of the submit button
+        submitButton.innerHTML = 'Submit';
+        submitButton.disabled = false; // Re-enable the button
     }
 });
 
