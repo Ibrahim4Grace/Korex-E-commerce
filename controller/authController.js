@@ -344,12 +344,14 @@ const forgetPasswordPost = async (req, res) => {
     try {
         const user = await User.findOne({ customerEmail });
         if (!user) {
-            return res.status(404).json({ success: false, errors: [{ msg: 'Email not found' }] });
+            // If email is not found, respond with a 404 status and message
+            return res.status(404).json({ success: false, message: 'Email not found' });
         }
 
         const resetToken = user.getResetPasswordToken();
         await user.save();
 
+        // Send the email with the reset link
         const resetLink = `${process.env.BASE_URL || 'http://localhost:8080'}/user/resetPassword/${resetToken}`;
 
         const msg = `
@@ -387,19 +389,27 @@ const forgetPasswordPost = async (req, res) => {
                 return res.status(500).json({ success: false, errors: [{ msg: 'Error sending email' }] });
             } else {
                 console.log('Email sent:', info.response);
-                return res.status(200).json({ success: true, message: 'Password reset link sent successfully' });
             }
         });
+
+        // Once email is sent successfully, respond with a 200 status and success message
+        return res.status(200).json({ success: true, message: 'Password reset link sent successfully' });
     } catch (error) {
         console.log('Error in forgetPasswordPost:', error);
-        return res.status(500).json({ success: false, errors: [{ msg: 'Internal server error' }] });
+        return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
 
 
+
+
+const resetPassword = (req, res) => {
+    res.render('resetPassword')
+};
+
 //  RESET PASSWORD SECTION
-const resetPassword = async (req, res) => {
-    const {  customerNewPassword } = req.body;
+const resetPasswordPost = async (req, res) => {
+    const {  newPassword,confirmPassword } = req.body;
     const {resetToken} = req.params // Retrieve reset token from route parameters
 console.log("my token", resetToken)
     // Hash the reset token for comparison
@@ -426,7 +436,7 @@ console.log("my token", resetToken)
         // }
 
         // If password matches, update the password to the new one
-        user.customerPassword = bcrypt.hashSync(customerNewPassword, 10);
+        user.customerPassword = bcrypt.hashSync(newPassword, 10);
         user.resetPasswordToken = null;
         user.resetPasswordExpires = null;
         await user.save();
@@ -437,12 +447,6 @@ console.log("my token", resetToken)
         return res.status(500).json({ success: false, message: 'Internal server error' });
     }
 };
-
-
-
-// const resetPasswordPost = async (req, res) => {
-   
-// };
 
 
 
@@ -729,6 +733,6 @@ const logoutUser = async (req, res) => {
 };
 
 
-module.exports = ({registerUser,upload,registerUserPost,verifyEmail,resendVerificationEmail,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,passwordResetExpired,loginUser,loginUserPost,logoutUser  });
+module.exports = ({registerUser,upload,registerUserPost,verifyEmail,resendVerificationEmail,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,passwordResetExpired,loginUser,loginUserPost,logoutUser  });
 
 

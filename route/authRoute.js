@@ -4,7 +4,7 @@ const router = express.Router();
 const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/authentication');
 const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
-const {registerUser,upload,registerUserPost,verifyEmail,verificationFailed,resendVerificationEmail,forgetPassword,forgetPasswordPost,resetPassword,passwordResetExpired,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
+const {registerUser,upload,registerUserPost,verifyEmail,verificationFailed,resendVerificationEmail,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,passwordResetExpired,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
 
 
 // Registration route
@@ -20,7 +20,7 @@ router.post('/resendVerificationEmail', resendVerificationEmail);
 router.get('/forgetPassword', forgetPassword);
 router.post('/forgetPasswordPost', forgetPasswordPost);
 router.post('/resetPassword/:resetToken', resetPassword);
-// router.post('/resetPasswordPost/:token', resetPasswordPost);
+router.post('/resetPasswordPost/:resetToken', resetPasswordPost);
 
 
 router.get('/passwordResetExpired', passwordResetExpired);
