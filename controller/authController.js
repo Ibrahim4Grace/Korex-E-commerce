@@ -141,7 +141,7 @@ const registerUserPost = async (req, res) => {
 
         console.log('User registered successfully:', newUser);
         // Send success response to the client
-        res.status(201).json({ success: true ,  message: 'User registered successfully' });
+        res.status(201).json({ success: true ,  message: 'Registeration successful please verify your email' });
     }  catch (error) {
         let errors; // Declare errors variable
         if (error.isJoi) {
@@ -175,36 +175,29 @@ const verifyEmail = async (req, res) => {
         console.log('User ID from URL:', id);
         const user = await User.findById(id);
         
+              // Check if user exists and if the verification token matches
         if (!user || user.verificationToken !== token) {
-            // Invalid token or user not found
-            return res.status(400).render('user/verification-failed', {
-                errors: [{ msg: 'Invalid verification link. Please try again or contact support.' }],
-            });
+            return res.status(400).render('user/verification-failed', { message: 'Invalid verification link.' });
         }
 
          // Check if the token has already been used
         if (user.isVerified) {
-            return res.status(400).render('user/verification-failed', {
-                errors: [{ msg: 'Verification link has already been used. Please contact support if you have any issues.' }],
-            });
+            return res.status(400).render('user/verification-failed', { message: 'Verification link has already been used. Please contact support if you have any issues.' });
         }
 
-        // Check if the token has expired (1 hour expiration)
-        const expirationTime = 60 * 60 * 1000; // 1 hour in milliseconds
+          // Check if the token has expired (1 hour expiration)
+        // const expirationTime = 60 * 60 * 1000; // 1 hour in milliseconds
+        const expirationTime = user.date_added.getTime() + (5 * 60 * 1000); // Token expires in 5 minutes
         const currentTime = Date.now();
-        const tokenCreationTime = user.date_added || 0; // Use 0 if date_added not available
-
-        if (currentTime - tokenCreationTime > expirationTime) {
+        if (currentTime > expirationTime) {
             // Token has expired
-            return res.status(400).render('user/verification-failed', {
-                errors: [{ msg: 'Verification link has expired. Please request a new one.' }],
-            });
+            return res.status(400).render('user/verification-failed', { message: 'Verification link has expired. Please request a new one.' });
         }
      
 
         // Mark the user as verified
         user.isVerified = true;
-        user.verificationToken = undefined; // Clear the verification token
+        user.verificationToken = null; // Clear the verification token
         await user.save();
 
           // Email content for verified user
@@ -254,50 +247,44 @@ const verifyEmail = async (req, res) => {
                 console.log('Email sent:', info.response);
             }
         });
-        req.flash('success_msg', "Registration Completed. Please Login");
-        res.redirect('/user/login');
+        return res.status(200).render('user/login', { message: 'Email verified successfully. You can now log in.' });
+        
     } catch (error) {
         // Handle database errors or other issues
         console.error('Error in verifyEmail:', error);
-        res.status(500).render('user/verification-failed', {
-            errors: [{ msg: 'An error occurred during email verification. Please try again or contact support.' }],
-        });
+        return res.status(500).render('user/requestVerification', { message: 'An error occurred during email verification. Please try again or contact support.' });
     }
 };
 
-//verification link expired
-const verificationFailed = (req, res) =>{
-    res.render('user/verification-failed')
-};
 
-const resendVerificationEmail = async (req, res) => {
+//Request new verification  link 
+const requestVerification = (req, res) =>{
+    res.render('user/requestVerification')
+};
+const requestVerificationPost = async (req, res) => {
     const { customerEmail } = req.body;
 
     try {
         const user = await User.findOne({ customerEmail: customerEmail });
 
         if (!user) {
-            return res.status(400).json({ error: 'User not found' });
+            return res.status(400).json({ success: false, message: 'No user found with this email' });
         }
 
         // Check if the user is already verified
-          if (user.isVerified) {
-            return res.status(400).render('user/login', {
-                errors: [{ msg: 'User is already verified' }],
-            });
+        if (user.isVerified) {
+            return res.status(400).json({ success: false, message: 'Email is already verified.' });
         }
 
-    
         // Generate a new verification token
-        const newVerificationToken = crypto.randomBytes(20).toString('hex');
-
+        const verificationToken = crypto.randomBytes(20).toString('hex');
         // Update the user's verification token and save to the database
-        user.verificationToken = newVerificationToken;
-        user.isVerified = false; // Reset verification status
+        user.verificationToken = verificationToken;
         await user.save();
 
         // Send the new verification email
-        const verificationLink = `${process.env.BASE_URL || 'http://localhost:8080'}/verify-email/${encodeURIComponent(user.id)}/${encodeURIComponent(newVerificationToken)}`;
+        const verificationLink = `${process.env.BASE_URL || 'http://localhost:8080'}/verify-email/${encodeURIComponent(user.id)}/${encodeURIComponent(verificationToken)}`;
+
         const mailOptions = {
             from: process.env.NODEMAILER_EMAIL,
             to: user.customerEmail,
@@ -318,19 +305,21 @@ const resendVerificationEmail = async (req, res) => {
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
                 console.log('Email sending error:', error);
-                req.flash('error_msg', 'Failed to resend verification email');
-                return res.redirect('/user/verification-failed');
             } else {
                 console.log('Email sent:', info.response);
-                req.flash('success_msg', "Verification email resent successfully");
-                return res.redirect('/user/login');
             }
         });
+        return res.status(200).json({ success: true, message: 'Verification email resent successfully. Please check your inbox.' });
     } catch (error) {
-        console.error('Error in resendVerificationEmail:', error);
+        console.error('Error in requestVerificationPost:', error);
         return res.status(500).json({ error: 'An error occurred during email verification. Please try again or contact support.' });
     }
-   
+};
+
+
+//verification link expired
+const verificationFailed = (req, res) =>{
+    res.render('user/verification-failed')
 };
 
 // Forget Password
@@ -404,12 +393,14 @@ const forgetPasswordPost = async (req, res) => {
 
 
 const resetPassword = (req, res) => {
-    res.render('resetPassword')
+   
+    res.render('user/resetPassword'); 
 };
+
 
 //  RESET PASSWORD SECTION
 const resetPasswordPost = async (req, res) => {
-    const {  newPassword,confirmPassword } = req.body;
+    const {  newPassword, confirmPassword } = req.body;
     const {resetToken} = req.params // Retrieve reset token from route parameters
 console.log("my token", resetToken)
     // Hash the reset token for comparison
@@ -428,6 +419,17 @@ console.log("my token", resetToken)
         if (!user) {
             return res.status(400).json({ success: false, message: 'Invalid reset token' });
         }
+
+
+        //   // check passwords match
+        //   if (newPassword !== confirmPassword) {
+        //     return res.status(400).json({ success: false, message: 'Passwords do not match' });
+        // }
+
+        // // Check password length
+        // if (newPassword.length < 6) {
+        //     return res.status(400).json({ success: false, message: 'Password should be at least 6 characters' });
+        // }
 
         // // Check if the provided current password matches the password stored in the database
         // const isPasswordMatch = await bcrypt.compare(customerPassword, user.customerPassword);
@@ -733,6 +735,6 @@ const logoutUser = async (req, res) => {
 };
 
 
-module.exports = ({registerUser,upload,registerUserPost,verifyEmail,resendVerificationEmail,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,passwordResetExpired,loginUser,loginUserPost,logoutUser  });
+module.exports = ({registerUser,upload,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,passwordResetExpired,loginUser,loginUserPost,logoutUser  });
 
 

@@ -50,14 +50,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    resetPasswordToken: {
-        type: String,
-        default: null
-    },
-    resetPasswordExpires: {
-        type: Date,
-        default: null
-    },
     role:{
         type: String,
     },
@@ -83,6 +75,14 @@ const userSchema = new mongoose.Schema({
   verificationToken: { 
     type: String, 
   },
+  resetPasswordToken: {
+    type: String,
+    default: null
+   },
+   resetPasswordExpires: {
+    type: Date,
+    default: null
+   },
   date_added: {
     type: Date,
     default: Date.now()

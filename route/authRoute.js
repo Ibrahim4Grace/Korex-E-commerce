@@ -4,7 +4,7 @@ const router = express.Router();
 const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/authentication');
 const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
-const {registerUser,upload,registerUserPost,verifyEmail,verificationFailed,resendVerificationEmail,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,passwordResetExpired,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
+const {registerUser,upload,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,passwordResetExpired,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
 
 
 // Registration route
@@ -13,13 +13,15 @@ router.post('/registerUserPost', upload.single('image'), registerUserPost)
 
 // Email verification routes
 router.get('/verify-email/:id/:token',  verifyEmail);
+router.get('/requestVerification', requestVerification);
+router.post('/requestVerificationPost', requestVerificationPost);
+
 router.get('/verification-failed',  verificationFailed);
-router.post('/resendVerificationEmail', resendVerificationEmail);
 
 //forgetPassword Routes
 router.get('/forgetPassword', forgetPassword);
 router.post('/forgetPasswordPost', forgetPasswordPost);
-router.post('/resetPassword/:resetToken', resetPassword);
+router.get('/resetPassword/:resetToken', resetPassword);
 router.post('/resetPasswordPost/:resetToken', resetPasswordPost);
 
 

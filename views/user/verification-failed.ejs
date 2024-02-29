@@ -34,13 +34,15 @@
 
     <div class="login-page">
         <div class="form">
-            <form action="/user/resendVerificationEmail" method="post">
+            <form  action="/user/resendVerificationEmail" method="post">
                 <h2 class="colors">Request New Verification Email</h2>
 
                 <%- include ('../partials/messages'); -%>
+                <% if (message) { %>
+                    <p class="colors"><%= message %></p>
+                <% } %>
 
-                <input type="email" name="customerEmail" class="form-control" placeholder="Enter your email">
-                <button type="submit">Request</button>
+                <p class="message"><a href="/user/requestVerification">Request</a></p>
             
                <!-- Include animation elements here -->
                <ul class="animate">
@@ -61,6 +63,7 @@
     <!-- Footer End -->
 
 
+    
 
 </body>
 
