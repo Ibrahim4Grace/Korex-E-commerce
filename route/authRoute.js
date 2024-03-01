@@ -13,9 +13,10 @@ router.post('/registerUserPost', upload.single('image'), registerUserPost)
 
 // Email verification routes
 router.get('/verify-email/:id/:token',  verifyEmail);
+
+// Request New  verification link
 router.get('/requestVerification', requestVerification);
 router.post('/requestVerificationPost', requestVerificationPost);
-
 router.get('/verification-failed',  verificationFailed);
 
 //forgetPassword Routes

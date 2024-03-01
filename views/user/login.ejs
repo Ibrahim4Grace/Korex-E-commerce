@@ -44,12 +44,12 @@
                 <!-- New HTML element to display success message -->
                 <div id="successMessageContainer"></div>
 
-            <input type="text" name="customerUsername" placeholder="Username" id="user" autocomplete="off" required/>
-            <input oninput="return formvalid()" type="password" name="customerPassword" placeholder="Password" id="pass" autocomplete="off" required />
+            <input type="text" name="customerUsername" placeholder="Username"autocomplete="off" required/>
 
-            <img src="https://cdn2.iconfinder.com/data/icons/basic-ui-interface-v-2/32/hide-512.png" onclick="show()" id="showimg">
-            <span id="vaild-pass"></span>
+            <input id="password-field" type="password" name="customerPassword" placeholder="Password" autocomplete="off" required />
 
+            <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+      
             <button type="submit">SIGN IN</button>
             
             <p class="message"><a href="/user/forgetPassword">Forgot your password?</a></p>
@@ -80,8 +80,20 @@
     <%- include (`../partials/footer`); -%>
     <!-- Footer End -->
 
-    <!-- JavaScript to extract and display success message -->
+    
     <script>
+       // JavaScript to toggle and display password message 
+         $(".toggle-password").click(function() {
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            let input = $($(this).attr("toggle"));
+            if (input.attr("type") == "password") {
+                input.attr("type", "text");
+            } else {
+                input.attr("type", "password");
+            }
+        });
+
+      //  JavaScript to extract and display success message 
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const successMessage = urlParams.get('successMessage');

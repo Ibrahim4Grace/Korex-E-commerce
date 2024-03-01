@@ -10,7 +10,6 @@ const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
 const userSchema = require('../middleware/userAuthValidation');
-const resetPasswordSchema = require('../middleware/resetPwdAuthValidation');
 
 
 // Send email to the applicant
@@ -28,7 +27,7 @@ const emailAddress = process.env.COMPANY_EMAIL;
 const MAX_FAILED_ATTEMPTS = process.env.MAX_FAILED_ATTEMPTS;
 
 
-
+// Registration attempt
 const registerUser = async (req, res) => {
     res.render('user/register')
 };
@@ -62,7 +61,7 @@ const registerUserPost = async (req, res) => {
                 { customerUsername: userResult.customerUsername }
             ]
         });
-        // console.log('userExists:', userExists);
+
         if (userExists) {
             if (userExists.customerEmail === userResult.customerEmail) {
                 console.log('Email already registerede:', userExists.customerEmail);
@@ -76,8 +75,11 @@ const registerUserPost = async (req, res) => {
         // If validation passes and user does not exist, proceed with registration
         const hashedPassword = await bcrypt.hash(userResult.customerPassword, 10);
         // Generate a unique verification token
-        const verificationToken = crypto.randomBytes(20).toString('hex');
-
+        const verificationToken = {
+            token: crypto.randomBytes(20).toString('hex'),
+            expires: new Date(Date.now() + (30 * 60 * 1000)) // 30 minutes expiration
+        };
+        
         // Save the user data to the database
         const newUser = new User({
             customerFirstName: userResult.customerFirstName,
@@ -91,10 +93,8 @@ const registerUserPost = async (req, res) => {
             customerDob: userResult.customerDob,
             customerNumber: userResult.customerNumber,
             customerPassword: hashedPassword,
-            role: 'User', // Assuming default role is 'User'
-            verificationToken,
+            role: 'User', verificationToken: verificationToken,
             date_added: Date.now(),
-            // // Assuming req.file contains uploaded image information
             image: {
                 data: fs.readFileSync(path.join(__dirname, '../public/customerImage/' + req.file.filename)),
                 contentType: 'image/png',
@@ -105,7 +105,7 @@ const registerUserPost = async (req, res) => {
 
         // Include the verification token in the email
         const hosting = process.env.BASE_URL || 'http://localhost:8080';
-        const verificationLink = `${hosting}/verify-email/${encodeURIComponent(newUser.id)}/${encodeURIComponent(newUser.verificationToken)}`;
+        const verificationLink = `${hosting}/verify-email/${encodeURIComponent(newUser.id)}/${encodeURIComponent(newUser.verificationToken.token)}`;
 
         // Email content for unverified user
         const unverifiedMsg = `
@@ -161,22 +161,16 @@ const registerUserPost = async (req, res) => {
     }
 };
 
-// Verification endpoint
+// Verifify  Email Address
 const verifyEmail = async (req, res) => {
-    console.log('Verification Email Controller Method Called'); // Add this line
+    console.log('Verification Email Controller Method Called');
     const { id, token } = req.params;
-
-    // Log the id parameter
-    console.log('User ID:', id);
-    console.log('Token:', token);
-
     try {
-        // Find the user by ID and verification token
-        console.log('User ID from URL:', id);
+     
+        // Find the user by ID
         const user = await User.findById(id);
-        
-              // Check if user exists and if the verification token matches
-        if (!user || user.verificationToken !== token) {
+        // Check if user exists and if the verification token exists and matches
+        if (!user || user.verificationToken.token !== token) {
             return res.status(400).render('user/verification-failed', { message: 'Invalid verification link.' });
         }
 
@@ -185,48 +179,46 @@ const verifyEmail = async (req, res) => {
             return res.status(400).render('user/verification-failed', { message: 'Verification link has already been used. Please contact support if you have any issues.' });
         }
 
-          // Check if the token has expired (1 hour expiration)
-        // const expirationTime = 60 * 60 * 1000; // 1 hour in milliseconds
-        const expirationTime = user.date_added.getTime() + (5 * 60 * 1000); // Token expires in 5 minutes
-        const currentTime = Date.now();
-        if (currentTime > expirationTime) {
-            // Token has expired
+        // Check if the token has expired
+        const expirationTime = user.verificationToken.expires;
+        const currentTime = new Date();
+        if (currentTime >= expirationTime) {
+            console.log('Verification link has expired.');
             return res.status(400).render('user/verification-failed', { message: 'Verification link has expired. Please request a new one.' });
-        }
-     
+        } 
 
         // Mark the user as verified
         user.isVerified = true;
         user.verificationToken = null; // Clear the verification token
         await user.save();
 
-          // Email content for verified user
-          const verifiedMsg = `
-          <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
-          <p>Dear  ${user.customerFirstName} ${user.customerLastName} ,  We are thrilled to welcome you to Korex StyleHub Service. </p>
-  
-          <p>Here are some important details to get you started:</p>
-          <ul>
-              <li>Full Name: ${user.customerFirstName} ${user.customerLastName}</li>
-              <li>Email Address: ${user.customerEmail}</li>
-              <li>Phone Number: ${user.customerNumber}</li>
-              <li>Username: ${user.customerUsername}</li>
-              <li>Home Address: ${user.customerAddress}</li>
-              <li>City: ${user.customerCity}</li>
-              <li>State: ${user.customerState}</li>
-          </ul>
-  
-          <p>Thank you for registering with Korex StyleHub! We are delighted to welcome you to our platform</p>
-  
-          <p>Your account has been successfully created, you can now explore all the features we have to offer.</p>
-  
-          <p>If you have any questions or need assistance, feel free to reach out to our support team at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
-  
-          <p>Best regards,<br>
-          The Korex StyleHub Team</p>`;
-
-          // Send the second email for verified users
-          const mailOptions = {
+        // Email content for verified user
+        const verifiedMsg = `
+        <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+        <p>Dear  ${user.customerFirstName} ${user.customerLastName} ,  We are thrilled to welcome you to Korex StyleHub Service. </p>
+          
+        <p>Here are some important details to get you started:</p>
+        <ul>
+            <li>Full Name: ${user.customerFirstName} ${user.customerLastName}</li>
+            <li>Email Address: ${user.customerEmail}</li>
+            <li>Phone Number: ${user.customerNumber}</li>
+            <li>Username: ${user.customerUsername}</li>
+            <li>Home Address: ${user.customerAddress}</li>
+            <li>City: ${user.customerCity}</li>
+            <li>State: ${user.customerState}</li>
+        </ul>
+          
+        <p>Thank you for registering with Korex StyleHub! We are delighted to welcome you to our platform</p>
+          
+        <p>Your account has been successfully created, you can now explore all the features we have to offer.</p>
+          
+        <p>If you have any questions or need assistance, feel free to reach out to our support team at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
+          
+        <p>Best regards,<br>
+        The Korex StyleHub Team</p>`;
+        
+            // Send the second email for verified users
+        const mailOptions = {
             from: process.env.NODEMAILER_EMAIL,
             to: user.customerEmail,
             subject: 'Welcome to Korex StyleHub!',
@@ -239,7 +231,7 @@ const verifyEmail = async (req, res) => {
                 }
             ]
         };
-
+        
         transporter.sendMail(mailOptions, async (error, info) => {
             if (error) {
                 console.log('Email sending error:', error);
@@ -247,15 +239,16 @@ const verifyEmail = async (req, res) => {
                 console.log('Email sent:', info.response);
             }
         });
-        return res.status(200).render('user/login', { message: 'Email verified successfully. You can now log in.' });
-        
+
+        const successMessage = 'Email verified successfully. You can now log in.';
+        return res.redirect(`/user/login?successMessage=${encodeURIComponent(successMessage)}`);
+
     } catch (error) {
         // Handle database errors or other issues
         console.error('Error in verifyEmail:', error);
         return res.status(500).render('user/requestVerification', { message: 'An error occurred during email verification. Please try again or contact support.' });
     }
 };
-
 
 //Request new verification  link 
 const requestVerification = (req, res) =>{
@@ -276,14 +269,22 @@ const requestVerificationPost = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Email is already verified.' });
         }
 
-        // Generate a new verification token
-        const verificationToken = crypto.randomBytes(20).toString('hex');
-        // Update the user's verification token and save to the database
-        user.verificationToken = verificationToken;
+          // Generate a new verification token
+        const verificationToken = {
+            token: crypto.randomBytes(20).toString('hex'),
+            expires: new Date(Date.now() + (60 * 60 * 1000)) // 1hr expiration
+        };
+
+            // Save the verification token and expiration time to the user's document
+        user.verificationToken = {
+            token: verificationToken.token,
+            expires: verificationToken.expires 
+        };
         await user.save();
 
+    
         // Send the new verification email
-        const verificationLink = `${process.env.BASE_URL || 'http://localhost:8080'}/verify-email/${encodeURIComponent(user.id)}/${encodeURIComponent(verificationToken)}`;
+        const verificationLink = `${process.env.BASE_URL || 'http://localhost:8080'}/verify-email/${encodeURIComponent(user.id)}/${encodeURIComponent(user.verificationToken.token)}`;
 
         const mailOptions = {
             from: process.env.NODEMAILER_EMAIL,
@@ -315,7 +316,6 @@ const requestVerificationPost = async (req, res) => {
         return res.status(500).json({ error: 'An error occurred during email verification. Please try again or contact support.' });
     }
 };
-
 
 //verification link expired
 const verificationFailed = (req, res) =>{
@@ -389,20 +389,21 @@ const forgetPasswordPost = async (req, res) => {
     }
 };
 
-
-
-
+//  RESET PASSWORD SECTION
 const resetPassword = (req, res) => {
-   
     res.render('user/resetPassword'); 
 };
 
-
-//  RESET PASSWORD SECTION
 const resetPasswordPost = async (req, res) => {
-    const {  newPassword, confirmPassword } = req.body;
-    const {resetToken} = req.params // Retrieve reset token from route parameters
-console.log("my token", resetToken)
+    const { customerPassword, confirmPassword } = req.body;
+    const { resetToken } = req.params;
+    console.log("my token", resetToken)
+
+    // Check if passwords match
+    if (customerPassword !== confirmPassword) {
+        return res.status(400).json({ success: false, message: 'Passwords do not match' });
+    }
+
     // Hash the reset token for comparison
     const hashedResetToken = crypto
         .createHash('sha256')
@@ -416,34 +417,23 @@ console.log("my token", resetToken)
             resetPasswordExpires: { $gt: Date.now() },
         });
 
+        // Check if the user exists
         if (!user) {
             return res.status(400).json({ success: false, message: 'Invalid reset token' });
         }
 
-
-        //   // check passwords match
-        //   if (newPassword !== confirmPassword) {
-        //     return res.status(400).json({ success: false, message: 'Passwords do not match' });
-        // }
-
-        // // Check password length
-        // if (newPassword.length < 6) {
-        //     return res.status(400).json({ success: false, message: 'Password should be at least 6 characters' });
-        // }
-
-        // // Check if the provided current password matches the password stored in the database
-        // const isPasswordMatch = await bcrypt.compare(customerPassword, user.customerPassword);
-        // if (!isPasswordMatch) {
-        //     return res.status(400).json({ success: false, message: 'Current password is incorrect' });
-        // }
+        // Check if the reset token has expired
+        if (user.resetPasswordExpires < Date.now()) {
+            return res.status(400).json({ success: false, message: 'Reset token has expired' });
+        }
 
         // If password matches, update the password to the new one
-        user.customerPassword = bcrypt.hashSync(newPassword, 10);
+        user.customerPassword = bcrypt.hashSync(customerPassword, 10);
         user.resetPasswordToken = null;
         user.resetPasswordExpires = null;
         await user.save();
 
-        return res.status(200).json({ success: true, message: 'Password reset successfully' });
+        return res.status(200).json({ success: true, message: 'Password reset successfully please login' });
     } catch (error) {
         console.error('Error in resetPassword:', error);
         return res.status(500).json({ success: false, message: 'Internal server error' });
@@ -451,8 +441,9 @@ console.log("my token", resetToken)
 };
 
 
-
-
+const passwordResetExpired = (req, res) =>{
+    res.render('user/forgetPassword')
+};
 
 // const resetPasswordPost = async (req, res) => {
 //     const { id, token, customerPassword, customerPassword1 } = req.body;
@@ -530,9 +521,7 @@ console.log("my token", resetToken)
 
 
 
-const passwordResetExpired = (req, res) =>{
-    res.render('user/forgetPassword')
-};
+
 
 // User login
 const loginUser = (req, res) =>{

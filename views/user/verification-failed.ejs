@@ -34,7 +34,7 @@
 
     <div class="login-page">
         <div class="form">
-            <form  action="/user/resendVerificationEmail" method="post">
+            <div >
                 <h2 class="colors">Request New Verification Email</h2>
 
                 <%- include ('../partials/messages'); -%>
@@ -42,7 +42,7 @@
                     <p class="colors"><%= message %></p>
                 <% } %>
 
-                <p class="message"><a href="/user/requestVerification">Request</a></p>
+                <button class="message"><a href="/user/requestVerification">Request</a></button>
             
                <!-- Include animation elements here -->
                <ul class="animate">
@@ -54,7 +54,7 @@
                     <li></li>
                     <li></li>
                 </ul>
-            </form>
+            </div>
         </div>
     </div>
 
