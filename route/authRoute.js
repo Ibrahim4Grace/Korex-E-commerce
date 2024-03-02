@@ -22,6 +22,8 @@ router.get('/verification-failed',  verificationFailed);
 //forgetPassword Routes
 router.get('/forgetPassword', forgetPassword);
 router.post('/forgetPasswordPost', forgetPasswordPost);
+
+//ResettingPassword Routes
 router.get('/resetPassword/:resetToken', resetPassword);
 router.post('/resetPasswordPost/:resetToken', resetPasswordPost);
 

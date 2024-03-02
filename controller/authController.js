@@ -64,7 +64,6 @@ const registerUserPost = async (req, res) => {
 
         if (userExists) {
             if (userExists.customerEmail === userResult.customerEmail) {
-                console.log('Email already registerede:', userExists.customerEmail);
                 return res.status(409).json({ success: false, errors: [{ msg: 'Email already registered' }] });
             }
             if (userExists.customerUsername === userResult.customerUsername) {
@@ -390,56 +389,102 @@ const forgetPasswordPost = async (req, res) => {
 };
 
 //  RESET PASSWORD SECTION
-const resetPassword = (req, res) => {
-    res.render('user/resetPassword'); 
+const resetPassword = async (req, res) => {
+    const { resetToken } = req.params;
+    try {
+        // Hash the reset token for comparison
+        const hashedResetToken = crypto
+            .createHash('sha256')
+            .update(resetToken)
+            .digest('hex');
+
+        // Find the user with the provided reset token and check if it's still valid
+        const user = await User.findOne({
+            resetPasswordToken: hashedResetToken,
+            resetPasswordExpires: { $gt: Date.now() }, // Token not expired
+        });
+
+        // Check if the user exists
+        if (!user) {
+            // If the token is not found or has expired, redirect to expired password page
+            return res.redirect('/user/forgetPassword');
+        }
+
+      
+        // If the token is valid, render the password reset form
+        res.render('user/resetPassword');
+
+    } catch (error) {
+        console.error('Error in resetPassword:', error);
+        // Handle any errors that occur during the token validation process
+        return res.status(500).json({ success: false, message: 'An error occurred while processing your request' });
+    }
 };
+
 
 const resetPasswordPost = async (req, res) => {
     const { customerPassword, confirmPassword } = req.body;
+    console.log("customerPassword", customerPassword ,"confirmPassword", confirmPassword)
     const { resetToken } = req.params;
     console.log("my token", resetToken)
 
-    // Check if passwords match
-    if (customerPassword !== confirmPassword) {
+      // Check if passwords match
+      if (customerPassword.length < 6) {
+        return res.status(400).json({ success: false, message: 'Minimum passwords must be 6 character' });
+    }
+
+      // Check if passwords match
+      if (customerPassword !== confirmPassword) {
         return res.status(400).json({ success: false, message: 'Passwords do not match' });
     }
 
-    // Hash the reset token for comparison
-    const hashedResetToken = crypto
-        .createHash('sha256')
-        .update(resetToken)
-        .digest('hex');
+   
 
     try {
+
+         // Hash the reset token for comparison
+    const hashedResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
         // Find the user with the provided reset token and check if it's still valid
         const user = await User.findOne({
             resetPasswordToken: hashedResetToken,
             resetPasswordExpires: { $gt: Date.now() },
         });
 
-        // Check if the user exists
-        if (!user) {
-            return res.status(400).json({ success: false, message: 'Invalid reset token' });
+          // Check if the user exists
+          if (!user) {
+            // If the token is not found or has expired
+            return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
         }
 
         // Check if the reset token has expired
         if (user.resetPasswordExpires < Date.now()) {
+            // If the token has expired
             return res.status(400).json({ success: false, message: 'Reset token has expired' });
         }
 
+
+
+        // Hash the new password
+        const hashedPassword = bcrypt.hashSync(customerPassword, 10);
+
         // If password matches, update the password to the new one
-        user.customerPassword = bcrypt.hashSync(customerPassword, 10);
+        user.customerPassword = hashedPassword;
         user.resetPasswordToken = null;
         user.resetPasswordExpires = null;
+        console.log("User Reset Token:", user.resetPasswordToken);
+        console.log("Token Expiry Time:", user.resetPasswordExpires);
         await user.save();
 
         return res.status(200).json({ success: true, message: 'Password reset successfully please login' });
     } catch (error) {
         console.error('Error in resetPassword:', error);
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        return res.status(500).json({ success: false, message: 'An error occurred while resetting the password' });
     }
 };
-
 
 const passwordResetExpired = (req, res) =>{
     res.render('user/forgetPassword')
