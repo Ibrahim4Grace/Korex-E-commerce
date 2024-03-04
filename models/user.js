@@ -42,10 +42,9 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    image: {
-        data:Buffer,
-        contentType:String
-       },
+    // image: {
+    //     data:Buffer
+    // },
     customerPassword:{
         type: String,
         required: true

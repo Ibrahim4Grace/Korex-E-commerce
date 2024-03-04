@@ -28,26 +28,27 @@ const MAX_FAILED_ATTEMPTS = process.env.MAX_FAILED_ATTEMPTS;
 
 
 // Registration attempt
-const registerUser = async (req, res) => {
+const registerUser = (req, res) => {
     res.render('user/register')
 };
 
-// Define multer storage configuration
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        // Validate file type (e.g., allow only images)
-        if (!file.mimetype.startsWith('image')) {
-            return cb(new Error('Only images are allowed'));
-        }
-        cb(null, './public/customerImage/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + '_' + Date.now())
-    }
-});
+// // Define multer storage configuration
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         // Validate file type (e.g., allow only images)
+//         if (!file.mimetype.startsWith('image')) {
+//             return cb(new Error('Only images are allowed'));
+//         }
+//         cb(null, './public/customerImage/');
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, file.fieldname + '_' + Date.now())
+//     }
+// });
 
-// Initialize multer middleware
-const upload = multer({ storage: storage });
+// // Initialize multer middleware
+// const upload = multer({ storage: storage });
+
 const registerUserPost = async (req, res) => {
     try {
 
@@ -76,8 +77,9 @@ const registerUserPost = async (req, res) => {
         // Generate a unique verification token
         const verificationToken = {
             token: crypto.randomBytes(20).toString('hex'),
-            expires: new Date(Date.now() + (30 * 60 * 1000)) // 30 minutes expiration
+            expires: new Date(Date.now() + (2 * 60 * 1000)) // 30 minutes expiration
         };
+   
         
         // Save the user data to the database
         const newUser = new User({
@@ -94,13 +96,9 @@ const registerUserPost = async (req, res) => {
             customerPassword: hashedPassword,
             role: 'User', verificationToken: verificationToken,
             date_added: Date.now(),
-            image: {
-                data: fs.readFileSync(path.join(__dirname, '../public/customerImage/' + req.file.filename)),
-                contentType: 'image/png',
-            },
         });
+   
         await newUser.save();
-        
 
         // Include the verification token in the email
         const hosting = process.env.BASE_URL || 'http://localhost:8080';
@@ -322,9 +320,16 @@ const verificationFailed = (req, res) =>{
 };
 
 // Forget Password
+// const forgetPassword = (req, res) =>{
+//     res.render('user/forgetPassword')
+// };
+
 const forgetPassword = (req, res) =>{
-    res.render('user/forgetPassword')
+    const errorMessage = req.query.errorMessage;
+    res.render('user/forgetPassword', { errorMessage });
 };
+
+
 
 const forgetPasswordPost = async (req, res) => {
     const { customerEmail } = req.body;
@@ -393,10 +398,7 @@ const resetPassword = async (req, res) => {
     const { resetToken } = req.params;
     try {
         // Hash the reset token for comparison
-        const hashedResetToken = crypto
-            .createHash('sha256')
-            .update(resetToken)
-            .digest('hex');
+        const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
         // Find the user with the provided reset token and check if it's still valid
         const user = await User.findOne({
@@ -407,11 +409,13 @@ const resetPassword = async (req, res) => {
         // Check if the user exists
         if (!user) {
             // If the token is not found or has expired, redirect to expired password page
-            return res.redirect('/user/forgetPassword');
+            // return res.redirect('/user/forgetPassword');
+            // return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
+          
+            return res.redirect('/user/forgetPassword?errorMessage=Invalid or expired reset token');
+            
         }
 
-      
-        // If the token is valid, render the password reset form
         res.render('user/resetPassword');
 
     } catch (error) {
@@ -453,20 +457,6 @@ const resetPasswordPost = async (req, res) => {
             resetPasswordToken: hashedResetToken,
             resetPasswordExpires: { $gt: Date.now() },
         });
-
-          // Check if the user exists
-          if (!user) {
-            // If the token is not found or has expired
-            return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
-        }
-
-        // Check if the reset token has expired
-        if (user.resetPasswordExpires < Date.now()) {
-            // If the token has expired
-            return res.status(400).json({ success: false, message: 'Reset token has expired' });
-        }
-
-
 
         // Hash the new password
         const hashedPassword = bcrypt.hashSync(customerPassword, 10);
@@ -769,6 +759,6 @@ const logoutUser = async (req, res) => {
 };
 
 
-module.exports = ({registerUser,upload,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,passwordResetExpired,loginUser,loginUserPost,logoutUser  });
+module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,passwordResetExpired,loginUser,loginUserPost,logoutUser  });
 
 

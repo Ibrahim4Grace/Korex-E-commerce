@@ -68,7 +68,11 @@ const userSchema = Joi.object({
     customerNumber: Joi.string().min(5).required().messages(numberMessages), 
     customerPassword: Joi.string().min(6).required().messages(passwordMessages),
     customerPassword1: Joi.ref('customerPassword'),
-    role: Joi.string().valid('User').required()
+    role: Joi.string().valid('User').required(),
+    // image: Joi.object({
+    //     data: Joi.binary().optional(),
+    //     contentType: Joi.string().optional()
+    // }).optional()
 });
 
 
