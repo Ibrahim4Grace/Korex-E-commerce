@@ -9,7 +9,7 @@ const Admin = require('../models/Admin');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
-const userSchema = require('../middleware/userAuthValidation');
+const userSchema = require('../middleware/userValidation');
 
 
 // Send email to the applicant

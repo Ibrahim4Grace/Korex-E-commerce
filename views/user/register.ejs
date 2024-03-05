@@ -25,6 +25,7 @@
     <!-- Customized Bootstrap Stylesheet -->
     <link href="../css/style.css" rel="stylesheet">
     <link href="../css/landingPage.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -121,6 +122,112 @@
     </form>
   </div>
 
+
+  <script>
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const registrationForm = document.getElementById('registrationForm');
+
+        registrationForm.addEventListener('submit', async function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Change the appearance of the submit button to show a spinner
+            const submitButton = document.getElementById('submitButton');
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+            submitButton.disabled = true; // Disable the button while submitting
+
+            try {
+                // Get form data
+                const formData = Object.fromEntries(new FormData(registrationForm));
+
+                // Send form data to server using AJAX
+                const response = await fetch('/user/registerUserPost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // If registration successful, redirect or show success message
+                    const successMessage = encodeURIComponent(data.message);
+                    window.location.href = `/user/login?successMessage=${successMessage}`;
+                } else {
+                    // If registration failed, display error messages
+                    const errors = data.errors;
+                    errors.forEach(error => {
+                        const errorElement = document.getElementById(`${error.key}Error`);
+                        if (errorElement) {
+                            errorElement.textContent = error.msg;
+                        }
+                    });
+
+                    // Check if email or username is already registered
+                    const emailAlreadyRegistered = errors.some(error => error.msg === 'Email already registered');
+                    const usernameAlreadyRegistered = errors.some(error => error.msg === 'Username already registered');
+                    if (emailAlreadyRegistered) {
+                        const emailErrorElement = document.getElementById('customerEmailError');
+                        if (emailErrorElement) {
+                            emailErrorElement.innerText = 'Email already registered';
+                        }
+                    } else if (usernameAlreadyRegistered) {
+                        const usernameErrorElement = document.getElementById('customerUsernameError');
+                        if (usernameErrorElement) {
+                            usernameErrorElement.innerText = 'Username already registered';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Handle other errors, like network issues
+                alert('An error occurred while processing your request.');
+            } finally {
+                // Restore the appearance of the submit button
+                submitButton.innerHTML = 'Submit';
+                submitButton.disabled = false; // Re-enable the button
+            }
+        });
+
+        // Add event listener to each input field to clear error messages
+        const inputFields = document.querySelectorAll('input, select'); // Get all input and select fields
+        inputFields.forEach(inputField => {
+            inputField.addEventListener('input', () => {
+                const fieldName = inputField.name;
+                const errorElement = document.getElementById(fieldName + 'Error');
+                if (errorElement) {
+                    // Clear the error message associated with the input field
+                    errorElement.innerText = '';
+                }
+            });
+        });
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+<!-- 
   <script>
                         //THIS ALLOW THE CLIENT SIDE TO COMMUNICATE WITH THE SERVER WITHOUT RELOADING PAGE ON SUBMISSION
 document.getElementById('registrationForm').addEventListener('submit', async (event) => {
@@ -196,7 +303,7 @@ inputFields.forEach(inputField => {
 });
 
 
-    </script>
+    </script> -->
 
 
 

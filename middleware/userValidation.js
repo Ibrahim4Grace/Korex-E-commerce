@@ -16,9 +16,9 @@ const emailMessages = {
     "any.required": "Email is required",
 };
 const usernameMessages = {
-    "string.empty": "userName is required",
-    "string.min": "userName must be at least {#limit} characters",
-    "any.required": "userName is required",
+    "string.empty": "Username is required",
+    "string.min": "Username must be at least {#limit} characters",
+    "any.required": "Username is required",
 };
 const addressMessages = {
     "string.empty": "Address is required",
@@ -44,9 +44,10 @@ const dobMessages = {
     "any.required": "Dob is required",
 };
 const numberMessages = {
-    "string.empty": "Number is required",
-    "string.min": "Number must be at least {#limit} characters",
-    "any.required": "Number is required",
+    "string.empty": "Phone number is required",
+    'string.pattern.base': 'Phone number must contain only digits',
+    "string.min": "Phone number must be at least {#limit} characters",
+    "any.required": "Phone number is required",
 };
 const passwordMessages = {
     "string.empty": "Password is required",
@@ -65,17 +66,11 @@ const userSchema = Joi.object({
     customerState: Joi.string().min(2).required().messages(stateMessages),
     customerCountry: Joi.string().required().messages(countryMessages),
     customerDob: Joi.date().required().messages(dobMessages), 
-    customerNumber: Joi.string().min(5).required().messages(numberMessages), 
+    customerNumber: Joi.string().pattern(/^\d+$/).min(5).required().messages(numberMessages), 
     customerPassword: Joi.string().min(6).required().messages(passwordMessages),
     customerPassword1: Joi.ref('customerPassword'),
     role: Joi.string().valid('User').required(),
-    // image: Joi.object({
-    //     data: Joi.binary().optional(),
-    //     contentType: Joi.string().optional()
-    // }).optional()
 });
 
 
  module.exports =  userSchema
-
-
