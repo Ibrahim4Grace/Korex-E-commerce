@@ -7,6 +7,7 @@ if (process.env.NODE_ENV !== 'production'){
   const flash = require('connect-flash');
   const passport = require('passport');
   const session = require('express-session');
+  const helmet = require("helmet")
 //   const methodOverride = require('method-override');
   const connectToMongoDB = require('./database/conn');
   const cors = require('cors');
@@ -111,6 +112,28 @@ if (process.env.NODE_ENV !== 'production'){
 //   app.use(methodOverride('_method'));
   app.use(morgan('tiny'));
   app.disable('x-powered-by'); //less hacker know about our stack
+
+  app.use(helmet({
+    contentSecurityPolicy: false, // Disable default CSP middleware to provide custom directives
+  }));
+  
+  app.use(helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"], // Allow resources to be loaded from the same origin
+      scriptSrc: ["'self'", "https://code.jquery.com", "https://stackpath.bootstrapcdn.com"],
+      styleSrc: ["'self'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com", "'unsafe-inline'"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+      imgSrc: ["'self'", "data:"],
+      objectSrc: ["'none'"],
+      manifestSrc: ["'self'"],
+      frameSrc: ["'self'"],
+      connectSrc: ["'self'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'self'"],
+      mediaSrc: ["'self'"],
+    },
+  }));
   
 
   

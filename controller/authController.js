@@ -77,7 +77,7 @@ const registerUserPost = async (req, res) => {
         // Generate a unique verification token
         const verificationToken = {
             token: crypto.randomBytes(20).toString('hex'),
-            expires: new Date(Date.now() + (2 * 60 * 1000)) // 30 minutes expiration
+            expires: new Date(Date.now() + (20 * 60 * 1000)) // 20 minutes expiration
         };
    
         
@@ -251,6 +251,7 @@ const verifyEmail = async (req, res) => {
 const requestVerification = (req, res) =>{
     res.render('user/requestVerification')
 };
+
 const requestVerificationPost = async (req, res) => {
     const { customerEmail } = req.body;
 
@@ -269,7 +270,7 @@ const requestVerificationPost = async (req, res) => {
           // Generate a new verification token
         const verificationToken = {
             token: crypto.randomBytes(20).toString('hex'),
-            expires: new Date(Date.now() + (60 * 60 * 1000)) // 1hr expiration
+            expires: new Date(Date.now() + (30 * 60 * 1000)) // 1hr expiration
         };
 
             // Save the verification token and expiration time to the user's document
@@ -320,16 +321,10 @@ const verificationFailed = (req, res) =>{
 };
 
 // Forget Password
-// const forgetPassword = (req, res) =>{
-//     res.render('user/forgetPassword')
-// };
-
 const forgetPassword = (req, res) =>{
     const errorMessage = req.query.errorMessage;
     res.render('user/forgetPassword', { errorMessage });
 };
-
-
 
 const forgetPasswordPost = async (req, res) => {
     const { customerEmail } = req.body;
@@ -409,22 +404,16 @@ const resetPassword = async (req, res) => {
         // Check if the user exists
         if (!user) {
             // If the token is not found or has expired, redirect to expired password page
-            // return res.redirect('/user/forgetPassword');
-            // return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
-          
-            return res.redirect('/user/forgetPassword?errorMessage=Invalid or expired reset token');
-            
+             return res.redirect('/user/forgetPassword?errorMessage=Invalid or expired reset token');
         }
 
         res.render('user/resetPassword');
 
     } catch (error) {
         console.error('Error in resetPassword:', error);
-        // Handle any errors that occur during the token validation process
         return res.status(500).json({ success: false, message: 'An error occurred while processing your request' });
     }
 };
-
 
 const resetPasswordPost = async (req, res) => {
     const { customerPassword, confirmPassword } = req.body;
@@ -441,8 +430,6 @@ const resetPasswordPost = async (req, res) => {
       if (customerPassword !== confirmPassword) {
         return res.status(400).json({ success: false, message: 'Passwords do not match' });
     }
-
-   
 
     try {
 
@@ -468,6 +455,42 @@ const resetPasswordPost = async (req, res) => {
         console.log("User Reset Token:", user.resetPasswordToken);
         console.log("Token Expiry Time:", user.resetPasswordExpires);
         await user.save();
+
+        const msg = `
+        <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+        <p>Dear ${user.customerFirstName} ${user.customerLastName},</p>
+
+        <p>We are writing to confirm your password recovery with Korex StyleHub.</p>
+        <p>Your password has been successfully reset. You can now log in to your account using your new password.</p>
+
+        <p>If you did not request this password reset, please contact us immediately. at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
+
+        <p>Warm regards,<br>
+        Korex StyleHub</p>
+    `;
+
+    const mailOptions = {
+        from: process.env.NODEMAILER_EMAIL,
+        to: user.customerEmail,
+        subject: 'Password Reset Successful with Korex StyleHub!',
+        html: msg,
+        attachments: [
+            {
+                filename: 'companyLogo.jpg',
+                path: './public/img/companyLogo.jpg',
+                cid: 'companyLogo'
+            }
+        ]
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Email sending error:', error);
+            return res.status(500).json({ success: false, errors: [{ msg: 'Error sending email' }] });
+        } else {
+            console.log('Email sent:', info.response);
+        }
+    });
 
         return res.status(200).json({ success: true, message: 'Password reset successfully please login' });
     } catch (error) {

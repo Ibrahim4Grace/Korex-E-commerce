@@ -54,6 +54,12 @@ const passwordMessages = {
     "string.min": "Password must be at least {#limit} characters",
     "any.required": "Password is required",
 };
+const ConfirmPasswordMessages = {
+    "any.only": "Passwords must match",
+    "string.empty": "Confirm password is required",
+    "any.required": "Password is required",
+    
+};
 
 // Define a Joi schema for the user data
 const userSchema = Joi.object({
@@ -68,7 +74,7 @@ const userSchema = Joi.object({
     customerDob: Joi.date().required().messages(dobMessages), 
     customerNumber: Joi.string().pattern(/^\d+$/).min(5).required().messages(numberMessages), 
     customerPassword: Joi.string().min(6).required().messages(passwordMessages),
-    customerPassword1: Joi.ref('customerPassword'),
+    confirmPassword: Joi.string().valid(Joi.ref('customerPassword')).required().messages(ConfirmPasswordMessages),
     role: Joi.string().valid('User').required(),
 });
 
