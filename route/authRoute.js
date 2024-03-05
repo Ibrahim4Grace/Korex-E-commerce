@@ -5,7 +5,7 @@ const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/auth
 const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
 
-const {registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,passwordResetExpired,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
+const {registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
 
 
 // Registration route
@@ -28,10 +28,6 @@ router.post('/forgetPasswordPost', forgetPasswordPost);
 router.get('/resetPassword/:resetToken', resetPassword);
 router.post('/resetPasswordPost/:resetToken', resetPasswordPost);
 
-
-router.get('/passwordResetExpired', passwordResetExpired);
-
-
 // Login route with verifyAccessToken middleware
 router.get('/login', loginUser);
 router.post('/loginUserPost',  loginUserPost);
@@ -43,14 +39,6 @@ router.post('/loginUserPost',  loginUserPost);
 router.get("/logout", logoutUser);
 
 
-// router.get('/', checkNotAuthenticated, spinner, indexPage);
-// router.get('/index', checkNotAuthenticated, indexPage);
-// router.get('/detail', checkNotAuthenticated, detailsPage);
-// router.get('/shop', checkNotAuthenticated, shopPage)
-// router.get('/contact', checkNotAuthenticated, contactPage)
-// router.post('/contact', checkNotAuthenticated, contactPagePost)
-// router.get('/checkout', checkNotAuthenticated, checkouttPage)
-// router.get('/cart', checkNotAuthenticated, cartPage)
 
 
 
