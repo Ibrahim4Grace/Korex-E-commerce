@@ -5,7 +5,7 @@ const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/auth
 const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
 
-const {registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
+const {registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
 
 
 // Registration route
@@ -27,6 +27,9 @@ router.post('/forgetPasswordPost', forgetPasswordPost);
 //ResettingPassword Routes
 router.get('/resetPassword/:resetToken', resetPassword);
 router.post('/resetPasswordPost/:resetToken', resetPasswordPost);
+
+//Google Auth routes
+router.get('/auth/google', googleAuthController);
 
 // Login route with verifyAccessToken middleware
 router.get('/login', loginUser);

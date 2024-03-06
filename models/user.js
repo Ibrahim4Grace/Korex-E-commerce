@@ -53,6 +53,9 @@ const userSchema = new mongoose.Schema({
     role:{
         type: String,
     },
+    googleId:{
+        type: String,
+    },
    Order: [
     {
         type: mongoose.Schema.Types.ObjectId,

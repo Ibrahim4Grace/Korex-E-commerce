@@ -9,6 +9,9 @@ const Admin = require('../models/Admin');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
+// const passport = require('passport');
+const passport = require('../config/auth')();
+// require('../config/auth');
 const userSchema = require('../middleware/userValidation');
 const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/authMessageMailer');
 
@@ -328,6 +331,15 @@ const resetPasswordPost = async (req, res) => {
     }
 };
 
+//Google Auth sign in
+const googleAuthController = (req, res)=>{
+    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res)
+};
+
+// router.get('/auth/google',
+//   passport.authenticate('google', { scope: ['profile', 'email'] })
+// );
+
 
 
 // User login
@@ -451,6 +463,6 @@ const logoutUser = async (req, res) => {
 };
 
 
-module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,loginUser,loginUserPost,logoutUser  });
+module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,loginUser,loginUserPost,logoutUser  });
 
 

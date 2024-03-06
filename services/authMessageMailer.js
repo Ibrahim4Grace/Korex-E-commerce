@@ -1,5 +1,4 @@
 const nodemailer = require(`nodemailer`);
-
 require('dotenv').config(); // Load environment variables
 
 // Send email to the applicant
