@@ -4,43 +4,38 @@ const crypto = require('crypto');
 const userSchema = new mongoose.Schema({
     customerFirstName:{
         type: String,
-        required: true
     },
     customerLastName:{
         type: String,
-        required: true
     },
     customerEmail:{
         type: String,
-        required: true
     },
     customerUsername:{
         type: String,
-        required: true
     },
     customerAddress:{
         type: String,
-        required: true
     },
     customerCity:{
         type: String,
-        required: true
+      
     },
     customerState:{
         type: String,
-        required: true
+      
     },
     customerCountry:{
         type: String,
-        required: true
+      
     },
     customerDob:{
         type: String,
-        required: true
+        
     },
     customerNumber:{
         type: String,
-        required: true
+       
     },
     image:{
         data: Buffer,
@@ -48,7 +43,7 @@ const userSchema = new mongoose.Schema({
     },
     customerPassword:{
         type: String,
-        required: true
+       
     },
     role:{
         type: String,

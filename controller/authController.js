@@ -10,7 +10,7 @@ const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
 // const passport = require('passport');
-const passport = require('../config/auth')();
+const passport = require('../config/passportAuth')();
 // require('../config/auth');
 const userSchema = require('../middleware/userValidation');
 const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/authMessageMailer');
@@ -336,10 +336,12 @@ const googleAuthController = (req, res)=>{
     passport.authenticate('google', { scope: ['profile', 'email'] })(req, res)
 };
 
-// router.get('/auth/google',
-//   passport.authenticate('google', { scope: ['profile', 'email'] })
-// );
-
+const googleAuthCallback = (req, res, next)=>{
+    passport.authenticate("google",{
+        successRedirect: "http://localhost:8080/user/index",
+        failureRedirect: "http://localhost:8080/user/login",
+    })(req, res, next);
+};
 
 
 // User login
@@ -463,6 +465,6 @@ const logoutUser = async (req, res) => {
 };
 
 
-module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,loginUser,loginUserPost,logoutUser  });
+module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,logoutUser  });
 
 

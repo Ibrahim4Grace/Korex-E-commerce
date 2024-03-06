@@ -19,7 +19,6 @@ passport.use(new GoogleStrategy({
 
       // If user not found, create a new one
       if (!user) {
-        const hashedPassword = await bcrypt.hash(profile.Password, 10);
         user = new User({
           googleId: profile.id,
           customerFirstName: profile.displayName,
@@ -33,9 +32,23 @@ passport.use(new GoogleStrategy({
           customerCountry: profile.country || '',
           customerDob: profile.dob || '',
           customerNumber: profile.number || '',
-          customerPassword: hashedPassword || '',
           image: profile.photos ? profile.photos[0].value : '',
           role: 'User',
+
+
+          // googleId: profile.id,
+          // customerFirstName: profile.displayName,
+          // customerLastName: profile.displayName,
+          // customerEmail: profile.emails ? profile.emails[0].value : '',
+          // // Other required fields - You may need to obtain these values from the user or the Google profile
+          // customerPassword: '', // You can leave this empty if the user is authenticating via Google
+          // customerUsername: '', // You may need to prompt the user for this value
+          // customerAddress: '', // You may need to prompt the user for this value
+          // customerCity: '', // You may need to prompt the user for this value
+          // customerState: '', // You may need to prompt the user for this value
+          // customerCountry: '', // You may need to prompt the user for this value
+          // customerDob: '', // You may need to prompt the user for this value
+          // customerNumber: '' // You may need to prompt the user for this value
         });
         await user.save();
       }

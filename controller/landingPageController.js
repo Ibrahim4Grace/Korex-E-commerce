@@ -42,14 +42,13 @@ const contactPagePost = (req, res) => {
 
 };
 
-const checkouttPage = (req, res) => {
-    res.render('checkout');
-};
-
 const cartPage = (req, res) => {
     res.render('cart');
 };
 
+const checkouttPage = (req, res) => {
+    res.render('checkout');
+};
 
 
-module.exports = ({ spinner, indexPage,detailsPage,shopPage,contactPage,contactPagePost,checkouttPage,cartPage});
+module.exports = ({ spinner, indexPage,detailsPage,shopPage,contactPage,contactPagePost,cartPage,checkouttPage});

@@ -25,10 +25,39 @@ const transporter = nodemailer.createTransport({
 const phoneNumber = process.env.COMPANY_NUMBER;
 const emailAddress = process.env.COMPANY_EMAIL;
 
+
+
 const userLandingPage = (req, res) => {
     res.render('user/index');
 }
 
 
- module.exports = ({ userLandingPage });
+const detailsPage = (req, res) => {
+    res.render('detail');
+};
+
+const shopPage = (req, res) => {
+    res.render('shop');
+};
+
+const contactPage = (req, res) => {
+    res.render('contact');
+};
+
+const contactPagePost = (req, res) => {
+
+};
+
+const cartPage = (req, res) => {
+    res.render('cart');
+};
+
+const checkouttPage = (req, res) => {
+    res.render('checkout');
+};
+
+
+module.exports = ({ userLandingPage,detailsPage,shopPage,contactPage,contactPagePost,cartPage,checkouttPage});
+
+
 

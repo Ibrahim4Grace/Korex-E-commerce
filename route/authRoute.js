@@ -1,11 +1,10 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
-const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/authentication');
 const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
 
-const {registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
+const {registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
 
 
 // Registration route
@@ -28,8 +27,10 @@ router.post('/forgetPasswordPost', forgetPasswordPost);
 router.get('/resetPassword/:resetToken', resetPassword);
 router.post('/resetPasswordPost/:resetToken', resetPasswordPost);
 
-//Google Auth routes
+//Google oAuth callback route
 router.get('/auth/google', googleAuthController);
+router.get('/google/callback', googleAuthCallback);
+
 
 // Login route with verifyAccessToken middleware
 router.get('/login', loginUser);
