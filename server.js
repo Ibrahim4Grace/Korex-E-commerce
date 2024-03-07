@@ -143,7 +143,7 @@ if (process.env.NODE_ENV !== 'production'){
   
   //IMPORT THE ROUTE FILES
   app.use('/', require('./route/landingPageRoute'));
-  app.use('/user', require('./route/authRoute'));
+  app.use('/auth', require('./route/authRoute'));
   app.use('/', require('./route/authRoute'));//declared endpoint
   app.use('/user', require('./route/userRoute'));
   //app.use('/', require('./route/userRoute')); //declared endpoint

@@ -2,7 +2,12 @@ body
 {
   margin:0;
   padding:0;
-  background:#fff;
+  /* background:#fff; */
+  /* background-image: url('../img/carousel-2.jpg');  */
+  /* background-image: url('../img/banner.jpg'); 
+  background-size: cover;  */
+  background: url('../img/banner.jpg') no-repeat center center fixed; /* Set background image immediately */
+      background-size: cover;
 }
 .loading-state {
   position: fixed;
@@ -23,6 +28,7 @@ body
   border: 10px solid #ddd;
   border-top-color: orange;
   animation: loading 1s linear infinite;
+
 }
 @keyframes loading {
   to {

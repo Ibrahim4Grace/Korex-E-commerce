@@ -39,8 +39,8 @@ router.post('/loginUserPost',  loginUserPost);
 // //refresh route with verifyRefreshToken middleware
 // router.post('/refresh-token', verifyRefreshToken, refreshToken);
 
-//logout route
-router.get("/logout", logoutUser);
+// //logout route
+// router.get("/logout", logoutUser);
 
 
 

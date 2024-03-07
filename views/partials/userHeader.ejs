@@ -4,10 +4,10 @@
     <div class="row bg-secondary py-1 px-xl-5">
         <div class="col-lg-6 d-none d-lg-block">
             <div class="d-inline-flex align-items-center h-100">
-                <a class="text-body mr-3" href="/about">About</a>
-                <a class="text-body mr-3" href="/contact">Contact</a>
-                <a class="text-body mr-3" href="/help">Help</a>
-                <a class="text-body mr-3" href="/FAQs">FAQs</a>
+                <a class="text-body mr-3" href="/user/about">About</a>
+                <a class="text-body mr-3" href="/user/contact">Contact</a>
+                <a class="text-body mr-3" href="/user/help">Help</a>
+                <a class="text-body mr-3" href="/user/FAQs">FAQs</a>
             </div>
         </div>
         <div class="col-lg-6 text-center text-lg-right">
@@ -15,14 +15,14 @@
                 <div class="btn-group">
                     <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">My Account</button>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a href="/user/login"><button class="dropdown-item" type="button">My Orders</button> </a>
+                        <a href="/user/register"><button class="dropdown-item" type="button">My Orders</button> </a>
                         <a href="/user/register"><button class="dropdown-item" type="button">Message Center</button> </a>
                         <a href="/user/register"><button class="dropdown-item" type="button">Payment</button> </a>
+                        <a href="/user/register"><button class="dropdown-item" type="button">Wish List</button> </a>
                         <a href="/user/register"><button class="dropdown-item" type="button">Seller Login</button> </a>
                         <a href="/user/register"><button class="dropdown-item" type="button">Help Center</button> </a>
-                        <a href="/user/register"><button class="dropdown-item" type="button">Dispute & Report</button> </a>
+                        <a href="/user/register"><button class="dropdown-item" type="button">Disputes & Reports</button> </a>
                         <a href="/user/register"><button class="dropdown-item" type="button">Sign Out</button> </a>
-                       
                     </div>
                 </div>
                 <div class="btn-group mx-2">
@@ -41,7 +41,7 @@
                     <i class="fas fa-heart text-dark"></i>
                     <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom: 2px;">0</span>
                 </a>
-                <a href="" class="btn px-0 ml-2">
+                <a href="/user/cart" class="btn px-0 ml-2">
                     <i class="fas fa-shopping-cart text-dark"></i>
                     <span class="badge text-dark border border-dark rounded-circle" style="padding-bottom: 2px;">0</span>
                 </a>
@@ -50,7 +50,7 @@
     </div>
     <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
         <div class="col-lg-4">
-            <a href="/" class="text-decoration-none">
+            <a href="/user/index" class="text-decoration-none">
                 <span class="h1 text-uppercase text-primary bg-dark px-2">Korex</span>
                 <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">StyleHub</span>
             </a>
@@ -90,31 +90,31 @@
                         <div class="nav-item dropdown dropright">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Dresses <i class="fa fa-angle-right float-right mt-1"></i></a>
                             <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
-                                <a href="/dresses" class="dropdown-item">Dresses</a>
-                                <a href="/babyDresses" class="dropdown-item">Baby's Dresses</a>
+                                <a href="/user/dresses" class="dropdown-item">Dresses</a>
+                                <a href="/user/babyDresses" class="dropdown-item">Baby's Dresses</a>
                             </div>
                         </div>
                         <div class="nav-item dropdown dropright">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Shoes <i class="fa fa-angle-right float-right mt-1"></i></a>
                             <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
-                                <a href="/loafers" class="nav-item nav-link">Loafers</a>
-                                <a href="/sneakers" class="nav-item nav-link">Sneakers</a>
+                                <a href="/user/loafers" class="nav-item nav-link">Loafers</a>
+                                <a href="/user/sneakers" class="nav-item nav-link">Sneakers</a>
                             </div>
                         </div>
-                        <a href="/shirt" class="nav-item nav-link">Shirts</a>
-                        <a href="/jeans" class="nav-item nav-link">Jeans</a>
-                        <a href="/swimwear" class="nav-item nav-link">Swimwear</a>
-                        <a href="/sleepwear" class="nav-item nav-link">Sleepwear</a>
-                        <a href="/sportswear" class="nav-item nav-link">Sportswear</a>
-                        <a href="/jumpsuits" class="nav-item nav-link">Jumpsuits</a>
-                        <a href="/blazers" class="nav-item nav-link">Blazers</a>
-                        <a href="/jackets" class="nav-item nav-link">Jackets</a>
+                        <a href="/user/shirt" class="nav-item nav-link">Shirts</a>
+                        <a href="/user/jeans" class="nav-item nav-link">Jeans</a>
+                        <a href="/user/swimwear" class="nav-item nav-link">Swimwear</a>
+                        <a href="/user/sleepwear" class="nav-item nav-link">Sleepwear</a>
+                        <a href="/user/sportswear" class="nav-item nav-link">Sportswear</a>
+                        <a href="/user/jumpsuits" class="nav-item nav-link">Jumpsuits</a>
+                        <a href="/user/blazers" class="nav-item nav-link">Blazers</a>
+                        <a href="/user/jackets" class="nav-item nav-link">Jackets</a>
                     </div>
                 </nav>
             </div>
             <div class="col-lg-9">
                 <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
-                    <a href="" class="text-decoration-none d-block d-lg-none">
+                    <a href="/user/index" class="text-decoration-none d-block d-lg-none">
                         <span class="h1 text-uppercase text-dark bg-light px-2">Korex</span>
                         <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">StyleHub</span>
                     </a>
@@ -123,17 +123,17 @@
                     </button>
                     <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                         <div class="navbar-nav mr-auto py-0">
-                            <a href="/" class="nav-item nav-link active">Home</a>
-                            <a href="/shop" class="nav-item nav-link">Shop</a>
-                            <a href="/detail" class="nav-item nav-link">Shop Detail</a>
+                            <a href="/user/index" class="nav-item nav-link active">Home</a>
+                            <a href="/user/shop" class="nav-item nav-link">Shop</a>
+                            <a href="/user/detail" class="nav-item nav-link">Shop Detail</a>
                             <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages <i class="fa fa-angle-down mt-1"></i></a>
                                 <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
-                                    <a href="/cart" class="dropdown-item">Shopping Cart</a>
-                                    <a href="/checkout" class="dropdown-item">Checkout</a>
+                                    <a href="/user/cart" class="dropdown-item">Shopping Cart</a>
+                                    <a href="/user/checkout" class="dropdown-item">Checkout</a>
                                 </div>
                             </div>
-                            <a href="/contact" class="nav-item nav-link">Contact</a>
+                            <a href="/user/contact" class="nav-item nav-link">Contact</a>
                         </div>
                         <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
                             <a href="" class="btn px-0">

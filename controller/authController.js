@@ -33,7 +33,7 @@ const MAX_FAILED_ATTEMPTS = process.env.MAX_FAILED_ATTEMPTS;
 
 // Registration attempt
 const registerUser = (req, res) => {
-    res.render('user/register')
+    res.render('auth/register')
 };
 
 // // Define multer storage configuration
@@ -143,12 +143,12 @@ const verifyEmail = async (req, res) => {
         const user = await User.findById(id);
         // Check if user exists and if the verification token exists and matches
         if (!user || user.verificationToken.token !== token) {
-            return res.status(400).render('user/verification-failed', { message: 'Invalid verification link.' });
+            return res.status(400).render('auth/verification-failed', { message: 'Invalid verification link.' });
         }
 
          // Check if the token has already been used
         if (user.isVerified) {
-            return res.status(400).render('user/verification-failed', { message: 'Verification link has already been used. Please contact support if you have any issues.' });
+            return res.status(400).render('auth/verification-failed', { message: 'Verification link has already been used. Please contact support if you have any issues.' });
         }
 
         // Check if the token has expired
@@ -156,7 +156,7 @@ const verifyEmail = async (req, res) => {
         const currentTime = new Date();
         if (currentTime >= expirationTime) {
             console.log('Verification link has expired.');
-            return res.status(400).render('user/verification-failed', { message: 'Verification link has expired. Please request a new one.' });
+            return res.status(400).render('auth/verification-failed', { message: 'Verification link has expired. Please request a new one.' });
         } 
 
         // Mark the user as verified
@@ -168,18 +168,18 @@ const verifyEmail = async (req, res) => {
         await verifyEmailMsg(user);
 
         const successMessage = 'Email verified successfully. You can now log in.';
-        return res.redirect(`/user/login?successMessage=${encodeURIComponent(successMessage)}`);
+        return res.redirect(`/auth/login?successMessage=${encodeURIComponent(successMessage)}`);
 
     } catch (error) {
         // Handle database errors or other issues
         console.error('Error in verifyEmail:', error);
-        return res.status(500).render('user/requestVerification', { message: 'An error occurred during email verification. Please try again or contact support.' });
+        return res.status(500).render('auth/requestVerification', { message: 'An error occurred during email verification. Please try again or contact support.' });
     }
 };
 
 //Request new verification  link 
 const requestVerification = (req, res) =>{
-    res.render('user/requestVerification')
+    res.render('auth/requestVerification')
 };
 
 const requestVerificationPost = async (req, res) => {
@@ -225,13 +225,13 @@ const requestVerificationPost = async (req, res) => {
 
 //verification link expired
 const verificationFailed = (req, res) =>{
-    res.render('user/verification-failed')
+    res.render('auth/verification-failed')
 };
 
 // Forget Password
 const forgetPassword = (req, res) =>{
     const errorMessage = req.query.errorMessage;
-    res.render('user/forgetPassword', { errorMessage });
+    res.render('auth/forgetPassword', { errorMessage });
 };
 
 const forgetPasswordPost = async (req, res) => {
@@ -248,7 +248,7 @@ const forgetPasswordPost = async (req, res) => {
         await user.save();
 
         // Send the email with the reset link
-        const resetLink = `${process.env.BASE_URL || 'http://localhost:8080'}/user/resetPassword/${resetToken}`;
+        const resetLink = `${process.env.BASE_URL || 'http://localhost:8080'}/auth/resetPassword/${resetToken}`;
 
          // Send forget Email content to user
          await forgetPasswordMsg(user,resetLink);
@@ -277,10 +277,10 @@ const resetPassword = async (req, res) => {
         // Check if the user exists
         if (!user) {
             // If the token is not found or has expired, redirect to expired password page
-             return res.redirect('/user/forgetPassword?errorMessage=Invalid or expired reset token');
+             return res.redirect('/auth/forgetPassword?errorMessage=Invalid or expired reset token');
         }
 
-        res.render('user/resetPassword');
+        res.render('auth/resetPassword');
 
     } catch (error) {
         console.error('Error in resetPassword:', error);
@@ -339,14 +339,14 @@ const googleAuthController = (req, res)=>{
 const googleAuthCallback = (req, res, next)=>{
     passport.authenticate("google",{
         successRedirect: "http://localhost:8080/user/index",
-        failureRedirect: "http://localhost:8080/user/login",
+        failureRedirect: "http://localhost:8080/auth/login",
     })(req, res, next);
 };
 
 
 // User login
 const loginUser = (req, res) =>{
-    res.render('user/login')
+    res.render('auth/login')
 };
 
 
@@ -361,7 +361,7 @@ const loginUserPost = async (req, res) => {
              // return res.status(401).json({ error: 'Authentication failed' });
             // If user does not exist, redirect with error message
             req.flash('error_msg', 'Invalid username provided');
-            return res.redirect('/user/login');
+            return res.redirect('/auth/login');
         }
 
         // Compare the provided password with the hashed password stored in the database
@@ -377,23 +377,23 @@ const loginUserPost = async (req, res) => {
                 // Lock the account
                 await User.updateOne({ customerUsername }, { $set: { accountLocked: true } });
                 req.flash('error_msg', 'Account locked. Contact Korex for assistance or reset Password.');
-                return res.redirect('/user/login');
+                return res.redirect('/auth/login');
             } else {
                 // Redirect with error message for invalid password
                 req.flash('error_msg', 'Invalid Password 2 attenmpts left before access disabled.');
-                return res.redirect('/user/login');
+                return res.redirect('/auth/login');
             }
         }
 
         // Check if user is verified and account is not locked
         if (!user.isVerified) {
             req.flash('error_msg', 'Please verify your email before logging in.');
-            return res.redirect('/user/login');
+            return res.redirect('/auth/login');
         }
 
         if (user.accountLocked) {
             req.flash('error_msg', 'Account locked. Contact Korex for assistance.');
-            return res.redirect('/user/login');
+            return res.redirect('/auth/login');
         }
 
         // Successful login - reset failed login attempts
@@ -433,7 +433,7 @@ const loginUserPost = async (req, res) => {
         });
 
         // Redirect to the index page after successful login
-        res.redirect('/users/index');
+        res.redirect('/user/index');
 
     } catch (error) {
         // If an error occurs during the login process, return a 500 error response
@@ -443,28 +443,9 @@ const loginUserPost = async (req, res) => {
 };
 
 
-const logoutUser = async (req, res) => {
-    try {
-        if (!req.user) {
-            console.log("Logout failed. User not authenticated.");
-            return res.redirect("/login");
-        }
-
-        // Clear all cookies related to authentication
-        res.clearCookie("accessToken");
-        res.clearCookie("refreshToken");
-
-        // Optionally, you may add token revocation logic here
-
-        console.log("Logout successful!");
-        res.redirect("/login");
-    } catch (error) {
-        console.error("Logout failed:", error);
-        res.redirect("/home");
-    }
-};
 
 
-module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,logoutUser  });
+
+module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost});
 
 

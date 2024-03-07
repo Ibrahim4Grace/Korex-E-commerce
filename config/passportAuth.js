@@ -16,39 +16,25 @@ passport.use(new GoogleStrategy({
   async (accessToken, refreshToken, profile, done) => {
     try {
       let user = await User.findOne({ googleId: profile.id });
-
+   
       // If user not found, create a new one
       if (!user) {
+        const hashedPassword = await bcrypt.hash('NA', 10); // Hash the default password 'NA'
         user = new User({
           googleId: profile.id,
           customerFirstName: profile.displayName,
           customerLastName: profile.displayName,
           customerEmail: profile.emails ? profile.emails[0].value : '', // Check for emails availability
           // Set default or empty values for optional fields
-          customerUsername: profile.username || '',
-          customerAddress: profile.address || '',
-          customerCity: profile.city || '',
-          customerState: profile.state || '',
-          customerCountry: profile.country || '',
-          customerDob: profile.dob || '',
-          customerNumber: profile.number || '',
+          customerUsername: profile.username || 'NA',
+          customerAddress: profile.address || 'NA',
+          customerCity: profile.city || 'NA',
+          customerState: profile.state || 'NA',
+          customerCountry: profile.country || 'NA',
+          customerDob: profile.dob || 'NA',
+          customerNumber: profile.number || 'NA',
           image: profile.photos ? profile.photos[0].value : '',
-          role: 'User',
-
-
-          // googleId: profile.id,
-          // customerFirstName: profile.displayName,
-          // customerLastName: profile.displayName,
-          // customerEmail: profile.emails ? profile.emails[0].value : '',
-          // // Other required fields - You may need to obtain these values from the user or the Google profile
-          // customerPassword: '', // You can leave this empty if the user is authenticating via Google
-          // customerUsername: '', // You may need to prompt the user for this value
-          // customerAddress: '', // You may need to prompt the user for this value
-          // customerCity: '', // You may need to prompt the user for this value
-          // customerState: '', // You may need to prompt the user for this value
-          // customerCountry: '', // You may need to prompt the user for this value
-          // customerDob: '', // You may need to prompt the user for this value
-          // customerNumber: '' // You may need to prompt the user for this value
+          customerPassword: hashedPassword // Set the hashed default password
         });
         await user.save();
       }
