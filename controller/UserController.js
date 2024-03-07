@@ -46,7 +46,7 @@ const cartPage = (req, res) => {
 const checkouttPage = (req, res) => {
     res.render('user/checkout');
 };
-////////////////////////
+
 const dressesPage = (req, res) => {
     res.render('user/dresses');
 };
@@ -71,6 +71,10 @@ const swimwearPage = (req, res) => {
 const sleepwearPage = (req, res) => {
     res.render('user/sleepwear');
 };
+const sportswearPage = (req, res) => {
+    res.render('user/sportswear');
+};
+
 const jumpsuitsPage = (req, res) => {
     res.render('user/jumpsuits');
 };
@@ -130,7 +134,7 @@ const jacketsPage = (req, res) => {
 
 
 
-module.exports = ({ userLandingPage,detailsPage,shopPage,cartPage,checkouttPage,dressesPage,babyDressesPage,loafersPage,sneakersPage,shirtPage,jeansPage,swimwearPage,sleepwearPage,jumpsuitsPage,blazersPage,jacketsPage});
+module.exports = ({ userLandingPage,detailsPage,shopPage,cartPage,checkouttPage,dressesPage,babyDressesPage,loafersPage,sneakersPage,shirtPage,jeansPage,swimwearPage,sleepwearPage,sportswearPage,jumpsuitsPage,blazersPage,jacketsPage});
 
 
 

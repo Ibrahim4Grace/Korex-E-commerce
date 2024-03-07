@@ -443,9 +443,13 @@ const loginUserPost = async (req, res) => {
 };
 
 
+// Merchant login
+const merchantLogin = (req, res) =>{
+    res.render('auth/sellerLogin')
+};
 
+const merchantLoginPost = async(req, res) =>{};
 
-
-module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost});
+module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantLoginPost});
 
 

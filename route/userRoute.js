@@ -5,7 +5,7 @@ const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/pass
 const ensureUserAuthenticated = require ('../middleware/passportMiddleware');
 const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
-const {userLandingPage,detailsPage,shopPage,cartPage,checkouttPage,dressesPage,babyDressesPage,loafersPage,sneakersPage,shirtPage,jeansPage,swimwearPage,sleepwearPage,jumpsuitsPage,blazersPage,jacketsPage } = require('../controller/UserController');
+const {userLandingPage,detailsPage,shopPage,cartPage,checkouttPage,dressesPage,babyDressesPage,loafersPage,sneakersPage,shirtPage,jeansPage,swimwearPage,sleepwearPage,sportswearPage,jumpsuitsPage,blazersPage,jacketsPage } = require('../controller/UserController');
 
 // Registration route
 router.get('/index',ensureUserAuthenticated, userLandingPage);
@@ -23,6 +23,7 @@ router.get('/shirt',ensureUserAuthenticated, shirtPage)
 router.get('/jeans',ensureUserAuthenticated, jeansPage)
 router.get('/swimwear',ensureUserAuthenticated, swimwearPage)
 router.get('/sleepwear',ensureUserAuthenticated, sleepwearPage)
+router.get('/sportswear',ensureUserAuthenticated, sportswearPage)
 router.get('/jumpsuits',ensureUserAuthenticated, jumpsuitsPage)
 router.get('/blazers',ensureUserAuthenticated, blazersPage)
 router.get('/jackets',ensureUserAuthenticated, jacketsPage)

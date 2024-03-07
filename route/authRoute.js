@@ -4,7 +4,7 @@ const router = express.Router();
 const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
 
-const {registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost, logoutUser } = require('../controller/authController');
+const {registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantLoginPost } = require('../controller/authController');
 
 
 // Registration route
@@ -31,10 +31,13 @@ router.post('/resetPasswordPost/:resetToken', resetPasswordPost);
 router.get('/auth/google', googleAuthController);
 router.get('/google/callback', googleAuthCallback);
 
-
-// Login route with verifyAccessToken middleware
+// User Login route with verifyAccessToken middleware
 router.get('/login', loginUser);
 router.post('/loginUserPost',  loginUserPost);
+
+// Merchant Login route with verifyAccessToken middleware
+router.get('/sellerLogin', merchantLogin);
+router.post('/merchantLoginPost',  merchantLoginPost);
 
 // //refresh route with verifyRefreshToken middleware
 // router.post('/refresh-token', verifyRefreshToken, refreshToken);
