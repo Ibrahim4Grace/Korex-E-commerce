@@ -46,7 +46,40 @@ const cartPage = (req, res) => {
 const checkouttPage = (req, res) => {
     res.render('user/checkout');
 };
-
+////////////////////////
+const dressesPage = (req, res) => {
+    res.render('user/dresses');
+};
+const babyDressesPage = (req, res) => {
+    res.render('user/babyDresses');
+};
+const loafersPage = (req, res) => {
+    res.render('user/loafers');
+};
+const sneakersPage = (req, res) => {
+    res.render('user/sneakers');
+};
+const shirtPage = (req, res) => {
+    res.render('user/shirt');
+};
+const jeansPage = (req, res) => {
+    res.render('user/jeans');
+};
+const swimwearPage = (req, res) => {
+    res.render('user/swimwear');
+};
+const sleepwearPage = (req, res) => {
+    res.render('user/sleepwear');
+};
+const jumpsuitsPage = (req, res) => {
+    res.render('user/jumpsuits');
+};
+const blazersPage = (req, res) => {
+    res.render('user/blazers');
+};
+const jacketsPage = (req, res) => {
+    res.render('user/jackets');
+};
 
 // const logoutUser = async (req, res) => {
 //     try {
@@ -97,7 +130,7 @@ const checkouttPage = (req, res) => {
 
 
 
-module.exports = ({ userLandingPage,detailsPage,shopPage,cartPage,checkouttPage});
+module.exports = ({ userLandingPage,detailsPage,shopPage,cartPage,checkouttPage,dressesPage,babyDressesPage,loafersPage,sneakersPage,shirtPage,jeansPage,swimwearPage,sleepwearPage,jumpsuitsPage,blazersPage,jacketsPage});
 
 
 
