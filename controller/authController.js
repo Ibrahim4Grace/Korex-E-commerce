@@ -14,7 +14,7 @@ const Merchant = require('../models/merchant');
 const userSchema = require('../middleware/userValidation');
 const merchantSchema = require('../middleware/merchantValidation');
 const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
-const {merchantRegistrationMsg,merchantVerifyEmailMsg} = require('../services/merchantAuthMsgMailer');
+const {merchantRegistrationMsg,merchantVerifyEmailMsg,merchantRequestVerifyMsg,merchantForgetPswdMsg,merchantResetPswdMsg} = require('../services/merchantAuthMsgMailer');
 
  //Login attempts Limit 
 const MAX_FAILED_ATTEMPTS = process.env.MAX_FAILED_ATTEMPTS;
@@ -72,7 +72,6 @@ const registerUserPost = async (req, res) => {
             token: crypto.randomBytes(20).toString('hex'),
             expires: new Date(Date.now() + (20 * 60 * 1000)) // 20 minutes expiration
         };
-   
         
         // Save the user data to the database
         const newUser = new User({
@@ -129,16 +128,13 @@ const checkExistingUser = async (req, res) => {
 
         // Check if the field is either 'customerEmail' or 'customerUsername'
         if (field === 'customerEmail' || field === 'customerUsername') {
-            // Check if a user with the specified email or username exists
             user = await User.findOne({ [field]: value });
         } else {
-            // If the field is neither 'customerEmail' nor 'customerUsername', return an error response
             return res.status(400).json({ error: 'Invalid field parameter' });
         }
 
         if (user) {
-            // If user exists, send a JSON response with exists: true and an error message
-            res.status(200).json({ exists: true, message: `${field} already registered` });
+            res.status(200).json({ exists: true, message: `${field} has already been registered, please use it to log in.` });
         } else {
             // If user doesn't exist, send a JSON response with exists: false
             res.json({ exists: false });
@@ -148,8 +144,6 @@ const checkExistingUser = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while checking existing user' });
     }
 };
-
-
 
 // Verifify  Email Address
 const verifyEmail = async (req, res) => {
@@ -361,7 +355,6 @@ const googleAuthCallback = (req, res, next)=>{
     })(req, res, next);
 };
 
-
 // User login
 const loginUser = (req, res) =>{
     res.render('auth/login')
@@ -459,7 +452,7 @@ const loginUserPost = async (req, res) => {
     }
 };
 
-
+                                            // MERCHANT CONTROLLER
 // Merchant login Page
 const merchantLogin = (req, res) =>{
     res.render('auth/merchantLogin')
@@ -549,6 +542,31 @@ const merchantRegisterationPost = async(req, res) =>{
     } 
 };
 
+//Aysnronous request to check the email and username
+const checkExistingMerchant = async (req, res) => {
+    try {
+        const { field, value } = req.query;
+        let merchant;
+
+        // Check if the field is either 'merchantEmail' or 'merchantUsername'
+        if (field === 'merchantEmail' || field === 'merchantUsername') {
+            merchant = await Merchant.findOne({ [field]: value });
+        } else {
+            return res.status(400).json({ error: 'Invalid field parameter' });
+        }
+
+        if (merchant) {
+            res.status(200).json({ exists: true, message: `${field} has already been registered, please use it to log in.` });
+        } else {
+            // If merchant doesn't exist, send a JSON response with exists: false
+            res.json({ exists: false });
+        }
+    } catch (error) {
+        console.error('Error checking existing merchant:', error);
+        res.status(500).json({ error: 'An error occurred while checking existing merchant' });
+    }
+};
+
 //Verify email address
 const merchantVerifyEmail =async (req, res) => {
     console.log(' Merchant Verification Email Controller Method Called');
@@ -597,13 +615,154 @@ const merchantRequestVerification = (req, res) =>{
     res.render('auth/merchantrequestVerifyLink')
 };
 
-const merchantRequestVerificationPost = async (req, res) => {};
+const merchantRequestVerificationPost = async (req, res) => {
+    const { merchantEmail } = req.body;
+
+    try {
+        const merchant = await Merchant.findOne({ merchantEmail: merchantEmail });
+
+        if (!merchant) {
+            return res.status(400).json({ success: false, message: 'No merchant found with this email' });
+        }
+
+        // Check if the user is already verified
+        if (merchant.isVerified) {
+            return res.status(400).json({ success: false, message: 'Merchant Email is already verified.' });
+        }
+
+          // Generate a new verification token
+        const verificationToken = {
+            token: crypto.randomBytes(20).toString('hex'),
+            expires: new Date(Date.now() + (30 * 60 * 1000)) // 1hr expiration
+        };
+
+            // Save the verification token and expiration time to the merchant's document
+        merchant.verificationToken = {
+            token: verificationToken.token,
+            expires: verificationToken.expires 
+        };
+        await merchant.save();
+
+        // Send the new verification email
+        const verificationLink = `${process.env.BASE_URL || 'http://localhost:8080'}/verifyEmail/${encodeURIComponent(merchant.id)}/${encodeURIComponent(merchant.verificationToken.token)}`;
+
+           // Resend Email content to user
+        await merchantRequestVerifyMsg(merchant,verificationLink);
+        
+        return res.status(200).json({ success: true, message: 'Verification email resent successfully. Please check your inbox.' });
+    } catch (error) {
+        console.error('Error in requestVerificationPost:', error);
+        return res.status(500).json({ error: 'An error occurred during email verification. Please try again or contact support.' });
+    }
+};
 
 //verification link expired
 const merchantVerificationFailed = (req, res) =>{
     res.render('auth/merchantVerificationFailed')
 };
 
-module.exports = ({registerUser,registerUserPost,checkExistingUser,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantRegisteration,merchantRegisterationPost,merchantVerifyEmail,merchantRequestVerification,merchantRequestVerificationPost,merchantVerificationFailed});
+// Merchant Forget Password
+const merchantForgetPassword = (req, res) =>{
+    const errorMessage = req.query.errorMessage;
+    res.render('auth/merchantForgetPassword', { errorMessage });
+};
+
+const merchantForgetPasswordPost = async (req, res) => {
+    const { merchantEmail } = req.body;
+
+    try {
+        const merchant = await Merchant.findOne({ merchantEmail });
+        if (!merchant) {
+            return res.status(404).json({ success: false, message: 'Merchant Email not found' });
+        }
+
+        const resetToken = merchant.getResetPasswordToken();
+        await merchant.save();
+
+        // Send the email with the reset link
+        const resetLink = `${process.env.BASE_URL || 'http://localhost:8080'}/auth/merchantResetPassword/${resetToken}`;
+
+         // Send forget Email content to merchant Email
+         await merchantForgetPswdMsg(merchant,resetLink);
+        
+        // Once email is sent successfully, respond with a 200 status and success message
+        return res.status(200).json({ success: true, message: 'Password reset link sent successfully' });
+    } catch (error) {
+        console.log('Error in forgetPasswordPost:', error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+//   MERCHANT RESET PASSWORD SECTION
+const merchantResetPassword = async (req, res) => {
+    const { resetToken } = req.params;
+    try {
+        // Hash the reset token for comparison
+        const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+        // Find the user with the provided reset token and check if it's still valid
+        const merchant = await Merchant.findOne({
+            resetPasswordToken: hashedResetToken,
+            resetPasswordExpires: { $gt: Date.now() }, // Token not expired
+        });
+
+        // Check if the merchant exists
+        if (!merchant) {
+            // If the token is not found or has expired, redirect to expired password page
+             return res.redirect('/auth/merchantForgetPassword?errorMessage=Invalid or expired reset token');
+        }
+
+        res.render('auth/merchantResetPassword');
+
+    } catch (error) {
+        console.error('Error in resetPassword:', error);
+        return res.status(500).json({ success: false, message: 'An error occurred while processing your request' });
+    }
+};
+
+const merchantResetPasswordPost = async (req, res) => {
+    const { merchantPassword, confirmMerchantPassword } = req.body;
+    const { resetToken } = req.params;
+    console.log("my token", resetToken)
+
+      if (merchantPassword.length < 6) {
+        return res.status(400).json({ success: false, message: 'Minimum passwords must be 6 character' });
+    }
+
+      if (merchantPassword !== confirmMerchantPassword) {
+        return res.status(400).json({ success: false, message: 'Passwords do not match' });
+    }
+
+    try {
+
+         // Hash the reset token for comparison
+         const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+        // Find the user with the provided reset token and check if it's still valid
+        const merchant = await Merchant.findOne({
+            resetPasswordToken: hashedResetToken,
+            resetPasswordExpires: { $gt: Date.now() },
+        });
+
+        // Hash the new password
+        const hashedPassword = bcrypt.hashSync(merchantPassword, 10);
+
+        // If password matches, update the password to the new one
+        merchant.merchantPassword = hashedPassword;
+        merchant.resetPasswordToken = null;
+        merchant.resetPasswordExpires = null;
+        await merchant.save();
+
+           // ResetPassword Email content to user
+        await merchantResetPswdMsg(merchant);
+
+        return res.status(200).json({ success: true, message: 'Password reset successfully please login' });
+    } catch (error) {
+        console.error('Error in resetPassword:', error);
+        return res.status(500).json({ success: false, message: 'An error occurred while resetting the password' });
+    }
+};
+
+module.exports = ({registerUser,registerUserPost,checkExistingUser,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantRegisteration,merchantRegisterationPost,checkExistingMerchant,merchantVerifyEmail,merchantRequestVerification,merchantRequestVerificationPost,merchantVerificationFailed,merchantForgetPassword,merchantForgetPasswordPost,merchantResetPassword,merchantResetPasswordPost});
 
 

@@ -53,9 +53,9 @@ const merchantRegistrationMsg = async (newMerchant,verificationLink) => {
 const merchantVerifyEmailMsg = async (merchant) => {
     const verifiedMsg = `
     <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
-    <p>Dear  ${merchant.merchantFirstName} ${merchant.merchantLastName} ,  We are thrilled to welcome you to Korex StyleHub Service. </p>
+    <p>Dear  ${merchant.merchantFirstName} ${merchant.merchantLastName} ,  Welcome to Korex StyleHub Service! We are thrilled to have you join us. </p>
       
-    <p>Here are some important details to get you started:</p>
+    <p>Here are the details you provided during registration:</p>
     <ul>
         <li>Full Name: ${merchant.merchantFirstName} ${merchant.merchantLastName}</li>
         <li>Email Address: ${merchant.merchantEmail}</li>
@@ -66,11 +66,9 @@ const merchantVerifyEmailMsg = async (merchant) => {
         <li>State: ${merchant.merchantState}</li>
     </ul>
       
-    <p>Thank you for registering with Korex StyleHub! We are delighted to welcome you to our platform</p>
+    <p>Thank you for choosing Korex StyleHub! Your account has been successfully created, granting you access to our platform's exciting features</p>
       
-    <p>Your account has been successfully created, you can now explore all the features we have to offer.</p>
-      
-    <p>If you have any questions or need assistance, feel free to reach out to our support team at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
+    <p>Should you have any inquiries or require assistance, please don't hesitate to contact our support team at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>.Your satisfaction is our priority, and we are committed to providing you with the assistance you need.</p>
       
     <p>Best regards,<br>
     The Korex StyleHub Team</p>`;
@@ -100,4 +98,107 @@ const merchantVerifyEmailMsg = async (merchant) => {
 
 };
 
-module.exports = { merchantRegistrationMsg,merchantVerifyEmailMsg};
+const merchantRequestVerifyMsg = async (merchant,verificationLink) => {
+    const mailOptions = {
+        from: process.env.NODEMAILER_EMAIL,
+        to: merchant.merchantEmail,
+        subject: 'Merchant Verify Your Email - Korex StyleHub',
+        html: `<p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+        <p>Click <a href="${verificationLink}">here</a> to verify your email address.</p>
+        <p>Best regards,<br>
+        The Korex StyleHub Team</p>`,
+        attachments: [
+            {
+                filename: 'companyLogo.jpg',
+                path: './public/img/companyLogo.jpg',
+                cid: 'companyLogo'
+            }
+        ]
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Email sending error:', error);
+        } else {
+            console.log('Email sent:', info.response);
+        }
+    });
+};
+
+const merchantForgetPswdMsg = async (merchant,resetLink) => {
+    const msg = `
+    <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+    <p>Dear ${merchant.merchantFirstName} ${merchant.merchantLastName},</p>
+
+    <p>We are writing to confirm your password recovery with Korex StyleHub.</p>
+    <p>Reset your password here: <a href="${resetLink}">Click here to reset your password</a></p>
+
+    <p>If you didn't request this verification, please ignore this email.</p>
+
+    <p>If you encounter any issues or need further assistance, feel free to contact our support team at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
+
+    <p>Warm regards,<br>
+    Korex StyleHub</p>`;
+
+    const mailOptions = {
+    from: process.env.NODEMAILER_EMAIL,
+    to: merchant.merchantEmail,
+    subject: 'Recover your password with Korex StyleHub!',
+    html: msg,
+    attachments: [
+        {
+            filename: 'companyLogo.jpg',
+            path: './public/img/companyLogo.jpg',
+            cid: 'companyLogo'
+        }
+    ]
+};
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Email sending error:', error);
+            return res.status(500).json({ success: false, errors: [{ msg: 'Error sending email' }] });
+        } else {
+            console.log('Email sent:', info.response);
+        }
+    });
+};
+
+const merchantResetPswdMsg = async (merchant) =>{
+    const msg = `
+    <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
+    <p>Dear ${merchant.merchantFirstName} ${merchant.merchantLastName},</p>
+
+    <p>We are writing to confirm your password recovery with Korex StyleHub.</p>
+    <p>Your password has been successfully reset. You can now log in to your account using your new password.</p>
+
+    <p>If you did not request this password reset, please contact us immediately. at <a href="tel:${phoneNumber}">${phoneNumber}</a> or <a href="mailto:${emailAddress}">${emailAddress}</a>. Your satisfaction is important to us, and we are here to assist you</p>
+
+    <p>Warm regards,<br>
+    Korex StyleHub</p>`;
+
+    const mailOptions = {
+        from: process.env.NODEMAILER_EMAIL,
+        to: merchant.merchantEmail,
+        subject: 'Password Reset Successful with Korex StyleHub!',
+        html: msg,
+        attachments: [
+            {
+                filename: 'companyLogo.jpg',
+                path: './public/img/companyLogo.jpg',
+                cid: 'companyLogo'
+            }
+        ]
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log('Email sending error:', error);
+            return res.status(500).json({ success: false, errors: [{ msg: 'Error sending email' }] });
+        } else {
+            console.log('Email sent:', info.response);
+        }
+    });
+};
+
+module.exports = { merchantRegistrationMsg,merchantVerifyEmailMsg,merchantRequestVerifyMsg,merchantForgetPswdMsg,merchantResetPswdMsg};

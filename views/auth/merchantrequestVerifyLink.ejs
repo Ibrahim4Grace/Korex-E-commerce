@@ -37,11 +37,11 @@
 
 <div class="login-page">
     <div class="form">
-        <form id="resendVerifyEmail" action="/auth/merchantRequestVerificationPost" method="post">
+        <form id="merchantResendVerifyEmail" action="/auth/merchantRequestVerificationPost" method="post">
 
             <h2 class="colors">Request New Verification Email</h2>
 
-            <input type="email" id="customerEmail" name="customerEmail" class="form-control" placeholder="Enter your email">
+            <input type="email" id="merchantEmail" name="merchantEmail" class="form-control" placeholder="Enter your email">
             <div id="message" class="error"></div>
             <button type="submit">Request  New Link!</button>
         
@@ -63,25 +63,25 @@
 </div>
 
 <script>
-    document.getElementById('resendVerifyEmail').addEventListener('submit', async (event) => {
+    document.getElementById('merchantResendVerifyEmail').addEventListener('submit', async (event) => {
         event.preventDefault();
         
         // Get the email input value
-        const customerEmail = document.getElementById('customerEmail').value;
+        const merchantEmail = document.getElementById('merchantEmail').value;
         
         // Basic email validation
-        if (!isValidEmail(customerEmail)) {
+        if (!isValidEmail(merchantEmail)) {
             displayMessage('Please enter a valid email address.', 'error');
             return;
         }
 
         try {
-            const response = await fetch('/auth/requestVerificationPost', {
+            const response = await fetch('/auth/merchantRequestVerificationPost', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ customerEmail })
+                body: JSON.stringify({ merchantEmail })
             });
 
             const data = await response.json();
@@ -90,7 +90,7 @@
                 if (data.success) {
                     // Redirect to login page with success message
                     const successMessage = encodeURIComponent(data.message);
-                    window.location.href = `/auth/login?successMessage=${successMessage}`;
+                    window.location.href = `/auth/merchantLogin?successMessage=${successMessage}`;
                 } else {
                     // Registration failed, display error messages
                     displayMessage(data.message, 'error');
@@ -121,8 +121,6 @@
         messageElement.className = type;
     }
 </script>
-
-
 
 
     <!-- Footer Start -->

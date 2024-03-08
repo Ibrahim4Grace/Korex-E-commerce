@@ -1,5 +1,5 @@
 
-  //TODO : Its a Completed Code
+//Validating the password
 function formvalid() {
   var vaildpass = document.getElementById("pass").value;
 

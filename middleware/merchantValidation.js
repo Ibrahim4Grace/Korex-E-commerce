@@ -59,14 +59,14 @@ const ConfirmPasswordMessages = {
 
 // Define a Joi schema for the user data
 const merchantSchema = Joi.object({
-    merchantLastName: Joi.string().min(2).required().messages(firstNameMessages),
+    merchantFirstName: Joi.string().min(2).required().messages(firstNameMessages),
     merchantLastName: Joi.string().min(2).required().messages(lastNameMessages),
     merchantEmail: Joi.string().email().required().messages(emailMessages),
     merchantPhone: Joi.string().pattern(/^\d+$/).min(5).required().messages(numberMessages),  
     merchantUsername: Joi.string().min(5).required().messages(usernameMessages),
     merchantAddress: Joi.string().min(2).required().messages(addressMessages),
-    merchantCity: Joi.string().required().messages(cityMessages),
-    merchantState: Joi.date().required().messages(stateMessages), 
+    merchantCity: Joi.string().min(2).required().messages(cityMessages),
+    merchantState: Joi.string().min(2).required().messages(stateMessages), 
     merchantCountry: Joi.string().required().messages(countryMessages), 
     merchantPassword: Joi.string().min(6).required().messages(passwordMessages),
     confirmMerchantPassword: Joi.string().valid(Joi.ref('merchantPassword')).required().messages(ConfirmPasswordMessages),

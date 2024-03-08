@@ -116,11 +116,55 @@
     </form>
   </div>
 
-
   <script>
+    // Function to check if email or username already exists
+    async function checkExistingMerchant(field, value) {
+        try {
+            const response = await fetch(`/checkExistingMerchant?field=${field}&value=${encodeURIComponent(value)}`);
+            const data = await response.json();
+            return data; // Return the response data directly
+        } catch (error) {
+            console.error('Error checking existing user:', error);
+            return { exists: false, message: 'An error occurred while checking existing merchant' };
+        }
+    }
+
+    // Add event listeners to email and username input fields
+    const emailField = document.querySelector('input[name="merchantEmail"]');
+    const usernameField = document.querySelector('input[name="merchantUsername"]');
+    const emailErrorElement = document.getElementById('merchantEmailError');
+    const usernameErrorElement = document.getElementById('merchantUsernameError');
+
+    emailField.addEventListener('input', async () => {
+    const email = emailField.value.trim();
+    if (email) {
+        const { exists, message } = await checkExistingMerchant('merchantEmail', email); // Updated parameter
+        if (exists) {
+            emailErrorElement.textContent = message;
+            console.log(emailErrorElement.textContent);
+        } else {
+            emailErrorElement.textContent = '';
+        }
+    }
+});
+
+usernameField.addEventListener('input', async () => {
+    const username = usernameField.value.trim();
+    if (username) {
+        const { exists, message } = await checkExistingMerchant('merchantUsername', username); // Updated parameter
+        if (exists) {
+            usernameErrorElement.textContent = message;
+            console.log(usernameErrorElement.textContent);
+        } else {
+            usernameErrorElement.textContent = '';
+        }
+    }
+});
+
+</script>
 
 
-
+ <script>
     document.addEventListener('DOMContentLoaded', function () {
         const merchantRegistrationForm = document.getElementById('merchantRegistrationForm');
 
@@ -201,7 +245,7 @@
         });
     });
 
-</script>
+</script> 
 
 
     <!-- Footer Start -->
