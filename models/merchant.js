@@ -23,10 +23,6 @@ const merchantSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    merchantcacStatus:{
-        type:String,
-        required:true
-    },
     merchantAddress:{
         type:String,
         required:true

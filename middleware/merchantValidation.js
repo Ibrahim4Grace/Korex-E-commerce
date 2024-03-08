@@ -20,10 +20,6 @@ const usernameMessages = {
     "string.min": "Username must be at least {#limit} characters",
     "any.required": "Username is required",
 };
-const statusMessages = {
-    "string.empty": "CAC is required",
-    "any.required": "CAC is required",
-};
 const addressMessages = {
     "string.empty": "Address is required",
     "string.min": "Address must be at least {#limit} characters",
@@ -42,10 +38,6 @@ const stateMessages = {
 const countryMessages = {
     "string.empty": "State is required",
     "any.required": "State is required",
-};
-const dobMessages = {
-    "string.empty": "Dob is required",
-    "any.required": "Dob is required",
 };
 const numberMessages = {
     "string.empty": "Phone number is required",
@@ -72,7 +64,6 @@ const merchantSchema = Joi.object({
     merchantEmail: Joi.string().email().required().messages(emailMessages),
     merchantPhone: Joi.string().pattern(/^\d+$/).min(5).required().messages(numberMessages),  
     merchantUsername: Joi.string().min(5).required().messages(usernameMessages),
-    merchantcacStatus: Joi.string().min(2).required().messages(statusMessages),
     merchantAddress: Joi.string().min(2).required().messages(addressMessages),
     merchantCity: Joi.string().required().messages(cityMessages),
     merchantState: Joi.date().required().messages(stateMessages), 

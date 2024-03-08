@@ -67,18 +67,7 @@
                 <input type="text" class="form-control" name="merchantUsername" placeholder="Enter username" >
                 <div id="merchantUsernameError" class="error"></div>
             </div>
-            <div class="col-sm-6 form-group">
-                <label for="merchantcacStatus">CAC Status:</label>
-                <label>
-                    <input type="radio" id="merchantcacStatusYes" name="merchantcacStatus" value="Yes" <% if(typeof(status) !== 'undefined' && status === "Yes") { %> checked <% } %>>
-                    Registration
-                </label>
-                <label>
-                    <input type="radio" id="merchantcacStatusNo" name="merchantcacStatus" value="No" <% if(typeof(status) !== 'undefined' && status === "No") { %> checked <% } %>>
-                    Not Registered
-                </label>
-                <div id="merchantcacStatusError" class="error"></div>
-            </div>
+
             <div class="col-sm-6 form-group">
                 <label for="address-2">Address</label>
                 <input type="address" class="form-control" name="merchantAddress" placeholder="Locality/House/Street no." >
@@ -148,7 +137,7 @@
                 const formData = Object.fromEntries(new FormData(merchantRegistrationForm));
 
                 // Send form data to server using AJAX
-                const response = await fetch('/auth/merchantLoginPost', {
+                const response = await fetch('/auth/merchantRegistrationPost', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

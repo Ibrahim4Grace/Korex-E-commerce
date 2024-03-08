@@ -55,7 +55,7 @@ const registerUserPost = async (req, res) => {
                 { customerUsername: userResult.customerUsername }
             ]
         });
-
+        console.log('user found in db:', userExists)
         if (userExists) {
             if (userExists.customerEmail === userResult.customerEmail) {
                 return res.status(409).json({ success: false, errors: [{ msg: 'Email already registered' }] });
@@ -121,6 +121,35 @@ const registerUserPost = async (req, res) => {
         }
     }
 };
+
+const checkExistingUser = async (req, res) => {
+    try {
+        const { field, value } = req.query;
+        let user;
+
+        // Check if the field is either 'customerEmail' or 'customerUsername'
+        if (field === 'customerEmail' || field === 'customerUsername') {
+            // Check if a user with the specified email or username exists
+            user = await User.findOne({ [field]: value });
+        } else {
+            // If the field is neither 'customerEmail' nor 'customerUsername', return an error response
+            return res.status(400).json({ error: 'Invalid field parameter' });
+        }
+
+        if (user) {
+            // If user exists, send a JSON response with exists: true and an error message
+            res.status(200).json({ exists: true, message: `${field} already registered` });
+        } else {
+            // If user doesn't exist, send a JSON response with exists: false
+            res.json({ exists: false });
+        }
+    } catch (error) {
+        console.error('Error checking existing user:', error);
+        res.status(500).json({ error: 'An error occurred while checking existing user' });
+    }
+};
+
+
 
 // Verifify  Email Address
 const verifyEmail = async (req, res) => {
@@ -480,7 +509,6 @@ const merchantRegisterationPost = async(req, res) =>{
             merchantEmail: merchantResult.merchantEmail,
             merchantPhone: merchantResult.merchantPhone,
             merchantUsername: merchantResult.merchantUsername,
-            merchantcacStatus: merchantResult.merchantcacStatus,
             merchantAddress: merchantResult.merchantAddress,
             merchantCity: merchantResult.merchantCity,
             merchantState: merchantResult.merchantState,
@@ -576,6 +604,6 @@ const merchantVerificationFailed = (req, res) =>{
     res.render('auth/merchantVerificationFailed')
 };
 
-module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantRegisteration,merchantRegisterationPost,merchantVerifyEmail,merchantRequestVerification,merchantRequestVerificationPost,merchantVerificationFailed});
+module.exports = ({registerUser,registerUserPost,checkExistingUser,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantRegisteration,merchantRegisterationPost,merchantVerifyEmail,merchantRequestVerification,merchantRequestVerificationPost,merchantVerificationFailed});
 
 

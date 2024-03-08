@@ -122,92 +122,142 @@
     </form>
   </div>
 
+  
 
   <script>
+    // Function to check if email or username already exists
+    async function checkExistingUser(field, value) {
+        try {
+            const response = await fetch(`/checkExistingUser?field=${field}&value=${encodeURIComponent(value)}`);
+            const data = await response.json();
+            return data; // Return the response data directly
+        } catch (error) {
+            console.error('Error checking existing user:', error);
+            return { exists: false, message: 'An error occurred while checking existing user' };
+        }
+    }
+
+    // Add event listeners to email and username input fields
+    const emailField = document.querySelector('input[name="customerEmail"]');
+    const usernameField = document.querySelector('input[name="customerUsername"]');
+    const emailErrorElement = document.getElementById('customerEmailError');
+    const usernameErrorElement = document.getElementById('customerUsernameError');
+
+    emailField.addEventListener('input', async () => {
+    const email = emailField.value.trim();
+    if (email) {
+        const { exists, message } = await checkExistingUser('customerEmail', email); // Updated parameter
+        if (exists) {
+            emailErrorElement.textContent = message;
+            console.log(emailErrorElement.textContent);
+        } else {
+            emailErrorElement.textContent = '';
+        }
+    }
+});
+
+usernameField.addEventListener('input', async () => {
+    const username = usernameField.value.trim();
+    if (username) {
+        const { exists, message } = await checkExistingUser('customerUsername', username); // Updated parameter
+        if (exists) {
+            usernameErrorElement.textContent = message;
+            console.log(usernameErrorElement.textContent);
+        } else {
+            usernameErrorElement.textContent = '';
+        }
+    }
+});
+
+</script>
+
+  
 
 
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const registrationForm = document.getElementById('registrationForm');
+    registrationForm.addEventListener('submit', async function (event) {
+        event.preventDefault(); // Prevent default form submission
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const registrationForm = document.getElementById('registrationForm');
+        // Change the appearance of the submit button to show a spinner
+        const submitButton = document.getElementById('submitButton');
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+        submitButton.disabled = true; // Disable the button while submitting
 
-        registrationForm.addEventListener('submit', async function (event) {
-            event.preventDefault(); // Prevent default form submission
+        try {
+            // Get form data
+            const formData = Object.fromEntries(new FormData(registrationForm));
 
-            // Change the appearance of the submit button to show a spinner
-            const submitButton = document.getElementById('submitButton');
-            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
-            submitButton.disabled = true; // Disable the button while submitting
+            // Send form data to server using AJAX
+            const response = await fetch('/auth/registerUserPost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
 
-            try {
-                // Get form data
-                const formData = Object.fromEntries(new FormData(registrationForm));
+            const data = await response.json();
 
-                // Send form data to server using AJAX
-                const response = await fetch('/auth/registerUserPost', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
+            if (data.success) {
+                // If registration successful, redirect or show success message
+                const successMessage = encodeURIComponent(data.message);
+                window.location.href = `/auth/login?successMessage=${successMessage}`;
+            } else {
+                // If registration failed, display error messages
+                const errors = data.errors;
+                errors.forEach(error => {
+                    const errorElement = document.getElementById(`${error.key}Error`);
+                    if (errorElement) {
+                        errorElement.textContent = error.msg;
+                    }
                 });
 
-                const data = await response.json();
-
-                if (data.success) {
-                    // If registration successful, redirect or show success message
-                    const successMessage = encodeURIComponent(data.message);
-                    window.location.href = `/auth/login?successMessage=${successMessage}`;
-                } else {
-                    // If registration failed, display error messages
-                    const errors = data.errors;
-                    errors.forEach(error => {
-                        const errorElement = document.getElementById(`${error.key}Error`);
-                        if (errorElement) {
-                            errorElement.textContent = error.msg;
-                        }
-                    });
-
-                    // Check if email or username is already registered
-                    const emailAlreadyRegistered = errors.some(error => error.msg === 'Email already registered');
-                    const usernameAlreadyRegistered = errors.some(error => error.msg === 'Username already registered');
-                    if (emailAlreadyRegistered) {
-                        const emailErrorElement = document.getElementById('customerEmailError');
-                        if (emailErrorElement) {
-                            emailErrorElement.innerText = 'Email already registered';
-                        }
-                    } else if (usernameAlreadyRegistered) {
-                        const usernameErrorElement = document.getElementById('customerUsernameError');
-                        if (usernameErrorElement) {
-                            usernameErrorElement.innerText = 'Username already registered';
-                        }
+                // Check if email or username is already registered
+                const emailAlreadyRegistered = errors.some(error => error.msg === 'Email already registered');
+                const usernameAlreadyRegistered = errors.some(error => error.msg === 'Username already registered');
+                if (emailAlreadyRegistered) {
+                    const emailErrorElement = document.getElementById('customerEmailError');
+                    if (emailErrorElement) {
+                        emailErrorElement.innerText = 'Email already registered';
+                    }
+                } else if (usernameAlreadyRegistered) {
+                    const usernameErrorElement = document.getElementById('customerUsernameError');
+                    if (usernameErrorElement) {
+                        usernameErrorElement.innerText = 'Username already registered';
                     }
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                // Handle other errors, like network issues
-                alert('An error occurred while processing your request.');
-            } finally {
-                // Restore the appearance of the submit button
-                submitButton.innerHTML = 'Submit';
-                submitButton.disabled = false; // Re-enable the button
             }
-        });
+        } catch (error) {
+            console.error('Error:', error);
+            // Handle other errors, like network issues
+            alert('An error occurred while processing your request.');
+        } finally {
+            // Restore the appearance of the submit button
+            submitButton.innerHTML = 'Submit';
+            submitButton.disabled = false; // Re-enable the button
+        }
+    });
 
-        // Add event listener to each input field to clear error messages
-        const inputFields = document.querySelectorAll('input, select'); // Get all input and select fields
-        inputFields.forEach(inputField => {
-            inputField.addEventListener('input', () => {
-                const fieldName = inputField.name;
-                const errorElement = document.getElementById(fieldName + 'Error');
-                if (errorElement) {
-                    // Clear the error message associated with the input field
-                    errorElement.innerText = '';
-                }
-            });
+    // Add event listener to each input field to clear error messages
+    const inputFields = document.querySelectorAll('input, select'); // Get all input and select fields
+    inputFields.forEach(inputField => {
+        inputField.addEventListener('input', () => {
+            const fieldName = inputField.name;
+            const errorElement = document.getElementById(fieldName + 'Error');
+            if (errorElement) {
+                // Clear the error message associated with the input field
+                errorElement.innerText = '';
+            }
         });
     });
 
-</script>
+    // Log a message to the console indicating that the script has been loaded successfully
+    console.log('Registration form script loaded successfully.');
+});
+</script> 
+
 
 
     <!-- Footer Start -->
