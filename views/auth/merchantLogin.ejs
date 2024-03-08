@@ -37,9 +37,8 @@
 
 <div class="login-page">
     <div class="form">
-        <form class="login-form" action="/auth/loginUserPost" method="post">
-            <h2 class="colors">SIGN IN TO YOUR ACCOUNT</h2>
-
+        <form class="login-form" action="/auth/merchantLoginPost" method="post">
+            <h2 class="colors">Merchant Login </h2>
   
                 <!-- New HTML element to display success message -->
                 <div id="successMessageContainer"></div>
@@ -52,15 +51,9 @@
       
             <button type="submit">SIGN IN</button>
             
-            <p class="message"><a href="/auth/forgetPassword">Forgot your password?</a></p>
-            <p class="message"><a href="/auth/register">Dont have account register?</a></p>
+            <p class="message"><a href="/auth/merchantForgetPassword">Forgot your password?</a></p>
+            <p class="message"><a href="/auth/merchantRegistration">Dont have account register?</a></p>
 
-            <div class="social-login">
-                <h5 class="text-center mb-3 colors">Social Login</h5>
-                <a href="/auth/google" class="btn btn-outline-secondary mb-3 btnGoogle">
-                    <i class="fab fa-google colors"></i> Sign With Google
-                </a>
-            </div>
             
             <!-- Include animation elements here -->
             <ul class="animate">

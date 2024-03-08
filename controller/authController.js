@@ -4,37 +4,20 @@ const nodemailer = require(`nodemailer`);
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const User = require('../models/User');
 const Admin = require('../models/Admin');  
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
-// const passport = require('passport');
 const passport = require('../config/passportAuth')();
-// require('../config/auth');
+const User = require('../models/User');
+const Merchant = require('../models/merchant');
 const userSchema = require('../middleware/userValidation');
-const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/authMessageMailer');
-
-// Send email to the applicant
-const transporter = nodemailer.createTransport({
-    service: process.env.MAILER_SERVICE,
-    auth: {
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PASSWORD
-    }
-});
-
-const phoneNumber = process.env.COMPANY_NUMBER;
-const emailAddress = process.env.COMPANY_EMAIL;
+const merchantSchema = require('../middleware/merchantValidation');
+const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
+const {merchantRegistrationMsg,merchantVerifyEmailMsg} = require('../services/merchantAuthMsgMailer');
 
  //Login attempts Limit 
 const MAX_FAILED_ATTEMPTS = process.env.MAX_FAILED_ATTEMPTS;
-
-
-// Registration attempt
-const registerUser = (req, res) => {
-    res.render('auth/register')
-};
 
 // // Define multer storage configuration
 // const storage = multer.diskStorage({
@@ -52,6 +35,12 @@ const registerUser = (req, res) => {
 
 // // Initialize multer middleware
 // const upload = multer({ storage: storage });
+
+
+// Registration attempt
+const registerUser = (req, res) => {
+    res.render('auth/register')
+};
 
 const registerUserPost = async (req, res) => {
     try {
@@ -349,7 +338,6 @@ const loginUser = (req, res) =>{
     res.render('auth/login')
 };
 
-
 const loginUserPost = async (req, res) => {
     try {
         const { customerUsername, customerPassword } = req.body;
@@ -443,13 +431,151 @@ const loginUserPost = async (req, res) => {
 };
 
 
-// Merchant login
+// Merchant login Page
 const merchantLogin = (req, res) =>{
-    res.render('auth/sellerLogin')
+    res.render('auth/merchantLogin')
 };
 
-const merchantLoginPost = async(req, res) =>{};
+// Merchant Registration
+const merchantRegisteration = (req, res) => {
+    res.render('auth/merchantRegistration')
+};
 
-module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantLoginPost});
+const merchantRegisterationPost = async(req, res) =>{
+    try {
+
+        // Validate user input against Joi schema
+        const merchantResult = await merchantSchema.validateAsync(req.body, {abortEarly: false});
+
+        // Check if user with the same email or username already exists
+        const merchantExists = await Merchant.findOne({
+            $or: [
+                { merchantEmail: merchantResult.merchantEmail },
+                { merchantUsername: merchantResult.merchantUsername }
+            ]
+        });
+
+        if (merchantExists) {
+            if (merchantExists.merchantEmail === merchantResult.merchantEmail) {
+                return res.status(409).json({ success: false, errors: [{ msg: 'Email already registered' }] });
+            }
+            if (merchantExists.merchantUsername === merchantResult.merchantUsername) {
+                return res.status(409).json({ success: false, errors: [{ msg: 'Username already registered' }] });
+            }
+        }
+
+        // If validation passes and user does not exist, proceed with registration
+        const hashedPassword = await bcrypt.hash(merchantResult.merchantPassword, 10);
+        // Generate a unique verification token
+        const verificationToken = {
+            token: crypto.randomBytes(20).toString('hex'),
+            expires: new Date(Date.now() + (2 * 60 * 1000)) // 20 minutes expiration
+        };
+   
+        
+        // Save the user data to the database
+        const newMerchant = new Merchant({
+            merchantFirstName: merchantResult.merchantFirstName,
+            merchantLastName: merchantResult.merchantLastName,
+            merchantEmail: merchantResult.merchantEmail,
+            merchantPhone: merchantResult.merchantPhone,
+            merchantUsername: merchantResult.merchantUsername,
+            merchantcacStatus: merchantResult.merchantcacStatus,
+            merchantAddress: merchantResult.merchantAddress,
+            merchantCity: merchantResult.merchantCity,
+            merchantState: merchantResult.merchantState,
+            merchantCountry: merchantResult.merchantCountry,
+            merchantPassword: hashedPassword,
+            role: 'Merchant', verificationToken: verificationToken,
+            date_added: Date.now(),
+        });
+   
+        await newMerchant.save();
+
+        // Include the verification token in the email
+        const hosting = process.env.BASE_URL || 'http://localhost:8080';
+        const verificationLink = `${hosting}/verifyEmail/${encodeURIComponent(newMerchant.id)}/${encodeURIComponent(newMerchant.verificationToken.token)}`;
+        
+        // After successfully registering the user, call the email sending function
+        await merchantRegistrationMsg(newMerchant,verificationLink);
+
+        console.log('Merchant registered successfully:', newMerchant);
+        // Send success response to the client
+        res.status(201).json({ success: true ,  message: 'Registeration successful please verify your email' });
+    }  catch (error) {
+        let errors; // Declare errors variable
+        if (error.isJoi) {
+            // Joi validation error
+            errors = error.details.map(err => ({
+                key: err.path[0],
+                msg: err.message
+            }));
+            console.error('Joi validation error:', errors);
+            return res.status(400).json({ success: false, errors });
+
+        } else {
+            // Other error occurred
+            console.error('An error occurred while processing the request:', error);
+            return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+        }
+    } 
+};
+
+//Verify email address
+const merchantVerifyEmail =async (req, res) => {
+    console.log(' Merchant Verification Email Controller Method Called');
+    const { id, token } = req.params;
+    try {
+     
+        // Find the merchant by ID
+        const merchant = await Merchant.findById(id);
+        if (!merchant || merchant.verificationToken.token !== token) {
+            return res.status(400).render('auth/merchantVerificationFailed', { message: 'Invalid verification link.' });
+        }
+
+         // Check if the token has already been used
+        if (merchant.isVerified) {
+            return res.status(400).render('auth/merchantVerificationFailed', { message: 'Verification link has already been used. Please contact support if you have any issues.' });
+        }
+
+        // Check if the token has expired
+        const expirationTime = merchant.verificationToken.expires;
+        const currentTime = new Date();
+        if (currentTime >= expirationTime) {
+            console.log('Verification link has expired.');
+            return res.status(400).render('auth/merchantVerificationFailed', { message: 'Verification link has expired. Please request a new one.' });
+        } 
+
+        // Mark the user as verified
+        merchant.isVerified = true;
+        merchant.verificationToken = null; // Clear the verification token
+        await merchant.save();
+
+        // Email content for verified user
+        await merchantVerifyEmailMsg(merchant);
+
+        const successMessage = 'Email verified successfully. You can now log in.';
+        return res.redirect(`/auth/merchantLogin?successMessage=${encodeURIComponent(successMessage)}`);
+
+    } catch (error) {
+        // Handle database errors or other issues
+        console.error('Error in verifyEmail:', error);
+        return res.status(500).render('auth/merchantrequestVerifyLink', { message: 'An error occurred during email verification. Please try again or contact support.' });
+    }
+};
+
+//Request new verification  link 
+const merchantRequestVerification = (req, res) =>{
+    res.render('auth/merchantrequestVerifyLink')
+};
+
+const merchantRequestVerificationPost = async (req, res) => {};
+
+//verification link expired
+const merchantVerificationFailed = (req, res) =>{
+    res.render('auth/merchantVerificationFailed')
+};
+
+module.exports = ({registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantRegisteration,merchantRegisterationPost,merchantVerifyEmail,merchantRequestVerification,merchantRequestVerificationPost,merchantVerificationFailed});
 
 

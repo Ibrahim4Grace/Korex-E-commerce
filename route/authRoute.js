@@ -4,7 +4,7 @@ const router = express.Router();
 const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
 
-const {registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantLoginPost } = require('../controller/authController');
+const {registerUser,registerUserPost,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantRegisteration,merchantRegisterationPost,merchantVerifyEmail,merchantRequestVerification,merchantRequestVerificationPost,merchantVerificationFailed} = require('../controller/authController');
 
 
 // Registration route
@@ -35,12 +35,20 @@ router.get('/google/callback', googleAuthCallback);
 router.get('/login', loginUser);
 router.post('/loginUserPost',  loginUserPost);
 
-// Merchant Login route with verifyAccessToken middleware
-router.get('/sellerLogin', merchantLogin);
-router.post('/merchantLoginPost',  merchantLoginPost);
+// Merchant Login route 
+router.get('/merchantLogin', merchantLogin);
 
-// //refresh route with verifyRefreshToken middleware
-// router.post('/refresh-token', verifyRefreshToken, refreshToken);
+// Merchant Registeration route 
+router.get('/merchantRegistration', merchantRegisteration);
+router.post('/merchantRegistrationPost',  merchantRegisterationPost);
+
+// Merchant Email verification routes
+router.get('/verifyEmail/:id/:token',  merchantVerifyEmail);
+
+// Merchant Request New  verification link
+router.get('/requestVerification', merchantRequestVerification);
+router.post('/requestVerificationPost', merchantRequestVerificationPost);
+router.get('/merchantVerificationFailed',  merchantVerificationFailed);
 
 // //logout route
 // router.get("/logout", logoutUser);
