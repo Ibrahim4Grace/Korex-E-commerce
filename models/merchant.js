@@ -1,5 +1,5 @@
-
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 
 const merchantSchema = new mongoose.Schema({
 
@@ -87,7 +87,7 @@ const merchantSchema = new mongoose.Schema({
 
 })
 
-merchantSchema.methods.getResetPasswordToken = function() {
+merchantSchema.methods.getResetPasswordTokens = function() {
     const resetToken = crypto.randomBytes(20).toString('hex');
     this.resetPasswordToken = crypto
         .createHash('sha256')

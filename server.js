@@ -146,7 +146,7 @@ if (process.env.NODE_ENV !== 'production'){
   app.use('/auth', require('./route/authRoute'));
   app.use('/', require('./route/authRoute'));//declared endpoint
   app.use('/user', require('./route/userRoute'));
-  //app.use('/', require('./route/userRoute')); //declared endpoint
+  app.use('/merchant', require('./route/merchantRoute')); 
 //   app.use('/users', require('./route/userRoute'));
 //   app.use('/', require('./route/userRoute'));//declared endpoint
 //   app.use('/admin', require('./route/adminRoute'));

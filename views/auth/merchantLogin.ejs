@@ -37,16 +37,16 @@
 
 <div class="login-page">
     <div class="form">
-        <form class="login-form" action="/auth/merchantLoginPost" method="post">
+        <form id="merchantLoginForm" class="login-form" action="/auth/merchantLoginPost" method="post">
             <h2 class="colors">Merchant Login </h2>
   
                 <!-- New HTML element to display success message -->
                 <div id="successMessageContainer"></div>
 
-            <input type="text" name="customerUsername" placeholder="Username"autocomplete="off" required/>
+            <input type="text" name="merchantUsername" placeholder="Username" autocomplete="off" required/>
 
-            <input id="password-field" type="password" name="customerPassword" placeholder="Password" autocomplete="off" required />
-
+            <input id="password-field" type="password" name="merchantPassword" placeholder="Password" autocomplete="off" required />
+            <div id="message" class="error"></div>
             <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
       
             <button type="submit">SIGN IN</button>
@@ -70,6 +70,55 @@
 </div>
 
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const successMessageContainer = document.getElementById('successMessageContainer');
+
+         document.getElementById('merchantLoginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+
+            const merchantUsername = formData.get('merchantUsername');
+            const merchantPassword = formData.get('merchantPassword');
+
+            try {
+                const response = await fetch('/auth/merchantLoginPost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ merchantUsername, merchantPassword })
+                });
+
+                if (response.ok) {
+                    // If login successful, redirect to the index page
+                    window.location.href = '/merchant/index';
+                } else {
+                    const responseData = await response.json();
+                    // Display error message directly within successMessageContainer
+                    displayErrorMessage(responseData.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                displayErrorMessage('An error occurred. Please try again later.');
+            }
+        });
+
+        function displayErrorMessage(message) {
+            // Clear any previous content in successMessageContainer
+            successMessageContainer.innerHTML = '';
+            // Create and append error message to successMessageContainer
+            const errorMessageElement = document.createElement('div');
+            errorMessageElement.className = 'error-message';
+            errorMessageElement.textContent = message;
+            successMessageContainer.appendChild(errorMessageElement);
+        }
+    });
+</script>
+
+    
+
+    
 
     <!-- Footer Start -->
     <%- include (`../partials/footer`); -%>
@@ -93,11 +142,23 @@
             const urlParams = new URLSearchParams(window.location.search);
             const successMessage = urlParams.get('successMessage');
             if (successMessage) {
-                // Display the success message in the container
-                const successMessageContainer = document.getElementById('successMessageContainer');
-                successMessageContainer.textContent = decodeURIComponent(successMessage);
-            }
-        });
+               // Display the success message in the container
+               const successMessageContainer = document.getElementById('successMessageContainer');
+               successMessageContainer.textContent = decodeURIComponent(successMessage);
+
+               // Clear the success message after a certain time interval (e.g., 5 seconds)
+               setTimeout(function() {
+                clearSuccessMessage();
+            }, 5000); 
+        }
+    });
+
+    function clearSuccessMessage() {
+        const successMessageContainer = document.getElementById('successMessageContainer');
+           // Clear the content of the success message container
+        successMessageContainer.innerHTML = '';
+    }
+
     </script>
 
 </body>

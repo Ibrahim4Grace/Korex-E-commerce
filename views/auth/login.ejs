@@ -37,7 +37,7 @@
 
 <div class="login-page">
     <div class="form">
-        <form class="login-form" action="/auth/loginUserPost" method="post">
+        <form id="userLoginForm" class="login-form" action="/auth/userLoginPost" method="post">
             <h2 class="colors">SIGN IN TO YOUR ACCOUNT</h2>
 
   
@@ -76,6 +76,53 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const successMessageContainer = document.getElementById('successMessageContainer');
+
+         document.getElementById('userLoginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+
+            const customerUsername = formData.get('customerUsername');
+            const customerPassword = formData.get('customerPassword');
+
+            try {
+                const response = await fetch('/auth/userLoginPost', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ customerUsername, customerPassword })
+                });
+
+                if (response.ok) {
+                    // If login successful, redirect to the index page
+                    window.location.href = '/user/index';
+                } else {
+                    const responseData = await response.json();
+                    // Display error message directly within successMessageContainer
+                    displayErrorMessage(responseData.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                displayErrorMessage('An error occurred. Please try again later.');
+            }
+        });
+
+        function displayErrorMessage(message) {
+            // Clear any previous content in successMessageContainer
+            successMessageContainer.innerHTML = '';
+            // Create and append error message to successMessageContainer
+            const errorMessageElement = document.createElement('div');
+            errorMessageElement.className = 'error-message';
+            errorMessageElement.textContent = message;
+            successMessageContainer.appendChild(errorMessageElement);
+        }
+    });
+</script>
+
+    
 
 
     <!-- Footer Start -->
@@ -95,16 +142,30 @@
             }
         });
 
-      //  JavaScript to extract and display success message 
-        document.addEventListener("DOMContentLoaded", function() {
+
+         //  JavaScript to extract and display success message 
+         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const successMessage = urlParams.get('successMessage');
             if (successMessage) {
-                // Display the success message in the container
-                const successMessageContainer = document.getElementById('successMessageContainer');
-                successMessageContainer.textContent = decodeURIComponent(successMessage);
-            }
-        });
+               // Display the success message in the container
+               const successMessageContainer = document.getElementById('successMessageContainer');
+               successMessageContainer.textContent = decodeURIComponent(successMessage);
+
+               // Clear the success message after a certain time interval (e.g., 5 seconds)
+               setTimeout(function() {
+                clearSuccessMessage();
+            }, 5000); 
+        }
+    });
+
+    function clearSuccessMessage() {
+        const successMessageContainer = document.getElementById('successMessageContainer');
+           // Clear the content of the success message container
+        successMessageContainer.innerHTML = '';
+    }
+    
+
     </script>
 
 </body>

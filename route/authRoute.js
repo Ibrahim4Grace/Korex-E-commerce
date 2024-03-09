@@ -4,7 +4,7 @@ const router = express.Router();
 const  {verifyAccessToken,  verifyRefreshToken}  = require ('../middleware/authMiddleware');
 
 
-const {registerUser,registerUserPost,checkExistingUser,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantRegisteration,merchantRegisterationPost,checkExistingMerchant,merchantVerifyEmail,merchantRequestVerification,merchantRequestVerificationPost,merchantVerificationFailed,merchantForgetPassword,merchantForgetPasswordPost,merchantResetPassword,merchantResetPasswordPost} = require('../controller/authController');
+const {registerUser,registerUserPost,checkExistingUser,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,userLoginPost,merchantRegisteration,merchantRegisterationPost,checkExistingMerchant,merchantVerifyEmail,merchantRequestVerification,merchantRequestVerificationPost,merchantVerificationFailed,merchantForgetPassword,merchantForgetPasswordPost,merchantResetPassword,merchantResetPasswordPost,merchantLogin,merchantLoginPost} = require('../controller/authController');
 
                                          // USER ROUTES
 // Registration route
@@ -36,12 +36,9 @@ router.get('/google/callback', googleAuthCallback);
 
 // User Login route with verifyAccessToken middleware
 router.get('/login', loginUser);
-router.post('/loginUserPost',  loginUserPost);
+router.post('/userLoginPost',  userLoginPost);
 
                                     // MERCHANT ROUTES
-
-// Merchant Login route 
-router.get('/merchantLogin', merchantLogin);
 
 // Merchant Registeration route 
 router.get('/merchantRegistration', merchantRegisteration);
@@ -65,6 +62,11 @@ router.post('/merchantForgetPasswordPost', merchantForgetPasswordPost);
 //Merchant ResettingPassword Routes
 router.get('/merchantResetPassword/:resetToken', merchantResetPassword);
 router.post('/merchantResetPasswordPost/:resetToken', merchantResetPasswordPost);
+
+
+// Merchant Login route 
+router.get('/merchantLogin', merchantLogin);
+router.post('/merchantLoginPost',  merchantLoginPost);
 
 // router.get("/logout", logoutUser);
 

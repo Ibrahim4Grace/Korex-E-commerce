@@ -117,7 +117,7 @@
   </div>
 
   <script>
-    // Function to check if email or username already exists
+    // Function to check if email or username already exists and display response immediately
     async function checkExistingMerchant(field, value) {
         try {
             const response = await fetch(`/checkExistingMerchant?field=${field}&value=${encodeURIComponent(value)}`);
@@ -160,7 +160,6 @@ usernameField.addEventListener('input', async () => {
         }
     }
 });
-
 </script>
 
 

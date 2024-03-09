@@ -360,18 +360,23 @@ const loginUser = (req, res) =>{
     res.render('auth/login')
 };
 
-const loginUserPost = async (req, res) => {
+const userLoginPost = async (req, res) => {
     try {
         const { customerUsername, customerPassword } = req.body;
+        console.log(req.body);
 
         // Find the user by their username
         const user = await User.findOne({ customerUsername });
+          // const user = await User.findOne({ customerUsername, role: 'User' });
 
         if (!user) {
-             // return res.status(401).json({ error: 'Authentication failed' });
-            // If user does not exist, redirect with error message
-            req.flash('error_msg', 'Invalid username provided');
-            return res.redirect('/auth/login');
+            // If merchant does not exist
+            return res.status(401).json({ success: false, message: 'Invalid username provided' });
+        }
+
+        if (user.role !== 'User') {
+            // If user role isnt merchant
+            return res.status(403).json({ success: false, message: 'Access forbidden. Only user are allowed.' });
         }
 
         // Compare the provided password with the hashed password stored in the database
@@ -386,24 +391,21 @@ const loginUserPost = async (req, res) => {
             if (updatedUser.failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
                 // Lock the account
                 await User.updateOne({ customerUsername }, { $set: { accountLocked: true } });
-                req.flash('error_msg', 'Account locked. Contact Korex for assistance or reset Password.');
-                return res.redirect('/auth/login');
+                return res.status(403).json({ success: false, message: 'Account locked. Contact Korex for assistance or reset Password.' });
+           
             } else {
-                // Redirect with error message for invalid password
-                req.flash('error_msg', 'Invalid Password 2 attenmpts left before access disabled.');
-                return res.redirect('/auth/login');
+                  // Redirect with error message for invalid password
+                  return res.status(409).json({ success: false, message: 'Invalid Password 2 attenmpts left before access disabled.' });
             }
         }
 
         // Check if user is verified and account is not locked
         if (!user.isVerified) {
-            req.flash('error_msg', 'Please verify your email before logging in.');
-            return res.redirect('/auth/login');
+            return res.status(412).json({ success: false, message: 'Please verify your email before logging in.' });
         }
 
         if (user.accountLocked) {
-            req.flash('error_msg', 'Account locked. Contact Korex for assistance.');
-            return res.redirect('/auth/login');
+            return res.status(423).json({ success: false, message: 'Account locked. Contact Korex for assistance.' });
         }
 
         // Successful login - reset failed login attempts
@@ -442,21 +444,17 @@ const loginUserPost = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days expiration
         });
 
-        // Redirect to the index page after successful login
-        res.redirect('/user/index');
+         // Redirect to the index page after successful login
+         console.log('Login successful');
 
     } catch (error) {
-        // If an error occurs during the login process, return a 500 error response
-        console.error('Error during login:', error);
-        res.status(500).json({ error: 'Login failed' });
+         // If an error occurs during the login process, return a 500 error response
+         console.error('Error during login:', error);
+         return res.status(500).json({ success: false, message: 'Login failed' });
     }
 };
 
                                             // MERCHANT CONTROLLER
-// Merchant login Page
-const merchantLogin = (req, res) =>{
-    res.render('auth/merchantLogin')
-};
 
 // Merchant Registration
 const merchantRegisteration = (req, res) => {
@@ -491,7 +489,7 @@ const merchantRegisterationPost = async(req, res) =>{
         // Generate a unique verification token
         const verificationToken = {
             token: crypto.randomBytes(20).toString('hex'),
-            expires: new Date(Date.now() + (2 * 60 * 1000)) // 20 minutes expiration
+            expires: new Date(Date.now() + (20 * 60 * 1000)) // 20 minutes expiration
         };
    
         
@@ -633,7 +631,7 @@ const merchantRequestVerificationPost = async (req, res) => {
           // Generate a new verification token
         const verificationToken = {
             token: crypto.randomBytes(20).toString('hex'),
-            expires: new Date(Date.now() + (30 * 60 * 1000)) // 1hr expiration
+            expires: new Date(Date.now() + (30 * 60 * 1000)) // 30 expiration
         };
 
             // Save the verification token and expiration time to the merchant's document
@@ -676,7 +674,7 @@ const merchantForgetPasswordPost = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Merchant Email not found' });
         }
 
-        const resetToken = merchant.getResetPasswordToken();
+        const resetToken = merchant.getResetPasswordTokens();
         await merchant.save();
 
         // Send the email with the reset link
@@ -736,11 +734,11 @@ const merchantResetPasswordPost = async (req, res) => {
     try {
 
          // Hash the reset token for comparison
-         const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+         const hashedRresetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
         // Find the user with the provided reset token and check if it's still valid
         const merchant = await Merchant.findOne({
-            resetPasswordToken: hashedResetToken,
+            resetPasswordToken: hashedRresetToken,
             resetPasswordExpires: { $gt: Date.now() },
         });
 
@@ -763,6 +761,106 @@ const merchantResetPasswordPost = async (req, res) => {
     }
 };
 
-module.exports = ({registerUser,registerUserPost,checkExistingUser,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,loginUserPost,merchantLogin,merchantRegisteration,merchantRegisterationPost,checkExistingMerchant,merchantVerifyEmail,merchantRequestVerification,merchantRequestVerificationPost,merchantVerificationFailed,merchantForgetPassword,merchantForgetPasswordPost,merchantResetPassword,merchantResetPasswordPost});
+// Merchant login Page
+const merchantLogin = (req, res) =>{
+    res.render('auth/merchantLogin')
+};
+
+const merchantLoginPost = async (req, res) => {
+    try {
+        const { merchantUsername, merchantPassword } = req.body;
+        console.log(req.body);
+
+        // Find the user by their username
+        const merchant = await Merchant.findOne({ merchantUsername });
+        // const merchant = await Merchant.findOne({ merchantUsername, role: 'Merchant' });
+
+        if (!merchant) {
+            // If merchant does not exist
+            return res.status(401).json({ success: false, message: 'Invalid merchant username provided' });
+        }
+
+        if (merchant.role !== 'Merchant') {
+           // If merchant role isnt merchant
+           return res.status(403).json({ success: false, message: 'Access forbidden. Only merchants are allowed.' });
+       }
+
+        // Compare the provided password with the hashed password stored in the database
+        const passwordMatch = await bcrypt.compare(merchantPassword, merchant.merchantPassword);
+        
+        if (!passwordMatch) {
+            // If passwords do not match, increment failed login attempts
+            await Merchant.updateOne({ merchantUsername }, { $inc: { failedLoginAttempts: 1 } });
+
+            // Check if the account should be locked
+            const updatedMerchant = await Merchant.findOne({ merchantUsername });
+            if (updatedMerchant.failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
+                // Lock the account
+                await Merchant.updateOne({ merchantUsername }, { $set: { accountLocked: true } });
+                return res.status(403).json({ success: false, message: 'Account locked. Contact Korex for assistance or reset Password.' });
+            } else {
+                // Redirect with error message for invalid password
+                return res.status(409).json({ success: false, message: 'Invalid Password 2 attenmpts left before access disabled.' });
+            }
+        }
+
+        // Check if merchant is verified and account is not locked
+        if (!merchant.isVerified) {
+            return res.status(412).json({ success: false, message: 'Please verify your email before logging in.' });
+        }
+
+        if (merchant.accountLocked) {
+            return res.status(423).json({ success: false, message: 'Account locked. Contact Korex for assistance.' });
+        }
+
+        // Successful login - reset failed login attempts
+        await Merchant.updateOne({ merchantUsername }, { $set: { failedLoginAttempts: 0 } });
+
+        // Generate an access token
+        const accessToken = jwt.sign(
+            { id: merchant._id, role: 'Merchant' },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: process.env.TOKEN_EXPIRATION_TIME }
+        );
+
+        // Generate a refresh token
+        const refreshToken = jwt.sign(
+            { id: merchant._id, role: 'Merchant' },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION_TIME }
+        );
+
+        // Output the generated tokens to the console
+        console.log('Generated access token:', accessToken);
+        console.log('Generated refresh token:', refreshToken);
+
+        // Store the tokens in cookies
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: true, // Ensures the cookie is sent only over HTTPS
+            sameSite: 'strict', // Prevents the cookie from being sent in cross-origin requests
+            maxAge: 30 * 60 * 1000 // 30 minutes expiration
+        });
+    
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: true, // Ensures the cookie is sent only over HTTPS
+            sameSite: 'strict', // Prevents the cookie from being sent in cross-origin requests
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days expiration
+        });
+
+        // Redirect to the index page after successful login
+        console.log('Login successful');
+
+    } catch (error) {
+        // If an error occurs during the login process, return a 500 error response
+        console.error('Error during login:', error);
+        return res.status(500).json({ success: false, message: 'Login failed' });
+    }
+};
+
+
+
+module.exports = ({registerUser,registerUserPost,checkExistingUser,verifyEmail,requestVerification,requestVerificationPost,verificationFailed,forgetPassword,forgetPasswordPost,resetPassword,resetPasswordPost,googleAuthController,googleAuthCallback,loginUser,userLoginPost,merchantRegisteration,merchantRegisterationPost,checkExistingMerchant,merchantVerifyEmail,merchantRequestVerification,merchantRequestVerificationPost,merchantVerificationFailed,merchantForgetPassword,merchantForgetPasswordPost,merchantResetPassword,merchantResetPasswordPost,merchantLogin,merchantLoginPost});
 
 

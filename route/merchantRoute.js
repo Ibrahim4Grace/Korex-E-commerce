@@ -3,9 +3,9 @@ const express = require('express');
 const router = express.Router();
 const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/authentication');
 
-const { } = require('../controller/landingPageController');
+const { welcomeMerchant} = require('../controller/merchantController');
 
-// router.get('/', checkNotAuthenticated, spinner, indexPage);
+router.get('/index', welcomeMerchant);
 // router.get('/index', checkNotAuthenticated, indexPage);
 // router.get('/detail', checkNotAuthenticated, detailsPage);
 // router.get('/shop', checkNotAuthenticated, shopPage)

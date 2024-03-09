@@ -1,25 +1,26 @@
 'use strict';
 const express = require(`express`)
-const ejs = require(`ejs`);
 const nodemailer = require(`nodemailer`);
-const app = express();
-// const ContactUs = require("../models/contactUs");
-// const  shippingLabel  = require('../models/shippingLabel');
-
-// Send email to the applicant
-const transporter = nodemailer.createTransport({
-    service: process.env.MAILER_SERVICE,
-    auth: {
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PASSWORD
-    }
-});
-
-
-// const spinner = (req, res) => {
-//     res.render('spinner');
-// };
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const Admin = require('../models/Admin');  
+const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
+const passport = require('../config/passportAuth')();
+const User = require('../models/User');
+const Merchant = require('../models/merchant');
+const userSchema = require('../middleware/userValidation');
+// const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
 
 
 
-module.exports = ({ });
+
+const welcomeMerchant = (req, res) => {
+    res.render('merchant/index');
+};
+
+
+
+module.exports = ({ welcomeMerchant});
