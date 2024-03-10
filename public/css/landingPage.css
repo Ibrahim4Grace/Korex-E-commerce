@@ -1,43 +1,4 @@
-.popup {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0); /* Initially hidden and scaled down */
-    background-color: #fff;
-    padding: 20px;
-    border: 1px solid #ccc;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    z-index: 9999;
-    transition: transform 0.3s ease; /* Smooth transition */
-    max-width: 400px; /* Adjust the maximum width as needed */
-    width: 80%; /* Adjust the width as needed */
-  }
 
-  /* Close button styles */
-  .popup-close {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    cursor: pointer;
-    font-size: 20px;
-    color: #888;
-  }
-
-  /* Close button hover effect */
-  .popup-close:hover {
-    color: #333;
-  }
-  .overflow-hidden{ width: 100px; height: 100px; }
-
-  label {
-    font-weight: 600;
-    color: #666;
-}
-
-.box8{
-  box-shadow: 0px 0px 5px 1px #999;
-}
 .mx-t3{
   margin-top: -1rem;
 }
@@ -85,10 +46,10 @@
   box-shadow: 0 0 5px 0 rgba(106, 98, 210);
 }
 
-span {
+/* span {
   margin: 10px 0;
   font-size: 14px;
-}
+} */
 
 .form button {
   outline: 0;
@@ -244,4 +205,7 @@ span {
 .btnGoogle:hover {
   background: black;
   color: #ffffff;
+}
+.padItem{
+  padding: 30px;
 }

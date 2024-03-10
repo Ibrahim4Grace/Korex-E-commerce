@@ -26,13 +26,63 @@ const indexPage = (req, res) => {
     }, 3000);
 };
 
-const detailsPage = (req, res) => {
-    res.render('detail');
-};
 
 const shopPage = (req, res) => {
     res.render('shop');
 };
+
+const shirtPage = (req, res) => {
+    res.render('shirt');
+};
+
+const womenDressesPage = (req, res) => {
+    res.render('womenDresses');
+};
+
+const jeansPage = (req, res) => {
+    res.render('jeans');
+};
+
+const blazersPage = (req, res) => {
+    res.render('blazers');
+};
+
+const jacketsPage = (req, res) => {
+    res.render('jackets');
+};
+
+const bagsPage = (req, res) => {
+    res.render('bags');
+};
+
+const swimwearPage = (req, res) => {
+    res.render('swimwear');
+};
+
+const sleepwearPage = (req, res) => {
+    res.render('sleepwear');
+};
+
+const sportswearPage = (req, res) => {
+    res.render('sportswear');
+};
+
+const jumpsuitsPage = (req, res) => {
+    res.render('jumpsuits');
+};
+
+const loafersPage = (req, res) => {
+    res.render('loafers');
+};
+
+const sneakersPage = (req, res) => {
+    res.render('sneakers');
+};
+
+const babyDressesPage = (req, res) => {
+    res.render('babyDresses');
+};
+
 
 const contactPage = (req, res) => {
     res.render('contact');
@@ -41,14 +91,4 @@ const contactPage = (req, res) => {
 const contactPagePost = (req, res) => {
 
 };
-
-const cartPage = (req, res) => {
-    res.render('cart');
-};
-
-const checkouttPage = (req, res) => {
-    res.render('checkout');
-};
-
-
-module.exports = ({ spinner, indexPage,detailsPage,shopPage,contactPage,contactPagePost,cartPage,checkouttPage});
+module.exports = ({ spinner,indexPage,shopPage,shirtPage,womenDressesPage,jeansPage,blazersPage,jacketsPage,bagsPage,swimwearPage,sleepwearPage,sportswearPage,jumpsuitsPage,loafersPage,sneakersPage,babyDressesPage,contactPage,contactPagePost});
