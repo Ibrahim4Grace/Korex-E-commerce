@@ -323,4 +323,4 @@
     from {opacity: 0;}
     to {opacity: 1;}
   }
-  
+.imageSize{width: 40px; height: 40px; cursor: pointer;}

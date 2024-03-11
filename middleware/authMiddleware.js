@@ -2,40 +2,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 
-// Protect Routes:
-// Implement middleware to protect routes that require authentication. For example, you can use a middleware function to verify JWT tokens:
-
-// const verifyAccessToken = async (req, res, next) => {
-//     try {
-//         // Get the authorization header from the request
-//         const authHeader = req.headers['authorization'];
-//         const token = authHeader && authHeader.split(' ')[1];
-
-//         if (!token) {
-//             req.flash('error_msg', 'Authorization token is missing');
-//             return res.redirect('/user/login');
-//         }
-
-//         // Verify the token
-//         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
-//         // Check if user exists
-//         const user = await User.findById(decoded._id);
-//         if (!user) {
-//             req.flash('error_msg', 'User not found');
-//             return res.redirect('/user/login');
-//         }
-
-//         // Attach the user object to the request for later use
-//         req.user = user;
-//         next();
-//     } catch (error) {
-//         req.flash('error_msg', 'Invalid token or authentication failed');
-//         return res.redirect('/user/login');
-//     }
-// };
-
-
 const verifyAccessToken = async (req, res, next) => {
     try {
         // Get the authorization header from the request

@@ -749,6 +749,9 @@ const merchantLogin = (req, res) =>{
     res.render('auth/merchantLogin')
 };
 
+// const errorMessage = req.query.errorMessage;
+// res.render('auth/forgetPassword', { errorMessage });
+
 const merchantLoginPost = async (req, res) => {
     try {
         const { merchantUsername, merchantPassword } = req.body;

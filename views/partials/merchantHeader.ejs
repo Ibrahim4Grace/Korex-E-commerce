@@ -8,9 +8,26 @@
         </a>
         <div class="d-flex align-items-center ms-4 mb-4">
             <div class="position-relative">
-                <img class="rounded-circle" src="../img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+                <label for="profile-picture-input">
+                    <img id="profile-picture" class="rounded-circle imageSize" src="../img/user.jpg" alt="Profile Picture">
+                    <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
+                </label>
+                <input type="file" id="profile-picture-input" style="display: none;">
             </div>
+            <script>
+                document.getElementById('profile-picture-input').addEventListener('change', function(event) {
+                    let file = event.target.files[0];
+                    let reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        document.getElementById('profile-picture').src = e.target.result;
+                    };
+
+                    reader.readAsDataURL(file);
+                });
+
+            </script>
+            
             <div class="ms-3">
                 <h6 class="mb-0">Korede Ibrahim</h6> <!--  merchant NAME  -->
                 <span>Merchant</span> <!--  merchant role  -->
@@ -123,9 +140,34 @@
                 <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                     <a href="#" class="dropdown-item">My Profile</a>
                     <a href="#" class="dropdown-item">Settings</a>
-                    <a href="#" class="dropdown-item">Log Out</a>
+                    <a href="/merchant/logout" class="dropdown-item" id="logoutBtn">Log Out</a>
                 </div>
             </div>
         </div>
     </nav>
     <!-- Navbar End -->
+
+    <script>
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+               // Redirect to the login page or perform any other action after successful logout
+               window.location.href = '/';
+            } else {
+                // Handle logout failure
+                console.error('Logout failed:', response.statusText);
+                // Display an error message or perform any other action
+            }
+        } catch (error) {
+            console.error('Error during logout:', error);
+            // Display an error message or perform any other action
+        }
+    });
+    </script>

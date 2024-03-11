@@ -30,9 +30,82 @@
 
 <body>
    
- <!-- Navbar Start -->
- <%- include (`../partials/header`); -%>
- <!-- Navbar End -->
+<!-- Topbar Start -->
+<div class="container-fluid">
+    <div class="row bg-secondary py-2 px-xl-5">
+        <div class="col-lg-6 d-none d-lg-block">
+            <div class="d-inline-flex align-items-center">
+                <a class="text-dark mr-3" href="/about">About</a>
+                <a class="text-dark mr-3" href="/contact">Contact</a>
+                <a class="text-dark mr-3" href="/help">Help</a>
+                <a class="text-dark mr-3" href="/FAQs">FAQs</a>
+
+            </div>
+        </div>
+        <div class="col-lg-6 text-center text-lg-right">
+            <div class="d-inline-flex align-items-center">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">My Account</button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a href="/auth/login"><button class="dropdown-item" type="button">Sign in</button> </a>
+                        <a href="/auth/register"><button class="dropdown-item" type="button">Sign up</button> </a>
+                        <a href="/auth/merchantLogin"><button class="dropdown-item" type="button">Merchant Login</button></a>
+                    </div>
+                </div>
+                <div class="btn-group mx-2">
+                    <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">NGN</button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <button class="dropdown-item" type="button">EUR</button>
+                        <button class="dropdown-item" type="button">GBP</button>
+                        <button class="dropdown-item" type="button">CAD</button>
+                        <button class="dropdown-item" type="button">USD</button>
+                    </div>
+                </div>
+                
+                <a class="text-dark px-2" href="/">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a class="text-dark px-2" href="/">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a class="text-dark px-2" href="/">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a class="text-dark px-2" href="/">
+                    <i class="fab fa-instagram"></i>
+                </a>
+                <a class="text-dark pl-2" href="/">
+                    <i class="fab fa-youtube"></i>
+                </a>
+            </div>
+        </div>
+        
+    </div>
+    <div class="row align-items-center py-3 px-xl-5">
+        <div class="col-lg-3 d-none d-lg-block">
+            <a href="/" class="text-decoration-none">
+                <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">K</span>STYLEHUB</h1>
+            </a>
+        </div>
+        <div class="col-lg-6 col-6 text-left">
+            <form action="">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search for products">
+                    <div class="input-group-append">
+                        <span class="input-group-text bg-transparent text-primary">
+                            <i class="fa fa-search"></i>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-3 col-6 text-right">
+            <p class="m-0">Customer Service</p>
+            <h5 class="m-0">+234 703 373 1378</h5>
+        </div>
+    </div>
+</div>
+<!-- Topbar End -->
 
 
 <div class="login-page">
@@ -40,8 +113,9 @@
         <form id="merchantLoginForm" class="login-form" action="/auth/merchantLoginPost" method="post">
             <h2 class="colors">Merchant Login </h2>
   
-                <!-- New HTML element to display success message -->
-                <div id="successMessageContainer"></div>
+                <!-- display success message -->
+                <div class="colors" id="successMessageContainer"></div>
+                
 
             <input type="text" name="merchantUsername" placeholder="Username" autocomplete="off" required/>
 
@@ -137,28 +211,53 @@
             }
         });
 
-      //  JavaScript to extract and display success message 
+    //   //  JavaScript to extract and display success message 
+    //     document.addEventListener("DOMContentLoaded", function() {
+    //         const urlParams = new URLSearchParams(window.location.search);
+    //         const successMessage = urlParams.get('successMessage');
+    //         if (successMessage) {
+    //            // Display the success message in the container
+    //            const successMessageContainer = document.getElementById('successMessageContainer');
+    //            successMessageContainer.textContent = decodeURIComponent(successMessage);
+
+    //            // Clear the success message after a certain time interval (e.g., 5 seconds)
+    //            setTimeout(function() {
+    //             clearSuccessMessage();
+    //         }, 5000); 
+    //     }
+    // });
+
+    // function clearSuccessMessage() {
+    //     const successMessageContainer = document.getElementById('successMessageContainer');
+    //        // Clear the content of the success message container
+    //     successMessageContainer.innerHTML = '';
+    // }
+
+             //  JavaScript to extract and display success or error message 
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const successMessage = urlParams.get('successMessage');
-            if (successMessage) {
-               // Display the success message in the container
-               const successMessageContainer = document.getElementById('successMessageContainer');
-               successMessageContainer.textContent = decodeURIComponent(successMessage);
+            const authErrorMessage = urlParams.get('authErrorMessage');
 
-               // Clear the success message after a certain time interval (e.g., 5 seconds)
-               setTimeout(function() {
-                clearSuccessMessage();
+            const message = successMessage || authErrorMessage;
+
+            if (message) {
+            // Display the message in the container
+            const messageContainer = document.getElementById('successMessageContainer');
+            messageContainer.textContent = decodeURIComponent(message);
+
+            // Clear the message after a certain time interval (e.g., 5 seconds)
+            setTimeout(function() {
+                clearMessage(messageContainer);
             }, 5000); 
         }
     });
 
-    function clearSuccessMessage() {
-        const successMessageContainer = document.getElementById('successMessageContainer');
-           // Clear the content of the success message container
-        successMessageContainer.innerHTML = '';
+    function clearMessage(element) {
+        // Clear the content of the message container
+        element.textContent = '';
     }
-
+    
     </script>
 
 </body>

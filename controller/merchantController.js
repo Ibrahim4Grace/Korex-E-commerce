@@ -15,26 +15,38 @@ const userSchema = require('../middleware/userValidation');
 // const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
 
 
-// // Define multer storage configuration
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         // Validate file type (e.g., allow only images)
-//         if (!file.mimetype.startsWith('image')) {
-//             return cb(new Error('Only images are allowed'));
-//         }
-//         cb(null, './public/merchantImage/');
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, file.fieldname + '_' + Date.now())
-//     }
-// });
-
-// // Initialize multer middleware
-// const upload = multer({ storage: storage });
 
 const welcomeMerchant = (req, res) => {
-    res.render('merchant/index');
+    // Pass the entire user object to the rendering of the template
+    res.render('merchant/index', { user: req.user });
 };
+
+
+// Merchant Uploading Image
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        // Validate file type (e.g., allow only images)
+        if (!file.mimetype.startsWith('image')) {
+            return cb(new Error('Only images are allowed'));
+        }
+        cb(null, './public/merchantImage/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + '_' + Date.now())
+    }
+});
+
+// Initialize multer middleware
+const upload = multer({ storage: storage });
+
+const uploadMerchantImage = (req, res, next) =>{
+ // Handle the uploaded file
+ const file = req.file;
+ // Save the file to your desired location or cloud storage
+ // Respond to the client with any necessary data
+ res.json({ message: 'File uploaded successfully' });
+};
+
 
 const merchantProducts = (req, res) => {
     res.render('merchant/products');
@@ -54,5 +66,18 @@ const merchantSettings = (req, res) => {
 };
 
 
+// Define the logout route
+const merchantLogout = (req, res) => {
+  // Clear cookies containing access token and refresh token
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
+  // Optionally, clear any session data or perform other cleanup tasks
 
-module.exports = ({ welcomeMerchant,merchantProducts,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings});
+  // Respond with a success message
+  res.status(200).json({ success: true, message: 'Logout successful' });
+};
+
+
+
+
+module.exports = ({ welcomeMerchant,upload,uploadMerchantImage,merchantProducts,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout});
