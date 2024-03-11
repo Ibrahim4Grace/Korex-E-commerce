@@ -275,3 +275,52 @@
     background: var(--dark);
     border-color: var(--primary);
 }
+.tab {
+    overflow: hidden;
+    background-color: #f1f1f1;
+  }
+  
+  .tab a {
+    background-color: #F3F6F9;
+    float: none; /* Remove float */
+    display: inline-block; /* Display as block elements */
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 6px 16px;
+    transition: 0.3s;
+    font-size: 16px;
+    margin-right: 5px;
+    text-decoration: none; 
+    color: #4f4a47; 
+  }
+  .tab a:hover {
+    background-color: #ddd;
+  }
+  
+  .tab a.active {
+    background-color: #ccc;
+  }
+  
+  .tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border-top: none;
+  }
+  @media screen and (max-width: 768px) {
+    .tab a {
+      padding: 4px 8px; 
+      font-size: 14px; 
+    }
+  }
+  /* Fade in tabs */
+  @-webkit-keyframes fadeEffect {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+  
+  @keyframes fadeEffect {
+    from {opacity: 0;}
+    to {opacity: 1;}
+  }
+  

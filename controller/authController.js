@@ -19,23 +19,6 @@ const {merchantRegistrationMsg,merchantVerifyEmailMsg,merchantRequestVerifyMsg,m
  //Login attempts Limit 
 const MAX_FAILED_ATTEMPTS = process.env.MAX_FAILED_ATTEMPTS;
 
-// // Define multer storage configuration
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         // Validate file type (e.g., allow only images)
-//         if (!file.mimetype.startsWith('image')) {
-//             return cb(new Error('Only images are allowed'));
-//         }
-//         cb(null, './public/customerImage/');
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, file.fieldname + '_' + Date.now())
-//     }
-// });
-
-// // Initialize multer middleware
-// const upload = multer({ storage: storage });
-
 
 // Registration attempt
 const registerUser = (req, res) => {
