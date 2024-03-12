@@ -9,28 +9,65 @@
         <div class="d-flex align-items-center ms-4 mb-4">
             <div class="position-relative">
                 <label for="profile-picture-input">
-                    <img id="profile-picture" class="rounded-circle imageSize" src="../img/user.jpg" alt="Profile Picture">
+                    <!-- Check if the merchant object has an image -->
+                    <% if (merchant && merchant.image && merchant.image.data) { %>
+                                  <!-- Display the user's image -->
+                         <img class="rounded-circle imageSize" src="data:<%= merchant.image.contentType %>;base64,<%= merchant.image.data.toString('base64') %>" alt="Picture">
+                    <% } else { %>
+                              <!-- Display a default image if the user doesn't have an image -->
+                              <i class="fas fa-camera fa-3x text-secondary"></i>
+                    <% } %>
+                    <!-- <img id="profile-picture" class="rounded-circle imageSize" src="" alt="Picture"> -->
                     <div class="bg-success rounded-circle border border-2 border-white position-absolute end-0 bottom-0 p-1"></div>
                 </label>
-                <input type="file" id="profile-picture-input" style="display: none;">
+
+                
+                <input type="file" name="image" id="profile-picture-input" style="display: none;">
             </div>
             <script>
                 document.getElementById('profile-picture-input').addEventListener('change', function(event) {
                     let file = event.target.files[0];
                     let reader = new FileReader();
-
                     reader.onload = function(e) {
                         document.getElementById('profile-picture').src = e.target.result;
                     };
-
+                    reader.readAsDataURL(file);
+                    
+                    // After uploading the image successfully, send it to the server using AJAX
+                    let formData = new FormData();
+                    formData.append('image', file);
+                    
+                    fetch('/merchant/uploadMerchantImage', { // Corrected URL
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            // Image upload successful, redirect to index page
+                            window.location.href = '/merchant/index';
+                        } else {
+                            // Handle other response statuses, such as error
+                            console.error('Error uploading image:', response.statusText);
+                        }
+                    })
+                    .catch(error => console.error('Error uploading image:', error));
+                });
+            </script>
+            <!-- <script>
+                document.getElementById('profile-picture-input').addEventListener('change', function(event) {
+                    let file = event.target.files[0];
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('profile-picture').src = e.target.result;
+                    };
                     reader.readAsDataURL(file);
                 });
 
-            </script>
+            </script> -->
             
             <div class="ms-3">
-                <h6 class="mb-0">Korede Ibrahim</h6> <!--  merchant NAME  -->
-                <span>Merchant</span> <!--  merchant role  -->
+                <h6 class="mb-0"> Hi <%-merchant.merchantLastName %></h6> 
+                <span><%-merchant.role %></span>
             </div>
         </div>
         <div class="navbar-nav w-100">
@@ -134,8 +171,15 @@
             </div>
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                    <img class="rounded-circle me-lg-2" src="../img/user.jpg" alt="" style="width: 40px; height: 40px;">
-                    <span class="d-none d-lg-inline-flex">Korede Ibrahim</span>
+                              <!-- Check if the merchant object has an image -->
+                    <% if (merchant && merchant.image && merchant.image.data) { %>
+                        <!-- Display the user's image -->
+                        <img class="rounded-circle imageSize" src="data:<%= merchant.image.contentType %>;base64,<%= merchant.image.data.toString('base64') %>" alt="Picture">
+                    <% } else { %>
+                         <!-- Display a default image if the user doesn't have an image -->
+                         <i class="fas fa-camera fa-3x text-secondary imageSize"></i>
+                    <% } %>
+                    <span class="d-none d-lg-inline-flex"><%-merchant.merchantLastName %></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
                     <a href="#" class="dropdown-item">My Profile</a>

@@ -806,7 +806,7 @@ const merchantLoginPost = async (req, res) => {
         const accessToken = jwt.sign(
             { id: merchant._id, role: 'Merchant' },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: process.env.TOKEN_EXPIRATION_TIME }
+            { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_TIME }
         );
 
         // Generate a refresh token
@@ -837,7 +837,7 @@ const merchantLoginPost = async (req, res) => {
 
         // Redirect to the index page after successful login
         console.log('Login successful');
-
+        return res.status(200).json({ success: true, message: 'Login successful' });
     } catch (error) {
         // If an error occurs during the login process, return a 500 error response
         console.error('Error during login:', error);

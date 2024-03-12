@@ -143,40 +143,39 @@
     </div>
 </div>
 
-
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const successMessageContainer = document.getElementById('successMessageContainer');
+    document.getElementById('merchantLoginForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevent default form submission
 
-         document.getElementById('merchantLoginForm').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const formData = new FormData(event.target);
+        const formData = new FormData(this);
 
-            const merchantUsername = formData.get('merchantUsername');
-            const merchantPassword = formData.get('merchantPassword');
+        try {
+            const response = await fetch('/auth/merchantLoginPost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    merchantUsername: formData.get('merchantUsername'),
+                    merchantPassword: formData.get('merchantPassword')
+                })
+            });
 
-            try {
-                const response = await fetch('/auth/merchantLoginPost', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ merchantUsername, merchantPassword })
-                });
+            const responseData = await response.json();
 
-                if (response.ok) {
-                    // If login successful, redirect to the index page
-                    window.location.href = '/merchant/index';
-                } else {
-                    const responseData = await response.json();
-                    // Display error message directly within successMessageContainer
-                    displayErrorMessage(responseData.message);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                displayErrorMessage('An error occurred. Please try again later.');
+            if (response.ok) {
+                console.log('Login successful');
+                // Redirect to the merchant index page
+                window.location.href = '/merchant/index';
+            } else {
+                console.error('Login failed:', responseData.message);
+                displayErrorMessage(responseData.message);
             }
-        });
+        } catch (error) {
+            console.error('Error during login:', error);
+            alert('Error during login. Please try again later.');
+            
+        }
 
         function displayErrorMessage(message) {
             // Clear any previous content in successMessageContainer
@@ -187,12 +186,9 @@
             errorMessageElement.textContent = message;
             successMessageContainer.appendChild(errorMessageElement);
         }
+
     });
 </script>
-
-    
-
-    
 
     <!-- Footer Start -->
     <%- include (`../partials/footer`); -%>
@@ -210,28 +206,6 @@
                 input.attr("type", "password");
             }
         });
-
-    //   //  JavaScript to extract and display success message 
-    //     document.addEventListener("DOMContentLoaded", function() {
-    //         const urlParams = new URLSearchParams(window.location.search);
-    //         const successMessage = urlParams.get('successMessage');
-    //         if (successMessage) {
-    //            // Display the success message in the container
-    //            const successMessageContainer = document.getElementById('successMessageContainer');
-    //            successMessageContainer.textContent = decodeURIComponent(successMessage);
-
-    //            // Clear the success message after a certain time interval (e.g., 5 seconds)
-    //            setTimeout(function() {
-    //             clearSuccessMessage();
-    //         }, 5000); 
-    //     }
-    // });
-
-    // function clearSuccessMessage() {
-    //     const successMessageContainer = document.getElementById('successMessageContainer');
-    //        // Clear the content of the success message container
-    //     successMessageContainer.innerHTML = '';
-    // }
 
              //  JavaScript to extract and display success or error message 
         document.addEventListener("DOMContentLoaded", function() {

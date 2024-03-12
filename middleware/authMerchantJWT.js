@@ -1,20 +1,22 @@
 // Protect Routes:Implement middleware to protect routes that require authentication.
 const jwt = require('jsonwebtoken');
-const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = process.env;
+require('dotenv').config(); // Load environment variables
 
 const authenticateToken = (req, res, next) => {
     const accessToken = req.cookies.accessToken;
     const refreshToken = req.cookies.refreshToken;
+    console.log("My accessToken", accessToken)
+    console.log("My refreshToken",  refreshToken)
     
     if (!accessToken || !refreshToken) {
 
         return res.redirect('/auth/merchantLogin?authErrorMessage=Please sign in to access this page');
     }
 
-    jwt.verify(accessToken, ACCESS_TOKEN_SECRET, (err, decodedAccessToken) => {
+    jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decodedAccessToken) => {
         if (err) {
             // If access token verification fails, check refresh token
-            jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, (err, decodedRefreshToken) => {
+            jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decodedRefreshToken) => {
                 if (err) {
                     // If both tokens are invalid, return unauthorized
                     // return res.status(401).json({ success: false, message: 'Invalid tokens' });
@@ -23,7 +25,7 @@ const authenticateToken = (req, res, next) => {
                     // If refresh token is valid, issue new access token
                     const newAccessToken = jwt.sign(
                         { id: decodedRefreshToken.id, role: 'Merchant' },
-                        ACCESS_TOKEN_SECRET,
+                        process.env.ACCESS_TOKEN_SECRET,
                         { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION_TIME }
                     );
                     // Attach the new access token to the response headers

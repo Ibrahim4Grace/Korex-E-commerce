@@ -7,7 +7,7 @@ const {authenticateToken} = require ('../middleware/authMerchantJWT');
 const { welcomeMerchant,upload,uploadMerchantImage,merchantProducts,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout} = require('../controller/merchantController');
 
 router.get('/index',authenticateToken,welcomeMerchant);
-router.post('/uploadMerchantImage',upload.single('image'),uploadMerchantImage);
+router.post('/uploadMerchantImage',upload.single('image'),authenticateToken,uploadMerchantImage);
 router.get('/products',authenticateToken,merchantProducts);
 router.get('/orders',authenticateToken,merchantOrders);
 router.get('/reviews',authenticateToken,merchantReviews);
