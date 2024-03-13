@@ -18,7 +18,6 @@ const userSchema = require('../middleware/userValidation');
 const welcomeMerchant = async (req, res) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
-
         if (!merchant) {
             return res.status(404).send('Merchant not found');
         }
@@ -33,7 +32,6 @@ const welcomeMerchant = async (req, res) => {
 // Merchant Uploading Image
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        // Validate file type (e.g., allow only images)
         if (!file.mimetype.startsWith('image')) {
             return cb(new Error('Only images are allowed'));
         }
@@ -43,8 +41,6 @@ const storage = multer.diskStorage({
         cb(null, file.fieldname + '_' + Date.now())
     }
 });
-
-// Initialize multer middleware
 const upload = multer({ storage: storage });
 
 const uploadMerchantImage = async (req, res, next) => {
@@ -58,75 +54,97 @@ const uploadMerchantImage = async (req, res, next) => {
 
         // Extract the user ID from the JWT token
         const userId = req.user.id;
-
-        // Find the merchant by their user ID
         const merchant = await Merchant.findById(userId);
-
         if (!merchant) {
             return res.status(404).json({ message: 'Merchant not found' });
         }
 
-        // Save the uploaded image to the merchant's profile
         merchant.image = {
             data: fs.readFileSync(file.path), // Read file data
             contentType: file.mimetype, // Get file MIME type
         };
-        // Save the updated merchant object
         await merchant.save();
-
-        // Respond to the client with a success message
         return res.status(200).json({ success: true, message: 'File uploaded successfully' });
     } catch (error) {
-        // Handle any errors that occur during the upload process
         console.error('Error uploading file:', error);
         res.status(500).json({ message: 'Error uploading file' });
     }
 };
 
 
+const merchantProducts = async (req, res) => {
+    try {
+        const merchant = await Merchant.findById(req.user.id);
 
-// const uploadMerchantImage = async (req, res, next) => {
-//     try {
-//         // Handle the uploaded file
-//         const file = req.file;
+        if (!merchant) {
+            return res.status(404).send('Merchant not found');
+        }
 
-//         if (!file) {
-//             return res.status(400).json({ message: 'No file uploaded' });
-//         }
-
-//         const newMerchant = new Merchant({
-//             image: {
-//                 data: fs.readFileSync(path.join(__dirname, '../public/merchantImage/' + file.filename)),
-//                 contentType: 'image/png',
-//             },
-//         });
-//         await newMerchant.save();
-
-//         // Respond to the client with a success message
-//         res.json({ message: 'File uploaded successfully' });
-//     } catch (error) {
-//         // Handle any errors that occur during the upload process
-//         console.error('Error uploading file:', error);
-//         res.status(500).json({ message: 'Error uploading file' });
-//     }
-// };
-
-
-const merchantProducts = (req, res) => {
-    res.render('merchant/products');
+        res.render('merchant/products', { merchant });
+    } catch (error) {
+        console.error('Error retrieving user information:', error);
+        res.status(500).send('Error retrieving merchant information');
+    }
 };
 
-const merchantOrders = (req, res) => {
-    res.render('merchant/orders');
+const merchantOrders = async (req, res) => {
+    try {
+        const merchant = await Merchant.findById(req.user.id);
+
+        if (!merchant) {
+            return res.status(404).send('Merchant not found');
+        }
+
+        res.render('merchant/orders', { merchant });
+    } catch (error) {
+        console.error('Error retrieving user information:', error);
+        res.status(500).send('Error retrieving merchant information');
+    }
 };
-const merchantReviews = (req, res) => {
-    res.render('merchant/reviews');
+
+const merchantReviews = async (req, res) => {
+    try {
+        const merchant = await Merchant.findById(req.user.id);
+
+        if (!merchant) {
+            return res.status(404).send('Merchant not found');
+        }
+
+        res.render('merchant/reviews', { merchant });
+    } catch (error) {
+        console.error('Error retrieving user information:', error);
+        res.status(500).send('Error retrieving merchant information');
+    }
 };
-const merchantCustomerMsg = (req, res) => {
-    res.render('merchant/customerMsg');
+
+const merchantCustomerMsg = async (req, res) => {
+    try {
+        const merchant = await Merchant.findById(req.user.id);
+
+        if (!merchant) {
+            return res.status(404).send('Merchant not found');
+        }
+
+        res.render('merchant/customerMsg', { merchant });
+    } catch (error) {
+        console.error('Error retrieving user information:', error);
+        res.status(500).send('Error retrieving merchant information');
+    }
 };
-const merchantSettings = (req, res) => {
-    res.render('merchant/settings');
+
+const merchantSettings = async (req, res) => {
+    try {
+        const merchant = await Merchant.findById(req.user.id);
+
+        if (!merchant) {
+            return res.status(404).send('Merchant not found');
+        }
+
+        res.render('merchant/settings', { merchant });
+    } catch (error) {
+        console.error('Error retrieving user information:', error);
+        res.status(500).send('Error retrieving merchant information');
+    }
 };
 
 
