@@ -349,9 +349,6 @@
                                                   <div class="box-header with-border">
                                                     <div><b>Preview</b></div>
                                                     <div class="box-tools pull-right">
-                                                      <button type="button" class="btn btn-danger btn-xxs remove-preview">
-                                                        <i class="fa fa-trash"></i> 
-                                                      </button>
                                                     </div>
                                                   </div>
                                                   <div class="box-body"></div>
@@ -394,62 +391,59 @@
 		    </div>
 	</div>
 
+         <!-- Item image uploading using file reader  -->
     <script>
-        // IMAGE UPLOAD JAVASCRIPT
-        function readFile(input) {
-            if (input.files && input.files[0]) {
-                let reader = new FileReader();
+        $(document).ready(function() {
+    function readFile(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let htmlPreview =
+                    '<div class="image-preview">' +
+                        '<img width="100" src="' + e.target.result + '" />' +
+                        '<button type="button" class="btn btn-danger btn-sm remove-image">Remove</button>' +
+                    '</div>';
+                let boxZone = $(input).parents('.form-group').find('.preview-zone').find('.box').find('.box-body');
+                boxZone.append(htmlPreview);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }reset
 
-                reader.onload = function(e) {
-                    let htmlPreview =
-                    '<img width="200" src="' + e.target.result + '" />' +
-                    '<p>' + input.files[0].name + '</p>';
-                    let wrapperZone = $(input).parent();
-                    let previewZone = $(input).parent().parent().find('.preview-zone');
-                    let boxZone = $(input).parent().parent().find('.preview-zone').find('.box').find('.box-body');
+    function reset(e) {
+        e.wrap('<form>').closest('form').get(0).reset();
+        e.unwrap();
+    }
 
-                    wrapperZone.removeClass('dragover');
-                    previewZone.removeClass('hidden');
-                    boxZone.empty();
-                    boxZone.append(htmlPreview);
-                };
-
-                reader.readAsDataURL(input.files[0]);
+    $(".dropzone").change(function() {
+        let input = this;
+        if (input.files && input.files[0]) {
+            for (let i = 0; i < input.files.length; i++) {
+                readFile(input);
             }
         }
+    });
 
-        function reset(e) {
-            e.wrap('<form>').closest('form').get(0).reset();
-                e.unwrap();
-            }
+    $('.dropzone-wrapper').on('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).addClass('dragover');
+    });
 
-            $(".dropzone").change(function() {
-                readFile(this);
-            });
+    $('.dropzone-wrapper').on('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('dragover');
+    });
 
-            $('.dropzone-wrapper').on('dragover', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                $(this).addClass('dragover');
-            });
-
-            $('.dropzone-wrapper').on('dragleave', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                $(this).removeClass('dragover');
-            });
-
-            $('.remove-preview').on('click', function() {
-                let boxZone = $(this).parents('.preview-zone').find('.box-body');
-                let previewZone = $(this).parents('.preview-zone');
-                let dropzone = $(this).parents('.form-group').find('.dropzone');
-                boxZone.empty();
-                previewZone.addClass('hidden');
-                reset(dropzone);
-            });
+    $('.preview-zone').on('click', '.remove-image', function() {
+        $(this).parent('.image-preview').remove();
+    });
+});
 
     </script>
 
+                          <!-- modal progress javascript -->
 <script>
 $(document).ready(function() {
     // Function to open the modal when the button is clicked
