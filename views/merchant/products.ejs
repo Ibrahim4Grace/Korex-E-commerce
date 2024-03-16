@@ -339,12 +339,11 @@
 						<div class="tab-pane fade" id="step3">
                             <div class="well">
 								<section>
-                                   
-                                      <div class="container">
+                                    <div class="container">
                                         <div class="row">
                                           <div class="col-md-12">
                                             <div class="form-group">
-                                              <label class="control-label">Upload File</label>
+                                              <label class="control-label">Upload Item Image</label>
                                               <div class="preview-zone hidden">
                                                 <div class="box box-solid">
                                                   <div class="box-header with-border">
@@ -363,7 +362,7 @@
                                                   <i class="glyphicon glyphicon-download-alt"></i>
                                                   <p>Choose an image file or drag it here.</p>
                                                 </div>
-                                                <input type="file" name="img_logo" class="dropzone">
+                                                <input type="file" name="img_logo" class="dropzone" multiple>
                                               </div>
                                             </div>
                                           </div>
@@ -374,32 +373,25 @@
                                             <button type="submit" class="btn btn-primary pull-right">Upload</button>
                                           </div>
                                         </div>
-                                      </div>
-                                    
+                                    </div>
                                   </section>
-                              
-                                 
-								
 							</div>
 						</div>
 					</div>
 				</div>
 
 				<!-- Modal Footer (3/3) -->
-				<div class="modal-footer">
+				<div class="modal-footer" style="margin: 1px auto;">
 					<div class="left-footer">
 						<a class="btn btn-success first" href="#">Start over</a>
 					</div>
 					<div class="right-footer">
 						<a class="btn btn-default back" href="#">Back</a>
 						<a class="btn btn-default next" href="#">Next</a>
+                        <button type="submit" class="btn btn-primary">Submit</button>
 					</div>
-					<!-- <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button> -->
-					<!-- <button class="btn btn-primary">Save changes</button> -->
 				</div>
-
-		
-		</div>
+		    </div>
 	</div>
 
     <script>
@@ -464,11 +456,11 @@ $(document).ready(function() {
     $("#newProductBtn").click(function() {
         $('#myModal').modal('show'); // Show the modal
     });
+
     // Rest of your existing JavaScript code here
+
     let nStep = 3;
     let firstTab = $("#myModal .tab-pane:first-child").attr("id");
-    let prevTab = $("#myModal .tab-pane.active").prev().attr("id");
-    let nextTab = $("#myModal .tab-pane.active").next().attr("id");
     let lastTab = $("#myModal .tab-pane:last-child").attr("id");
 
     $("#myModal .progress-bar").text("Step 1 of " + nStep);
@@ -478,43 +470,31 @@ $(document).ready(function() {
     $('[href="#' + firstTab + '"]').tab("show").trigger('shown.bs.tab');
 
     $("#myModal .next").click(function() {
-        let nextId = $("#myModal .tab-pane.active").next().attr("id");
+        let currentTab = $("#myModal .tab-pane.active");
+        let nextId = currentTab.next().attr("id");
         $("#myModal [href='#" + nextId + "']").tab("show");
 
         $("#myModal .back, #myModal .first").css("display", "unset");
         if (nextId === lastTab) {
             $("#myModal .next").hide();
-            // Show submit button
+            $("#myModal .right-footer .btn-primary").show(); // Show the submit button
         }
         return false;
     });
 
     $("#myModal .back").click(function() {
-        let backId = $("#myModal .tab-pane.active").prev().attr("id");
+        let currentTab = $("#myModal .tab-pane.active");
+        let backId = currentTab.prev().attr("id");
         $("#myModal [href='#" + backId + "']").tab("show");
 
         $("#myModal .next").css("display", "unset");
         if (backId === "step1") {
             $("#myModal .back, #myModal .first").css("display", "none");
         }
+        if (backId !== lastTab) {
+            $("#myModal .right-footer .btn-primary").hide(); // Hide the submit button
+        }
         return false;
-    });
-
-    $("#myModal .nav-tabs li:first-child").click(function() {
-        $("#myModal .back, #myModal .first").css("display", "none");
-        $("#myModal .next").css("display", "unset");
-    });
-
-    $("#myModal .nav-tabs li:not(:first-child)").click(function() {
-        $("#myModal .back, #myModal .first").css("display", "unset");
-    });
-
-    $("#myModal .nav-tabs li:last-child").click(function() {
-        $("#myModal .next").css("display", "none");
-    });
-
-    $("#myModal .nav-tabs li:not(:last-child)").click(function() {
-        $("#myModal .next").css("display", "unset");
     });
 
     $('a[data-toggle="tab"]').on("shown.bs.tab", function(e) {
@@ -523,16 +503,24 @@ $(document).ready(function() {
 
         $("#myModal .progress-bar").css({ width: percent + "%" });
         $("#myModal .progress-bar").text("Step " + step + " of " + nStep);
+
+        // Check if the current tab is the "Upload Image" tab
+        if ($(e.target).attr("href") === "#step3") {
+            $("#myModal .right-footer .btn-primary").show(); // Show the submit button
+            $("#myModal .next").hide(); // Hide the next button
+        } else {
+            $("#myModal .right-footer .btn-primary").hide(); // Hide the submit button
+            $("#myModal .next").show(); // Show the next button
+        }
     });
 
     $("#myModal .first").click(function() {
         $("#myModal [href='#" + firstTab + "']").tab("show");
         $("#myModal .back, #myModal .first").css("display", "none");
         $("#myModal .next").css("display", "unset");
+        $("#myModal .right-footer .btn-primary").hide(); // Hide the submit button
     });
 });
-
-
 </script>  
 
 
