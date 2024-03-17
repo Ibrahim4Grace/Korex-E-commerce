@@ -12,6 +12,8 @@ const passport = require('../config/passportAuth')();
 const User = require('../models/User');
 const Merchant = require('../models/merchant');
 const userSchema = require('../middleware/userValidation');
+const {merchantSchema, productSchema} = require('../middleware/merchantValidation');
+const {productRegistrationMsg,} = require('../services/merchantProductMsgMailer');
 // const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
 
 
@@ -71,7 +73,7 @@ const uploadMerchantImage = async (req, res, next) => {
     }
 };
 
-
+            //   PRODUCT SECTION
 const merchantProducts = async (req, res) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
@@ -84,6 +86,76 @@ const merchantProducts = async (req, res) => {
     } catch (error) {
         console.error('Error retrieving user information:', error);
         res.status(500).send('Error retrieving merchant information');
+    }
+};
+
+// Merchant Uploading Image
+const stor = multer.diskStorage({
+    destination: (req, file, cb) => {
+        if (!file.mimetype.startsWith('image')) {
+            return cb(new Error('Only images are allowed'));
+        }
+        cb(null, './public/productImage/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + '_' + Date.now())
+    }
+});
+const upl = multer({ storage: stor });
+
+const merchantProductsPost = async (req, res) => {
+try {
+                // Find the merchant who is posting the product
+        const merchant = await Merchant.findById(req.user.id);
+        if (!merchant) {
+            return res.status(404).send('Merchant not found');
+        }
+
+                  // Validate user input against Joi schema
+        const productResult = await productSchema.validateAsync(req.body);
+
+             // Save the user data to the database
+             const newProduct = new Product({
+                productName: productResult.productName,
+                productDescription: productResult.productDescription,
+                ProductPrice: productResult.ProductPrice,
+                ProductShipping: productResult.ProductShipping,
+                productCategory: productResult.productCategory,
+                productBrand: productResult.productBrand,
+                productSize: productResult.productSize,
+                productColor: productResult.productColor,
+                productQuantity: productResult.productQuantity,
+                productImages: productResult.productImages= {
+                    data: fs.readFileSync(file.path), 
+                    contentType: file.mimetype, 
+                },
+                MerchantId: merchant,
+                date_added: Date.now(),
+            });
+            await newProduct.save();
+
+             // After successfully product registering the merchant, call the email sending function
+             await productRegistrationMsg(newProduct);
+
+             console.log('Product successfully registered:', newUser);
+             // Send success response to the client
+             res.status(201).json({ success: true ,  message: 'Product successfully registered' });
+    }catch (error) {
+        let errors; // Declare errors variable
+        if (error.isJoi) {
+                      // Joi validation error
+            errors = error.details.map(err => ({
+                key: err.path[0],
+                msg: err.message
+            }));
+            console.error('Joi validation error:', errors);
+            return res.status(400).json({ success: false, errors });
+
+        } else {
+                      // Other error occurred
+            console.error('An error occurred while processing the request:', error);
+            return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+        }
     }
 };
 
@@ -162,4 +234,4 @@ const merchantLogout = (req, res) => {
 
 
 
-module.exports = ({ welcomeMerchant,upload,uploadMerchantImage,merchantProducts,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout});
+module.exports = ({ welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchantProductsPost,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout});

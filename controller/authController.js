@@ -12,7 +12,7 @@ const passport = require('../config/passportAuth')();
 const User = require('../models/User');
 const Merchant = require('../models/merchant');
 const userSchema = require('../middleware/userValidation');
-const merchantSchema = require('../middleware/merchantValidation');
+const {merchantSchema, productSchema} = require('../middleware/merchantValidation');
 const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
 const {merchantRegistrationMsg,merchantVerifyEmailMsg,merchantRequestVerifyMsg,merchantForgetPswdMsg,merchantResetPswdMsg} = require('../services/merchantAuthMsgMailer');
 

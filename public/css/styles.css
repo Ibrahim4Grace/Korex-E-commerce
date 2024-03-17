@@ -329,7 +329,6 @@
 /* CSS for modal with ID myModal */
 #myModal .modal-header {
     background: #F3F6F9;
-    color: #ffc233;
     display: flex;
     flex-flow: row-reverse;
     text-align: center;
@@ -365,6 +364,7 @@
     padding: 7px 30px;
     margin: 5;
     font-weight: bold;
+    border: none;
 }
 
 #myModal a.back:hover,
@@ -397,21 +397,16 @@
     flex: 1;
 }
 #myModal .navbar-inner {
-    padding-left: 20px; /* Add left padding */
-    padding-right: 20px; /* Add right padding */
+    padding-left: 20px; 
+    padding-right: 20px; 
 }
 
 #myModal .nav-tabs > li {
-    margin-right: 10px; /* Add right margin between tabs */
+    margin-right: 10px;
 }
-
-#myModal .nav-tabs > li:last-child {
-    margin-right: 0; /* Remove right margin from the last tab */
-}
+#myModal .nav-tabs > li:last-child {  margin-right: 0; }
 
 
-
- 
  .container {
     padding: 50px 10%;
   }
@@ -479,4 +474,5 @@
     border-radius: 0;
     margin-bottom: 0;
   }
+  .backColor{background-color: #fff;}
   

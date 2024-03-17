@@ -7,35 +7,52 @@ const productSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    description:{
+    productDescription:{
         type:String,
         required:true
     },
-    price:{
+    productPrice:{
         type:Number,
         required:true
     },
-    category:{
+    productShipping:{
+        type:Number,
+        required:true
+    },
+    productCategory:{
         type:String,
         required:true
     },
-    brand:{
+    productBrand:{
         type:String,
         required:true
     },
-    username:{
+    productSize:{
         type:String,
         required:true
     },
-   image:{
-    data:Buffer,
-    contentType:String
-   },
-
-   date_added:{
-    type:Date,
-    default:Date.now()
-}
+    productColor:{
+        type:String,
+        required:true
+    },
+    productQuantity:{
+        type:String,
+        required:true
+    },
+    productImages:{
+        data:Buffer,
+        contentType:String
+    },
+    MerchantId: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Merchant'
+        }
+    ],
+    date_added:{
+        type:Date,
+        default:Date.now()
+    }
 
 })
 
