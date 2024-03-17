@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== 'production'){
   const session = require('express-session');
   // const helmet = require("helmet")
 //   const methodOverride = require('method-override');
-  const connectToMongoDB = require('./database/conn');
+  const connectToMongoDB = require('./database/connection');
   const cors = require('cors');
   const MongoDBStore = require('connect-mongodb-session')(session);
   const cookieParser = require('cookie-parser'); //for our jwt storage
