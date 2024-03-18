@@ -57,52 +57,6 @@ const ConfirmPasswordMessages = {
     
 };
 
-const productNameMessages = {
-    "string.empty": "Product name is required",
-    "any.required": "Product name is required",
-};
-const productDescription = {
-    "string.empty": "Product description name is required",
-    "string.min": "Product description must be at least {#limit} characters",
-    'string.max': 'Product description cannot exceed 250 characters',
-    "any.required": "Product description name is required",
-};
-const productPrice = {
-    'number.base': 'Product price must be a number',
-    'number.min': 'Product must be greater than {#limit}',
-    "any.required": "Product price name is required",
-};
-const productShippingMessages = {
-    'number.base': 'Shipping price must be a number',
-    'number.min': 'Shipping must be greater than {#limit}',
-    "any.required": "Shipping price name is required",
-};
-const productCategoryMessages = {
-    "string.empty": "Product category name is required",
-    "any.required": "Product category name is required",
-};
-const productBrandMessages = {
-    "string.empty": "Product brand name is required",
-    "any.required": "Product brand name is required",
-};
-const productSizeMessages = {
-    "string.empty": "Product size name is required",
-    "any.required": "Product size name is required",
-};
-const productColorMessages = {
-    "string.empty": "Product color name is required",
-    "any.required": "Product color name is required",
-};
-const productQuantityMessages = {
-    'number.base': 'Product quantity must be a number',
-    'number.min': 'Product quantity be greater than {#limit}',
-    "any.required": "Product quantity name is required",
-};
-const productImagesMessages = {
-    "string.empty": "Product image is required",
-    "any.required": "Product image is required",
-};
-
 // Define a Joi schema for the user data
 const merchantSchema = Joi.object({
     merchantFirstName: Joi.string().min(2).required().messages(firstNameMessages),
@@ -119,20 +73,6 @@ const merchantSchema = Joi.object({
     role: Joi.string().valid('Merchant').required(),
 });
 
-// Define a Joi schema for the product data
-const productSchema = Joi.object({
-    productName: Joi.string().required().messages(productNameMessages),
-    productDescription: Joi.string().min(2).max(250).required().messages(productDescription),
-    productPrice: Joi.number().min(1).required().messages(productPrice),
-    productShipping: Joi.number().min(1).required().messages(productShippingMessages),  
-    productCategory: Joi.string().required().messages(productCategoryMessages),
-    productBrand: Joi.string().required().messages(productBrandMessages),
-    productSize: Joi.string().required().messages(productSizeMessages),
-    productColor: Joi.string().required().messages(productColorMessages), 
-    productQuantity: Joi.number().min(0).required().messages(productQuantityMessages), 
-    productImages: Joi.string().min(6).required().messages(productImagesMessages),
-   
-});
 
+module.exports =  merchantSchema;
 
- module.exports =  {merchantSchema, productSchema}

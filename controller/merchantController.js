@@ -11,8 +11,9 @@ const fs = require('fs');
 const passport = require('../config/passportAuth')();
 const User = require('../models/User');
 const Merchant = require('../models/merchant');
+const Product = require('../models/product');
 const userSchema = require('../middleware/userValidation');
-const {merchantSchema, productSchema} = require('../middleware/merchantValidation');
+const productSchema = require('../middleware/productValidation');
 const {productRegistrationMsg,} = require('../services/merchantProductMsgMailer');
 // const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
 
@@ -112,23 +113,24 @@ try {
         }
 
                   // Validate user input against Joi schema
+        // const productResult = await productSchema.validateAsync(req.body, {abortEarly: false});
         const productResult = await productSchema.validateAsync(req.body);
 
              // Save the user data to the database
              const newProduct = new Product({
                 productName: productResult.productName,
                 productDescription: productResult.productDescription,
-                ProductPrice: productResult.ProductPrice,
-                ProductShipping: productResult.ProductShipping,
+                productPrice: productResult.productPrice,
+                productShipping: productResult.productShipping,
                 productCategory: productResult.productCategory,
                 productBrand: productResult.productBrand,
                 productSize: productResult.productSize,
                 productColor: productResult.productColor,
                 productQuantity: productResult.productQuantity,
-                productImages: productResult.productImages= {
-                    data: fs.readFileSync(file.path), 
-                    contentType: file.mimetype, 
-                },
+                images: req.files.map(file => ({
+                    data: fs.readFileSync(file.path),
+                    contentType: file.mimetype,
+                })),
                 MerchantId: merchant,
                 date_added: Date.now(),
             });

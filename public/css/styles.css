@@ -475,4 +475,10 @@
     margin-bottom: 0;
   }
   .backColor{background-color: #fff;}
+  .error {
+    margin-top: 4px; 
+    color: red;
+    font-size: 0.8em; 
+    font-family: sans-serif;
+  } 
   
