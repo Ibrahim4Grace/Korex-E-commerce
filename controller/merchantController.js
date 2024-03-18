@@ -14,6 +14,7 @@ const Merchant = require('../models/merchant');
 const Product = require('../models/product');
 const userSchema = require('../middleware/userValidation');
 const productSchema = require('../middleware/productValidation');
+const paginate = require('../utils/pagination');
 const {productRegistrationMsg,} = require('../services/merchantProductMsgMailer');
 // const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
 
