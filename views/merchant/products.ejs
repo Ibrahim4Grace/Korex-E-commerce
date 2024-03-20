@@ -28,6 +28,7 @@
 
     <!-- Template Stylesheet -->
     <link href="../css/styles.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -73,27 +74,81 @@
                             <tr class="text-dark">
                                 <th scope="col"><input class="form-check-input" type="checkbox"></th>
                                 <th scope="col">ID</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Customer</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col">Status</th>
+                                <th scope="col">product Image</th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Product Price</th>
+                                <th scope="col">shipping Fees</th>
+                                <th scope="col">shipping Fees</th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
-                                <td>KS093</td>
-                                <td>11 Mar 2024</td>
-                                <td>Samson Samuel</td>
-                                <td>$123</td>
-                                <td>Paid</td>
-                                <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                            <% ourProducts.forEach(products => { %>
+                                <tr class="center">
+                                    <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                                    <td>
+                                        <% if (products.image && products.image.data) { %>
+                                            <img src="data:<%= products.image.contentType %>;base64,<%= products.image.data.toString('base64') %>" alt="Products Image">
+                                            <% } else { %>
+                                                NA
+                                        <% } %>
+                                    </td>
+                                    <td><%= products.productName %></td>
+                                    <td><%= products.productPrice %></td>
+                                    <td><%= products.productShipping %></td>
+                                    <td><%= products.productCategory %></td>
+                                    <td><%= products.productBrand %></td>
+                                    <td data-label="Profile">
+                                              <!-- View Button -->
+                                        <input type="button" value="View" class="btn btn-info btn-sm view-button" data-product-id="<%= products._id %>">
+                                    
+                                              <!-- Edit Button -->
+                                        <input type="button" value="Edit" class="btn btn-primary btn-sm edit-button" data-product-id="<%= products._id %>">
+                                    
+                                              <!-- Delete Button -->
+                                        <input type="button" value="Delete" class="btn btn-danger btn-sm delete-button" data-product-id="<%= products._id %>">
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                        <div class="pagination">
+                            <% for (let i=1; i <=totalPages; i++) { %>
+                                <a href="/merchant/products?page=<%= i %>"
+                                    class="<%= currentPage === i ? 'active' : '' %>">
+                                    <%= i %>
+                                </a>
+                            <% } %>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                    <script>
+                // Function to handle the click event of the view button
+                document.querySelectorAll('.view-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-product-id');
+                        window.location.href = "/merchant/viewProduct/" + productId;
+                    });
+                });
+            
+                // Function to handle the click event of the edit button
+                document.querySelectorAll('.edit-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-product-id');
+                        window.location.href = "/merchant/editProduct/" + productId;
+                    });
+                });
+            
+                // Function to handle the click event of the delete button
+                document.querySelectorAll('.delete-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-product-id');
+                        window.location.href = "/merchant/deleteProduct/" + productId;
+                    });
+                });
+            </script>
+
     
             <div id="In Stock" class="tabcontent">
                 <h3>In Stock</h3>
@@ -218,6 +273,8 @@
     </div>
           
             <!-- Product End -->
+
+        
      <!-- Footer Start -->
      <%- include (`../partials/merchantFooter`); -%>
      <!-- Footer End -->

@@ -481,4 +481,21 @@
     font-size: 0.8em; 
     font-family: sans-serif;
   } 
-  
+.pagination {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+} 
+
+.pagination > a {
+    color: white; 
+    margin: 0 5px;
+    padding: 4px 12px; 
+    border-radius: 4px;
+    text-decoration: none; 
+    background-color:#009CFF; 
+}
+
+.pagination > a:hover {
+    background-color: lightblue;
+}

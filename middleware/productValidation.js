@@ -61,7 +61,9 @@ const productSchema = Joi.object({
     productSize: Joi.string().required().messages(productSizeMessages),
     productColor: Joi.string().required().messages(productColorMessages), 
     productQuantity: Joi.number().min(0).required().messages(productQuantityMessages), 
-    images: Joi.string().required().optional().messages(imagesMessages),
+    productInStock: Joi.string().optional(),
+    productLowStock: Joi.string().optional(),
+    productOutOfStock: Joi.string().optional()
    
 });
 

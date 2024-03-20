@@ -14,7 +14,7 @@ const Merchant = require('../models/merchant');
 const Product = require('../models/product');
 const userSchema = require('../middleware/userValidation');
 const productSchema = require('../middleware/productValidation');
-const paginate = require('../utils/pagination');
+const paginatedResults = require('../utils/pagination');
 const {productRegistrationMsg,} = require('../services/merchantProductMsgMailer');
 // const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
 
@@ -84,7 +84,10 @@ const merchantProducts = async (req, res) => {
             return res.status(404).send('Merchant not found');
         }
 
-        res.render('merchant/products', { merchant });
+        // Accessing properties directly from res.paginatedResults
+        const { results, currentPage, totalPages } = res.paginatedResults;
+
+        res.render('merchant/products', { merchant, ourProducts: res.paginatedResults.results,currentPage, totalPages });
     } catch (error) {
         console.error('Error retrieving user information:', error);
         res.status(500).send('Error retrieving merchant information');
@@ -162,6 +165,38 @@ try {
     }
 };
 
+const viewProduct = async (req, res) => {
+    try {
+        const profileId = req.params.productId;
+ 
+         const productInfo = await Product.findOne({ _id: profileId });
+        
+         if (!productInfo) {
+            return res.status(404).send(`Product information not found`);
+        }
+        // const admin = req.user; 
+        
+           // Render the viewAppoint page with appointment details
+        res.render(`merchant/viewProduct`, { productInfo, });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(`There's a problem selecting from DB`);
+    }
+};
+
+const editProduct = (req, res) => {
+
+};
+
+const editProductPost = (req, res) => {
+
+};
+
+const deleteProduct = (req, res) => {
+
+};
+
+
 const merchantOrders = async (req, res) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
@@ -237,4 +272,4 @@ const merchantLogout = (req, res) => {
 
 
 
-module.exports = ({ welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchantProductsPost,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout});
+module.exports = ({ welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchantProductsPost,viewProduct,editProduct,editProductPost,deleteProduct,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout});
