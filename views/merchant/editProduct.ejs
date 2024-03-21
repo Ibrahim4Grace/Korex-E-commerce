@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Korex StyleHub</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Korex StyleHub" name="keywords">
+    <meta content="Korex StyleHub" name="description">
+
+      <!-- Favicon -->
+      <link href="../../img/logo.PNG" rel="icon"> 
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="../../lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="../../lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="../../css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="../../css/styles.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+     
+
+    <div class="container-xxl position-relative bg-white d-flex p-0">
+       
+        <!-- Navbar Start -->
+     <%- include (`../partials/merchantHeader`); -%>
+     <!-- Navbar End -->
+
+                            <!-- EditProduct Start -->
+   
+        <div class="container-fluid pt-4 px-4">
+            <div class="bg-light text-center rounded p-4">
+              
+                <h1> Click to edit the product information. </h1>
+        
+                <div class="l-section">
+                  <h5 class="c-section__heading">Some important info</h5>
+                  <span class="c-link js-toggleForm">click to edit</span>
+                  <div class="form">
+                    <label>Product Name</label>
+                    <input type="text" name="productName" value="<%- productInfo.productName %>"/>
+
+                    <label>Product Price ($)</label>
+                    <input type="number" name="productPrice" value="<%- productInfo.productPrice %>"/>
+
+                    <label>Shipping Fee ($)</label>
+                    <input type="number" name="productShipping" value="<%- productInfo.productShipping %>"/>
+
+                    <label>Product Category</label>
+                    <% const productCategory = ["Baby Dress","Blazers", "Dresses","Jackets","Jeans","Jumpsuits","loafers", "Shirts","Sleepwears","Sneakers","Sportwears","Swimwears"]; %>
+                    <select  name="productCategory" >
+                        <option value="">Select product category</option>
+                        <% productCategory.forEach((category )=> { %>
+                            <option value="<%- category %>"<% if (productInfo.productCategory === category) { %> selected<% } %>><%- category %></option>
+                         <% }) %>
+                    </select>
+
+                    <label>Product Brand</label>
+                    <input type="text"  name="productBrand" value="<%- productInfo.productBrand %>"/>
+
+                    <label>Product </label>
+                    <% const productSize = ["XS","S", "M", "L", "XL", "2XL", "3XL", "4XL"]; %>
+                    <select  name="productSize">
+                        <option value="">Select Product Sizes</option>
+                        <% productSize.forEach((size )=> { %>
+                            <option value="<%- size %>"<% if (productInfo.productSize === size) { %> selected<% } %>><%- size %></option>
+                            <% }) %>
+                    </select>
+
+                    <label>Product </label>
+                    <% const productColor = ["Black", "Rusty Red", "Olive Green", "Dark Green",
+                    "Navy Blue", "Indigo", "Charcoal", "Maroon", "Neon Orange","Khaki","Forest Green",
+                    "Dark Cyan","Blue","Slate Blue", "Gray", "Red", "Orange","Lime Green", "Sage Green",
+                    "Sky Blue", "Royal Blue","Purple", "Dark Gray", "Pink","Yellow","Light Yellow", 
+                    "Light Green","Light Blue", "Light Sky Blue","Silver","Light Pink","Peach",
+                    "Pale Yellow", "Light Lime","Light Cyan", "Light Purple", "White" ]; %>
+                    <select name="productColor">
+                        <option value="">Select Product Sizes</option>
+                        <% productColor.forEach((color )=> { %>
+                            <option value="<%- color %>"<% if (productInfo.productColor === color) { %> selected<% } %>><%- color %></option>
+                            <% }) %>
+                    </select>
+                    
+                    <label>Product Quantity</label>
+                    <input type="number" name="productQuantity" value="<%- productInfo.productQuantity %>"/>
+
+                     <label>Product In Stock </label>
+                    <input type="number" name="productInStock" value="<%- productInfo.productInStock %>"/>
+
+                   <label>Product Low Stock</label>
+                    <input type="number" name="productLowStock" value="<%- productInfo.productLowStock %>"/>
+
+                   <label>Product Out Of Stock</label>
+                    <input type="number" name="productOutOfStock" value="<%- productInfo.productOutOfStock %>"/>
+                    
+                    <label>Image</label>
+                    <input type="file" name="images" multiple/>
+                    <input type="hidden" name="existingImage" value="<%- JSON.stringify(productInfo.images || {}) %>">
+
+                    <div class="form-group">
+                        <label>Current Image</label>
+                        <div>
+                            <% if (agent.image && agent.image.data) { %>
+                                <img class="editImage" src="data:<%= agent.images.contentType %>;base64,<%= productInfo.imagess.data.toString('base64') %>" alt="User images">
+                            <% } else { %>
+                                No images to display
+                            <% } %>
+                        </div>
+                    </div>
+                    
+
+                    <button type="submit" disabled>submit</button>
+                  </div>
+                </div>
+
+                 
+    
+                
+            </div>
+                         <!-- EditProduct End -->
+        
+     <!-- Footer Start -->
+     <%- include (`../partials/merchantFooter`); -%>
+     <!-- Footer End -->
+
+            
+     <script>
+        var form_ele = '.form';
+
+// make eveything disabled
+var disableFormEdit = function(selector){	
+  $(selector).removeClass('form--enabled').addClass('form--disabled');
+	$(selector + ' input, ' + selector + ' select, ' + selector + ' button').prop('disabled', true);
+}
+
+
+// make eveything enabled
+var enableFormEdit = function(selector){	
+	$(selector + ' input, ' + selector + ' select, ' + selector + ' button ').prop('disabled', false);
+  $(selector).removeClass('form--disabled').addClass('form--enabled');
+}
+
+
+disableFormEdit(form_ele);
+
+
+$('.js-toggleForm').click(function(){
+   // get the status of form
+  var form_status = $(form_ele).hasClass('form--disabled') ? 'disabled' : 'enabled';
+  
+  // check if disabled or enabled
+  switch (form_status){
+    case 'disabled':
+      enableFormEdit(form_ele);
+      $(this).text('undo')
+      break;
+    case 'enabled':
+      disableFormEdit(form_ele);
+      $(this).text('click to edit')
+      break;
+  }
+});
+     </script>
+
+</body>
+
+</html>

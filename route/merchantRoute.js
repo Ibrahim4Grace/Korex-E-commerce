@@ -9,12 +9,15 @@ const paginatedResults = require('../utils/pagination');
 const { welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchantProductsPost,viewProduct,editProduct,editProductPost,deleteProduct,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout} = require('../controller/merchantController');
 
 router.get('/index',authenticateToken,welcomeMerchant);
+//uploading merchant profile image
 router.post('/uploadMerchantImage',upload.single('image'),authenticateToken,uploadMerchantImage);
-// router.get('/products',authenticateToken,paginatedResults(Product),merchantProducts);
+//product page
 router.get('/products', authenticateToken, paginatedResults(Product), merchantProducts);
+//uploading new product
 router.post('/merchantProductsPost',upl.array('images'),authenticateToken,merchantProductsPost);
+//view all  product
 router.get('/viewProduct/:productId',authenticateToken,viewProduct);
-router.get('/editProduct',authenticateToken,editProduct);
+router.get('/editProduct/:productId',authenticateToken,editProduct);
 router.post('/editProductPost',authenticateToken,editProductPost);
 router.get('/deleteProduct',authenticateToken,deleteProduct);
 router.get('/orders',authenticateToken,merchantOrders);

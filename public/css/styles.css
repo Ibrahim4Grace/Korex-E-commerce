@@ -499,3 +499,117 @@
 .pagination > a:hover {
     background-color: lightblue;
 }
+#outlook a {padding:0;}
+.addressTable{ font-size: 14px; line-height: 18px; color: #666666;  }
+.space{padding-bottom: 25px;}
+.heading {width: 55%; font-size: 15px; font-weight: bold; color: #666666; padding-bottom: 5px;}
+.devicewidthinner{border-bottom: 1px solid #bbbbbb;}
+.spacdeTwo{margin-top: -5px;}
+.spanword{font-size: 14px; line-height: 18px; color: #757575; width: 440px;}
+.divwords{font-size: 14px; font-weight: bold; color: #666666; padding-bottom: 5px;}
+.headingAddress{border-bottom: 1px solid #eeeeee; text-align: center;}
+.headHolder{padding-top: 30px}
+.divHolder{padding-top: 0;}
+
+
+
+
+
+h1{font-size: 1.2em;
+    margin-top: 2em;
+    margin-bottom: 0.5em}
+  
+
+  
+h4{ font-size: 0.825em;
+    margin: 0;
+    opacity: 0.35;
+    line-height: 1.64}
+ 
+  
+.l-section{  
+    max-width: 360px;
+    margin: 50px auto 0;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: left;
+    position: relative;
+    border-radius: 3px}
+
+
+.c-section__heading{font-size: 1em;
+    font-weight: bold;
+    margin-bottom: 1.5em;
+    float: left;
+    width: 60%}
+  
+  
+.c-link  {color: #009CFF;
+    font-size: 0.875em;
+    float: right;
+    width: 40%;
+    text-align: right;
+    cursor: pointer}
+  
+  
+.c-link:hover{ color:  #0d47a1}
+ 
+  
+input, button, textarea, select{ display: block;
+    width: 100%;
+    margin: 5px 0;
+    padding: 12px 15px;
+    border-radius: 2px;
+    border: 1px solid #efefef;
+    outline: none;
+    /* -webkit-appearance: none; */
+    transition: all 0.2s ease-in-out}
+ 
+
+input:focus{  border-color: #888}
+
+  
+button{  background: #1a1a1a;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    margin-top: 1em;
+    display: inline-block}
+
+  
+button[disabled]{  background: #ECEFF1;
+    border: 1px solid #CFD8DC;
+    transition: all 0.2s ease-in-out;
+    cursor: not-allowed;
+    color: #B0BEC5}
+
+  
+button[disabled]:hover{  transition: all 0.2s ease-in-out;}
+
+  
+button:hover{ opacity: 1;
+    transition: all 0.2s ease-in-out}
+ 
+
+label{ font-size: 0.925em;
+    font-weight: bold;
+    color: #1a1a1a;
+    padding-top: 0.5em;
+    display: inline-block;
+    }
+ 
+.form{ clear: both;}
+ 
+  
+.form--disabled input, textarea, select{
+    padding-left: 0;
+    padding-top: 4px;
+    border: 0 solid #efefef;
+    background: white;
+    height: auto;
+    color: #31373b;
+    font-size: 0.8em;
+    transition: all 0.2s ease-in-out}
+ 
+  

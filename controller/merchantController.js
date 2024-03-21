@@ -19,21 +19,24 @@ const {productRegistrationMsg,} = require('../services/merchantProductMsgMailer'
 // const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
 
 
+
+
+//Merchant Landing page
 const welcomeMerchant = async (req, res) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
         if (!merchant) {
-            return res.status(404).send('Merchant not found');
+            return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
         }
 
         res.render('merchant/index', { merchant });
     } catch (error) {
         console.error('Error retrieving user information:', error);
-        res.status(500).send('Error retrieving merchant information');
+        return res.status(500).json({ success: false, errors: [{ msg: 'Error retrieving merchant information' }] });
     }
 };
 
-// Merchant Uploading Image
+// Merchant Uploading profile Image
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         if (!file.mimetype.startsWith('image')) {
@@ -57,10 +60,9 @@ const uploadMerchantImage = async (req, res, next) => {
         }
 
         // Extract the user ID from the JWT token
-        const userId = req.user.id;
-        const merchant = await Merchant.findById(userId);
+        const merchant = await Merchant.findById(req.user.id);
         if (!merchant) {
-            return res.status(404).json({ message: 'Merchant not found' });
+            return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
         }
 
         merchant.image = {
@@ -79,9 +81,8 @@ const uploadMerchantImage = async (req, res, next) => {
 const merchantProducts = async (req, res) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
-
         if (!merchant) {
-            return res.status(404).send('Merchant not found');
+            return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
         }
 
         // Accessing properties directly from res.paginatedResults
@@ -90,11 +91,11 @@ const merchantProducts = async (req, res) => {
         res.render('merchant/products', { merchant, ourProducts: res.paginatedResults.results,currentPage, totalPages });
     } catch (error) {
         console.error('Error retrieving user information:', error);
-        res.status(500).send('Error retrieving merchant information');
+        return res.status(500).json({ success: false, errors: [{ msg: 'Error retrieving merchant information' }] });
     }
 };
 
-// Merchant Uploading Image
+// Merchant Uploading new product and Images
 const stor = multer.diskStorage({
     destination: (req, file, cb) => {
         if (!file.mimetype.startsWith('image')) {
@@ -113,7 +114,7 @@ try {
                 // Find the merchant who is posting the product
         const merchant = await Merchant.findById(req.user.id);
         if (!merchant) {
-            return res.status(404).send('Merchant not found');
+            return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
         }
 
                   // Validate user input against Joi schema
@@ -165,27 +166,44 @@ try {
     }
 };
 
+//Merchant viewing product details 
 const viewProduct = async (req, res) => {
     try {
-        const profileId = req.params.productId;
- 
-         const productInfo = await Product.findOne({ _id: profileId });
-        
-         if (!productInfo) {
-            return res.status(404).send(`Product information not found`);
+        const merchant = await Merchant.findById(req.user.id);
+        if (!merchant) {
+            return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
         }
-        // const admin = req.user; 
-        
-           // Render the viewAppoint page with appointment details
-        res.render(`merchant/viewProduct`, { productInfo, });
+
+        const productInfo = await Product.findOne({ _id: req.params.productId });
+        if (!productInfo) {
+            return res.status(404).json({ success: false, errors: [{ msg: 'Product information not found' }] });
+        }
+
+        res.render(`merchant/viewProduct`, { productInfo, merchant });
     } catch (err) {
         console.error(err);
-        res.status(500).send(`There's a problem selecting from DB`);
+        return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
     }
 };
 
-const editProduct = (req, res) => {
+//Merchant edit product details 
+const editProduct = async (req, res) => {
+    try {
+        const merchant = await Merchant.findById(req.user.id);
+        if (!merchant) {
+            return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
+        }
 
+        const productInfo = await Product.findOne({ _id: req.params.productId });
+        if (!productInfo) {
+            return res.status(404).json({ success: false, errors: [{ msg: 'Product information not found' }] });
+        }
+
+        res.render(`merchant/editProduct`, { productInfo, merchant });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+    }
 };
 
 const editProductPost = (req, res) => {
