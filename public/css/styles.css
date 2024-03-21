@@ -545,7 +545,7 @@
     width: 60%}
   
   
-.c-link  {color: #009CFF;
+.l-section .c-link  {color: #009CFF;
     font-size: 0.875em;
     float: right;
     width: 40%;
@@ -553,7 +553,7 @@
     cursor: pointer}
   
   
-.c-link:hover{ color:  #0d47a1}
+.l-section .c-link:hover{ color:  #0d47a1}
  
   
 .l-section input, button, textarea, select{ display: block;
@@ -599,10 +599,10 @@
     display: inline-block;
     }
  
-.form{ clear: both;}
+.l-section .form{ clear: both;}
  
   
-.form--disabled input, textarea, select{
+.l-section .form--disabled input, textarea, select{
     padding-left: 0;
     padding-top: 4px;
     border: 0 solid #efefef;
