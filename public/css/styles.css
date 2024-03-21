@@ -514,14 +514,14 @@
 
 
 
-/* 
-h1{font-size: 1.2em;
+
+.l-section h1{font-size: 1.2em;
     margin-top: 2em;
     margin-bottom: 0.5em}
   
 
   
-h4{ font-size: 0.825em;
+.l-section h4{ font-size: 0.825em;
     margin: 0;
     opacity: 0.35;
     line-height: 1.64}
@@ -556,7 +556,7 @@ h4{ font-size: 0.825em;
 .c-link:hover{ color:  #0d47a1}
  
   
-input, button, textarea, select{ display: block;
+.l-section input, button, textarea, select{ display: block;
     width: 100%;
     margin: 5px 0;
     padding: 12px 15px;
@@ -567,10 +567,10 @@ input, button, textarea, select{ display: block;
     transition: all 0.2s ease-in-out}
  
 
-input:focus{  border-color: #888}
+.l-section input:focus{  border-color: #888}
 
   
-button{  background: #1a1a1a;
+.l-section button{  background: #1a1a1a;
     color: white;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -578,21 +578,21 @@ button{  background: #1a1a1a;
     display: inline-block}
 
   
-button[disabled]{  background: #ECEFF1;
+.l-section button[disabled]{  background: #ECEFF1;
     border: 1px solid #CFD8DC;
     transition: all 0.2s ease-in-out;
     cursor: not-allowed;
     color: #B0BEC5}
 
   
-button[disabled]:hover{  transition: all 0.2s ease-in-out;}
+.l-section button[disabled]:hover{  transition: all 0.2s ease-in-out;}
 
   
-button:hover{ opacity: 1;
+.l-section button:hover{ opacity: 1;
     transition: all 0.2s ease-in-out}
  
 
-label{ font-size: 0.925em;
+.l-section label{ font-size: 0.925em;
     font-weight: bold;
     color: #1a1a1a;
     padding-top: 0.5em;
@@ -612,4 +612,4 @@ label{ font-size: 0.925em;
     font-size: 0.8em;
     transition: all 0.2s ease-in-out}
  
-   */
+ 
