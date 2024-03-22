@@ -136,7 +136,7 @@ try {
                     data: fs.readFileSync(file.path),
                     contentType: file.mimetype,
                 })),
-                MerchantId: merchant,
+                MerchantId: merchant._id,
                 date_added: Date.now(),
             });
             await newProduct.save();
@@ -166,27 +166,26 @@ try {
     }
 };
 
-//Merchant viewing product details 
-const viewProduct = async (req, res) => {
-    try {
-        const merchant = await Merchant.findById(req.user.id);
-        if (!merchant) {
-            return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
-        }
+// //Merchant viewing product details 
+// const viewProduct = async (req, res) => {
+//     try {
+//         const merchant = await Merchant.findById(req.user.id);
+//         if (!merchant) {
+//             return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
+//         }
 
-        const productInfo = await Product.findOne({ _id: req.params.productId });
-        if (!productInfo) {
-            return res.status(404).json({ success: false, errors: [{ msg: 'Product information not found' }] });
-        }
+//         const productInfo = await Product.findOne({ _id: req.params.productId });
+//         if (!productInfo) {
+//             return res.status(404).json({ success: false, errors: [{ msg: 'Product information not found' }] });
+//         }
 
-        res.render(`merchant/viewProduct`, { productInfo, merchant });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
-    }
-};
+//         res.render(`merchant/viewProduct`, { productInfo, merchant });
+//     } catch (err) {
+//         console.error(err);
+//         return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+//     }
+// };
 
-//Merchant edit product details 
 const editProduct = async (req, res) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
@@ -194,7 +193,7 @@ const editProduct = async (req, res) => {
             return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
         }
 
-        const productInfo = await Product.findOne({ _id: req.params.productId });
+        const productInfo = await Product.findById(req.params.productId);
         if (!productInfo) {
             return res.status(404).json({ success: false, errors: [{ msg: 'Product information not found' }] });
         }
@@ -206,13 +205,100 @@ const editProduct = async (req, res) => {
     }
 };
 
-const editProductPost = (req, res) => {
+const editProductPost = async (req, res) => {
+    try {
+        const merchant = await Merchant.findById(req.user.id);
+        if (!merchant) {
+            return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
+        }
 
+        const productInfo = req.params.productId;
+
+        // Validate user input against Joi schema
+        // Ensure productSchema is defined and imported correctly
+        const productResult = await productSchema.validateAsync(req.body, {abortEarly: false});
+
+        // Check if a new image was uploaded
+        let newImages = {};
+        if (req.file && req.file.filename) {
+            newImages = {
+                data: fs.readFileSync(path.join(__dirname, '../public/productImage/' + req.file.filename)),
+                contentType: 'image/png',
+            };
+        }
+
+        // Find the existing product
+        const existingProduct = await Product.findById(productInfo);
+
+        // Retain the existing image or use the new image
+        const productImage = req.file ? newImages : (existingProduct ? existingProduct.images : {});
+
+        // Update the product document
+        await Product.findByIdAndUpdate(productInfo, {
+            $set: {
+                productName: productResult.productName,
+                productDescription: productResult.productDescription,
+                productPrice: productResult.productPrice,
+                productShipping: productResult.productShipping,
+                productCategory: productResult.productCategory,
+                productBrand: productResult.productBrand,
+                productSize: productResult.productSize,
+                productColor: productResult.productColor,
+                productQuantity: productResult.productQuantity,
+                images: productImage,
+                MerchantId: merchant._id, 
+            }
+        });
+
+        console.log('Product successfully updated:');
+        // Send success response to the client
+        res.status(201).json({ success: true ,  message: 'Product successfully updated' });
+    } catch (error) {
+        let errors; // Declare errors variable
+        if (error.isJoi) {
+            // Joi validation error
+            errors = error.details.map(err => ({
+                key: err.path[0],
+                msg: err.message
+            }));
+            console.error('Joi validation error:', errors);
+            return res.status(400).json({ success: false, errors });
+
+        } else {
+            // Other error occurred
+            console.error('An error occurred while processing the request:', error);
+            return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+        }
+    }
 };
 
-const deleteProduct = (req, res) => {
 
+const deleteProduct = async (req, res) => {
+    try {
+        // Check if the merchant exists and has permission to delete products
+        const merchant = await Merchant.findById(req.user.id);
+        if (!merchant) {
+            return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
+        }
+
+        const productInfo = await Product.findById(req.params.productId);
+        if (!productInfo) {
+            return res.status(404).json({ success: false, errors: [{ msg: 'Product information not found' }] });
+        }
+
+        // Delete the product
+        await Product.findByIdAndDelete(req.params.productId);
+        
+        console.log('Product delete successfully:');
+        
+        // // Redirect to a suitable route after deletion
+        // res.redirect(`/merchant/allAdmin`);
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+    }
 };
+
 
 
 const merchantOrders = async (req, res) => {
@@ -290,4 +376,4 @@ const merchantLogout = (req, res) => {
 
 
 
-module.exports = ({ welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchantProductsPost,viewProduct,editProduct,editProductPost,deleteProduct,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout});
+module.exports = ({ welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchantProductsPost,editProduct,editProductPost,deleteProduct,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout});

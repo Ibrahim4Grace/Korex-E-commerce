@@ -45,92 +45,124 @@
    
         <div class="container-fluid pt-4 px-4">
             <div class="bg-light text-center rounded p-4">
-              
-                <h1> Click to edit the product information. </h1>
+              <form id="editProductForm" action="/merchant/editProductPost" method="post" enctype="multipart/form-data">
+                <h1 class="headingTopic"> Click to edit the product information. </h1>
         
                 <div class="l-section">
                   <h5 class="c-section__heading">Some important info</h5>
                   <span class="c-link js-toggleForm">click to edit</span>
                   <div class="form">
-                    <label>Product Name</label>
-                    <input type="text" name="productName" value="<%- productInfo.productName %>"/>
 
-                    <label>Product Price ($)</label>
-                    <input type="number" name="productPrice" value="<%- productInfo.productPrice %>"/>
+                    <div>
+                      <label>Product Name</label>
+                      <input type="text" name="productName" value="<%- productInfo.productName %>"/>
+                      <div id="productNameError" class="error"></div>
+                    </div>
+                    
+                    <div>
+                      <label>Product Price ($)</label>
+                      <input type="number" name="productPrice" value="<%- productInfo.productPrice %>"/>
+                      <div id="productPriceError" class="error"></div>
+                    </div>
 
-                    <label>Shipping Fee ($)</label>
-                    <input type="number" name="productShipping" value="<%- productInfo.productShipping %>"/>
-
-                    <label>Product Category</label>
-                    <% const productCategory = ["Baby Dress","Blazers", "Dresses","Jackets","Jeans","Jumpsuits","loafers", "Shirts","Sleepwears","Sneakers","Sportwears","Swimwears"]; %>
-                    <select  name="productCategory" >
+                    <div>
+                      <label>Shipping Fee ($)</label>
+                      <input type="number" name="productShipping" value="<%- productInfo.productShipping %>"/>
+                      <div id="productShippingError" class="error"></div>
+                    </div>
+                    
+                    <div>
+                      <label>Product Category</label>
+                      <% const productCategory = ["Baby Dress","Blazers", "Dresses","Jackets","Jeans","Jumpsuits","loafers", "Shirts","Sleepwears","Sneakers","Sportwears","Swimwears"]; %>
+                      <select  name="productCategory" >
                         <option value="">Select product category</option>
                         <% productCategory.forEach((category )=> { %>
                             <option value="<%- category %>"<% if (productInfo.productCategory === category) { %> selected<% } %>><%- category %></option>
                          <% }) %>
-                    </select>
+                      </select>
+                      <div id="productCategoryError" class="error"></div>
+                    </div>
 
-                    <label>Product Brand</label>
-                    <input type="text"  name="productBrand" value="<%- productInfo.productBrand %>"/>
-
-                    <label>Product </label>
-                    <% const productSize = ["XS","S", "M", "L", "XL", "2XL", "3XL", "4XL"]; %>
-                    <select  name="productSize">
+                    <div>
+                      <label>Product Brand</label>
+                      <input type="text" name="productBrand" value="<%- productInfo.productBrand %>"/>
+                      <div id="productBrandError" class="error"></div>
+                    </div>
+             
+                    <div>
+                      <label>Product </label>
+                      <% const productSize = ["XS","S", "M", "L", "XL", "2XL", "3XL", "4XL"]; %>
+                      <select  name="productSize">
                         <option value="">Select Product Sizes</option>
                         <% productSize.forEach((size )=> { %>
                             <option value="<%- size %>"<% if (productInfo.productSize === size) { %> selected<% } %>><%- size %></option>
                             <% }) %>
-                    </select>
-
-                    <label>Product </label>
-                    <% const productColor = ["Black", "Rusty Red", "Olive Green", "Dark Green",
-                    "Navy Blue", "Indigo", "Charcoal", "Maroon", "Neon Orange","Khaki","Forest Green",
-                    "Dark Cyan","Blue","Slate Blue", "Gray", "Red", "Orange","Lime Green", "Sage Green",
-                    "Sky Blue", "Royal Blue","Purple", "Dark Gray", "Pink","Yellow","Light Yellow", 
-                    "Light Green","Light Blue", "Light Sky Blue","Silver","Light Pink","Peach",
-                    "Pale Yellow", "Light Lime","Light Cyan", "Light Purple", "White" ]; %>
-                    <select name="productColor">
+                      </select>
+                      <div id="productSizeError" class="error"></div>
+                    </div>
+                    
+                    <div>
+                      <label>Product </label>
+                      <% const productColor = ["Black", "Rusty Red", "Olive Green", "Dark Green",
+                      "Navy Blue", "Indigo", "Charcoal", "Maroon", "Neon Orange","Khaki","Forest Green",
+                      "Dark Cyan","Blue","Slate Blue", "Gray", "Red", "Orange","Lime Green", "Sage Green",
+                      "Sky Blue", "Royal Blue","Purple", "Dark Gray", "Pink","Yellow","Light Yellow", 
+                      "Light Green","Light Blue", "Light Sky Blue","Silver","Light Pink","Peach",
+                      "Pale Yellow", "Light Lime","Light Cyan", "Light Purple", "White" ]; %>
+                      <select name="productColor">
                         <option value="">Select Product Sizes</option>
                         <% productColor.forEach((color )=> { %>
                             <option value="<%- color %>"<% if (productInfo.productColor === color) { %> selected<% } %>><%- color %></option>
                             <% }) %>
-                    </select>
+                      </select>
+                      <div id="productColorError" class="error"></div>
+                    </div>
                     
-                    <label>Product Quantity</label>
-                    <input type="number" name="productQuantity" value="<%- productInfo.productQuantity %>"/>
-
-                     <label>Product In Stock </label>
-                    <input type="number" name="productInStock" value="<%- productInfo.productInStock %>"/>
-
-                   <label>Product Low Stock</label>
-                    <input type="number" name="productLowStock" value="<%- productInfo.productLowStock %>"/>
-
-                   <label>Product Out Of Stock</label>
-                    <input type="number" name="productOutOfStock" value="<%- productInfo.productOutOfStock %>"/>
+                    <div>
+                      <label>Product Quantity</label>
+                      <input type="number" name="productQuantity" value="<%- productInfo.productQuantity %>"/>
+                      <div id="productQuantityError" class="error"></div>
+                    </div>
                     
-                    <label>Image</label>
-                    <input type="file" name="images" multiple/>
-                    <input type="hidden" name="existingImage" value="<%- JSON.stringify(productInfo.images || {}) %>">
+                    <div>
+                      <label>Product In Stock </label>
+                      <input type="number" name="productInStock" value="<%- productInfo.productInStock %>"/>
+                      <div id="productInStockError" class="error"></div>
+                    </div>
 
+                    <div>
+                      <label>Product Low Stock</label>
+                      <input type="number" name="productLowStock" value="<%- productInfo.productLowStock %>"/>
+                      <div id="productLowStockError" class="error"></div>
+                    </div>
+
+                    <div>
+                      <label>Product Out Of Stock</label>
+                      <input type="number" name="productOutOfStock" value="<%- productInfo.productOutOfStock %>"/>
+                      <div id="productOutOfStockError" class="error"></div>
+                    </div>
+
+                    <div>
+                      <label>Image</label>
+                      <input type="file" name="images" multiple/>
+                      <input type="hidden" name="existingImage" value="<%- JSON.stringify(productInfo.images || {}) %>">
+                    </div>
+                  
                     <div class="form-group">
                         <label>Current Image</label>
                         <div>
-                            <% if (agent.image && agent.image.data) { %>
-                                <img class="editImage" src="data:<%= agent.images.contentType %>;base64,<%= productInfo.imagess.data.toString('base64') %>" alt="User images">
+                            <% if (productInfo.images && productInfo.images.data) { %>
+                                <img class="editImage" src="data:<%= productInfo.images.contentType %>;base64,<%= productInfo.images.data.toString('base64') %>" alt="User images">
                             <% } else { %>
                                 No images to display
                             <% } %>
                         </div>
                     </div>
                     
-
-                    <button type="submit" disabled>submit</button>
+                    <button type="submit" class="btn btn-primary">submit</button>
                   </div>
                 </div>
-
-                 
-    
-                
+              </form>
             </div>
                          <!-- EditProduct End -->
         
@@ -140,42 +172,87 @@
 
             
      <script>
-        var form_ele = '.form';
-
-// make eveything disabled
-var disableFormEdit = function(selector){	
-  $(selector).removeClass('form--enabled').addClass('form--disabled');
-	$(selector + ' input, ' + selector + ' select, ' + selector + ' button').prop('disabled', true);
-}
-
-
-// make eveything enabled
-var enableFormEdit = function(selector){	
-	$(selector + ' input, ' + selector + ' select, ' + selector + ' button ').prop('disabled', false);
-  $(selector).removeClass('form--disabled').addClass('form--enabled');
-}
-
-
-disableFormEdit(form_ele);
-
-
-$('.js-toggleForm').click(function(){
-   // get the status of form
-  var form_status = $(form_ele).hasClass('form--disabled') ? 'disabled' : 'enabled';
+      let form_ele = '.form';
   
-  // check if disabled or enabled
-  switch (form_status){
-    case 'disabled':
-      enableFormEdit(form_ele);
-      $(this).text('undo')
-      break;
-    case 'enabled':
+      // make everything disabled
+      let disableFormEdit = function(selector){  
+          $(selector).removeClass('form--enabled').addClass('form--disabled');
+          $(selector + ' input, ' + selector + ' select, ' + selector + ' button').prop('disabled', true);
+      }
+  
+      // make everything enabled
+      let enableFormEdit = function(selector){  
+          $(selector + ' input, ' + selector + ' select, ' + selector + ' button ').prop('disabled', false);
+          $(selector).removeClass('form--disabled').addClass('form--enabled');
+      }
+  
       disableFormEdit(form_ele);
-      $(this).text('click to edit')
-      break;
-  }
-});
-     </script>
+  
+      $('.js-toggleForm').click(function(){
+          // get the status of form
+          let form_status = $(form_ele).hasClass('form--disabled') ? 'disabled' : 'enabled';
+        
+          // check if disabled or enabled
+          switch (form_status){
+              case 'disabled':
+                  enableFormEdit(form_ele);
+                  $(this).text('undo');
+                  break;
+              case 'enabled':
+                  disableFormEdit(form_ele);
+                  $(this).text('click to edit');
+                  break;
+          }
+      });
+  
+      // Add event listener for form submission
+      $("#editProductForm").submit(function(event) {
+          event.preventDefault(); // Prevent default form submission
+          
+          let formData = new FormData(this); // Create form data object
+  
+          // Send form data to server using AJAX
+          $.ajax({
+              type: 'POST',
+              url: '/merchant/editProductPost', 
+              contentType: false,
+              processData: false,
+              success: function(response) {
+                  // Handle successful response from server
+                  if (response.success) {
+                    window.location.href = "/merchant/products";
+                  } else {
+                      // If registration failed, display error messages
+                      const errors = response.errors;
+                    errors.forEach(error => {
+                        const errorElement = document.getElementById(`${error.key}Error`);
+                        if (errorElement) {
+                            errorElement.textContent = error.msg;
+                        }
+                    });
+                  }
+              },
+              error: function(xhr, status, error) {
+                  console.error(error);
+                  alert('An error occurred while processing your request. Please try again.');
+              }
+          });
+
+          // Add event listener to each input field to clear error messages
+          const inputFields = document.querySelectorAll('input, select');
+          inputFields.forEach(inputField => {
+            inputField.addEventListener('input', () => {
+              const fieldName = inputField.name;
+              const errorElement = document.getElementById(fieldName + 'Error');
+              if (errorElement) {
+                // Clear the error message associated with the input field
+                errorElement.innerText = '';
+              }
+            });
+          });
+      });
+  </script>
+  
 
 </body>
 

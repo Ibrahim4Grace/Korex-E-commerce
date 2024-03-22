@@ -73,19 +73,20 @@
                         <thead>
                             <tr class="text-dark">
                                 <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                                <th scope="col">ID</th>
                                 <th scope="col">product Image</th>
                                 <th scope="col">Product Name</th>
                                 <th scope="col">Product Price</th>
                                 <th scope="col">shipping Fees</th>
-                                <th scope="col">shipping Fees</th>
-                                <th scope="col">Action</th>
+                                <th scope="col">Product Category</th>
+                                <th scope="col">Product Brand</th>
+                                <th scope="col" style="text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <% ourProducts.forEach(products => { %>
                                 <tr class="center">
                                     <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                                    
                                     <td>
                                         <% if (products.image && products.image.data) { %>
                                             <img src="data:<%= products.image.contentType %>;base64,<%= products.image.data.toString('base64') %>" alt="Products Image">
@@ -99,9 +100,6 @@
                                     <td><%= products.productCategory %></td>
                                     <td><%= products.productBrand %></td>
                                     <td data-label="Profile">
-                                              <!-- View Button -->
-                                        <input type="button" value="View" class="btn btn-info btn-sm view-button" data-product-id="<%= products._id %>">
-                                    
                                               <!-- Edit Button -->
                                         <input type="button" value="Edit" class="btn btn-primary btn-sm edit-button" data-product-id="<%= products._id %>">
                                     
@@ -124,14 +122,6 @@
                 </div>
 
                     <script>
-                // Function to handle the click event of the view button
-                document.querySelectorAll('.view-button').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const productId = this.getAttribute('data-product-id');
-                        window.location.href = "/merchant/viewProduct/" + productId;
-                    });
-                });
-            
                 // Function to handle the click event of the edit button
                 document.querySelectorAll('.edit-button').forEach(button => {
                     button.addEventListener('click', function() {
@@ -474,7 +464,7 @@
                             <div class="right-footer">
                                 <a class="btn btn-default back" href="#">Back</a>
                                 <a class="btn btn-default next" href="#">Next</a>
-                                <button type="submit" class="btn btn-primary">Submit</button>
+                                <button type="submit" class="btn-primary">Submit</button>
                             </div>
                         </div>
                     </div>
@@ -569,7 +559,7 @@
 
         // Send the data to the server
         $.ajax({
-            url: '/merchant/merchantProductsPost', // Your server route
+            url: '/merchant/merchantProductsPost', 
             type: 'POST',
             data: formData,
             processData: false, // Prevent jQuery from processing the data
