@@ -42,8 +42,14 @@
      <!-- Navbar End -->
 
                             <!-- Product Start -->
-   
      <div class="container-fluid pt-4 px-4">
+
+                                     <!-- Toast start -->
+                            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+                               <div id="toastContainer" class="toast-container"></div>
+                            </div>
+                                      <!-- Toast End -->
+
         <div class="bg-light text-center rounded p-4">
     
             <div class="d-flex align-items-center justify-content-between mb-4">
@@ -83,43 +89,47 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% ourProducts.forEach(products => { %>
-                                <tr class="center">
-                                    <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                                    
-                                    <td>
-                                        <% if (products.image && products.image.data) { %>
-                                            <img src="data:<%= products.image.contentType %>;base64,<%= products.image.data.toString('base64') %>" alt="Products Image">
+                            <% if (ourProducts.length > 0) { %>
+                                <% ourProducts.forEach(products => { %>
+                                    <tr class="center">
+                                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                                        <td>
+                                            <% if (products.image && products.image.data) { %>
+                                                <img src="data:<%= products.image.contentType %>;base64,<%= products.image.data.toString('base64') %>" alt="Products Image">
                                             <% } else { %>
                                                 NA
-                                        <% } %>
-                                    </td>
-                                    <td><%= products.productName %></td>
-                                    <td><%= products.productPrice %></td>
-                                    <td><%= products.productShipping %></td>
-                                    <td><%= products.productCategory %></td>
-                                    <td><%= products.productBrand %></td>
-                                    <td data-label="Profile">
-                                              <!-- Edit Button -->
-                                        <input type="button" value="Edit" class="btn btn-primary btn-sm edit-button" data-product-id="<%= products._id %>">
-                                    
-                                              <!-- Delete Button -->
-                                        <input type="button" value="Delete" class="btn btn-danger btn-sm delete-button" data-product-id="<%= products._id %>">
-                                    </td>
-                                </tr>
+                                            <% } %>
+                                        </td>
+                                        <td><%= products.productName %></td>
+                                        <td><%= products.productPrice %></td>
+                                        <td><%= products.productShipping %></td>
+                                        <td><%= products.productCategory %></td>
+                                        <td><%= products.productBrand %></td>
+                                        <td data-label="Profile">
+                                            <!-- Edit Button -->
+                                            <input type="button" value="Edit" class="btn btn-primary btn-sm edit-button" data-product-id="<%= products._id %>">
+                                            <!-- Delete Button -->
+                                            <input type="button" value="Delete" class="btn btn-danger btn-sm delete-button" data-product-id="<%= products._id %>">
+                                        </td>
+                                    </tr>
                                 <% }); %>
-                            </tbody>
-                        </table>
-                        <div class="pagination">
-                            <% for (let i=1; i <=totalPages; i++) { %>
-                                <a href="/merchant/products?page=<%= i %>"
-                                    class="<%= currentPage === i ? 'active' : '' %>">
-                                    <%= i %>
-                                </a>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" class="text-center">You are yet to have products with KorexStyleHub</td>
+                                </tr>
                             <% } %>
-                        </div>
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <% for (let i=1; i <=totalPages; i++) { %>
+                            <a href="/merchant/products?page=<%= i %>"
+                                class="<%= currentPage === i ? 'active' : '' %>">
+                                <%= i %>
+                            </a>
+                        <% } %>
                     </div>
                 </div>
+            </div>
 
                     <script>
                 // Function to handle the click event of the edit button
@@ -138,6 +148,7 @@
                     });
                 });
             </script>
+                
 
     
             <div id="In Stock" class="tabcontent">
@@ -147,26 +158,55 @@
                         <thead>
                             <tr class="text-dark">
                                 <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                                <th scope="col">ID</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Customer</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Action</th>
+                                <th scope="col">product Image</th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Product Price</th>
+                                <th scope="col">shipping Fees</th>
+                                <th scope="col">Product Category</th>
+                                <th scope="col">Product Brand</th>
+                                <th scope="col" style="text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
-                                <td>KS093</td>
-                                <td>11 Mar 2024</td>
-                                <td>Samson Samuel</td>
-                                <td>$123</td>
-                                <td>Paid</td>
-                                <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                            </tr>
+                            <% if (ourProducts.length > 0) { %>
+                                <% ourProducts.forEach(products => { %>
+                                    <tr class="center">
+                                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                                        <td>
+                                            <% if (products.image && products.image.data) { %>
+                                                <img src="data:<%= products.image.contentType %>;base64,<%= products.image.data.toString('base64') %>" alt="Products Image">
+                                            <% } else { %>
+                                                NA
+                                            <% } %>
+                                        </td>
+                                        <td><%= products.productName %></td>
+                                        <td><%= products.productPrice %></td>
+                                        <td><%= products.productShipping %></td>
+                                        <td><%= products.productCategory %></td>
+                                        <td><%= products.productBrand %></td>
+                                        <td data-label="Profile">
+                                            <!-- Edit Button -->
+                                            <input type="button" value="Edit" class="btn btn-primary btn-sm edit-button" data-product-id="<%= products._id %>">
+                                            <!-- Delete Button -->
+                                            <input type="button" value="Delete" class="btn btn-danger btn-sm delete-button" data-product-id="<%= products._id %>">
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" class="text-center">You are yet to have products with KorexStyleHub</td>
+                                </tr>
+                            <% } %>
                         </tbody>
                     </table>
+                    <div class="pagination">
+                        <% for (let i=1; i <=totalPages; i++) { %>
+                            <a href="/merchant/products?page=<%= i %>"
+                                class="<%= currentPage === i ? 'active' : '' %>">
+                                <%= i %>
+                            </a>
+                        <% } %>
+                    </div>
                 </div>
             </div>
     
@@ -177,26 +217,55 @@
                         <thead>
                             <tr class="text-dark">
                                 <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                                <th scope="col">ID</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Customer</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Action</th>
+                                <th scope="col">product Image</th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Product Price</th>
+                                <th scope="col">shipping Fees</th>
+                                <th scope="col">Product Category</th>
+                                <th scope="col">Product Brand</th>
+                                <th scope="col" style="text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
-                                <td>KS093</td>
-                                <td>11 Mar 2024</td>
-                                <td>Samson Samuel</td>
-                                <td>$123</td>
-                                <td>Paid</td>
-                                <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                            </tr>
+                            <% if (ourProducts.length > 0) { %>
+                                <% ourProducts.forEach(products => { %>
+                                    <tr class="center">
+                                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                                        <td>
+                                            <% if (products.image && products.image.data) { %>
+                                                <img src="data:<%= products.image.contentType %>;base64,<%= products.image.data.toString('base64') %>" alt="Products Image">
+                                            <% } else { %>
+                                                NA
+                                            <% } %>
+                                        </td>
+                                        <td><%= products.productName %></td>
+                                        <td><%= products.productPrice %></td>
+                                        <td><%= products.productShipping %></td>
+                                        <td><%= products.productCategory %></td>
+                                        <td><%= products.productBrand %></td>
+                                        <td data-label="Profile">
+                                            <!-- Edit Button -->
+                                            <input type="button" value="Edit" class="btn btn-primary btn-sm edit-button" data-product-id="<%= products._id %>">
+                                            <!-- Delete Button -->
+                                            <input type="button" value="Delete" class="btn btn-danger btn-sm delete-button" data-product-id="<%= products._id %>">
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" class="text-center">You are yet to have products with KorexStyleHub</td>
+                                </tr>
+                            <% } %>
                         </tbody>
                     </table>
+                    <div class="pagination">
+                        <% for (let i=1; i <=totalPages; i++) { %>
+                            <a href="/merchant/products?page=<%= i %>"
+                                class="<%= currentPage === i ? 'active' : '' %>">
+                                <%= i %>
+                            </a>
+                        <% } %>
+                    </div>
                 </div>
             </div>
     
@@ -207,26 +276,55 @@
                         <thead>
                             <tr class="text-dark">
                                 <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                                <th scope="col">ID</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Customer</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Action</th>
+                                <th scope="col">product Image</th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Product Price</th>
+                                <th scope="col">shipping Fees</th>
+                                <th scope="col">Product Category</th>
+                                <th scope="col">Product Brand</th>
+                                <th scope="col" style="text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
-                                <td>KS093</td>
-                                <td>11 Mar 2024</td>
-                                <td>Samson Samuel</td>
-                                <td>$123</td>
-                                <td>Paid</td>
-                                <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                            </tr>
+                            <% if (ourProducts.length > 0) { %>
+                                <% ourProducts.forEach(products => { %>
+                                    <tr class="center">
+                                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                                        <td>
+                                            <% if (products.image && products.image.data) { %>
+                                                <img src="data:<%= products.image.contentType %>;base64,<%= products.image.data.toString('base64') %>" alt="Products Image">
+                                            <% } else { %>
+                                                NA
+                                            <% } %>
+                                        </td>
+                                        <td><%= products.productName %></td>
+                                        <td><%= products.productPrice %></td>
+                                        <td><%= products.productShipping %></td>
+                                        <td><%= products.productCategory %></td>
+                                        <td><%= products.productBrand %></td>
+                                        <td data-label="Profile">
+                                            <!-- Edit Button -->
+                                            <input type="button" value="Edit" class="btn btn-primary btn-sm edit-button" data-product-id="<%= products._id %>">
+                                            <!-- Delete Button -->
+                                            <input type="button" value="Delete" class="btn btn-danger btn-sm delete-button" data-product-id="<%= products._id %>">
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" class="text-center">You are yet to have products with KorexStyleHub</td>
+                                </tr>
+                            <% } %>
                         </tbody>
                     </table>
+                    <div class="pagination">
+                        <% for (let i=1; i <=totalPages; i++) { %>
+                            <a href="/merchant/products?page=<%= i %>"
+                                class="<%= currentPage === i ? 'active' : '' %>">
+                                <%= i %>
+                            </a>
+                        <% } %>
+                    </div>
                 </div>
             </div>
     
@@ -237,26 +335,55 @@
                         <thead>
                             <tr class="text-dark">
                                 <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                                <th scope="col">ID</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Customer</th>
-                                <th scope="col">Amount</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Action</th>
+                                <th scope="col">product Image</th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Product Price</th>
+                                <th scope="col">shipping Fees</th>
+                                <th scope="col">Product Category</th>
+                                <th scope="col">Product Brand</th>
+                                <th scope="col" style="text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><input class="form-check-input" type="checkbox"></td>
-                                <td>KS093</td>
-                                <td>11 Mar 2024</td>
-                                <td>Samson Samuel</td>
-                                <td>$123</td>
-                                <td>Paid</td>
-                                <td><a class="btn btn-sm btn-primary" href="">Detail</a></td>
-                            </tr>
+                            <% if (ourProducts.length > 0) { %>
+                                <% ourProducts.forEach(products => { %>
+                                    <tr class="center">
+                                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                                        <td>
+                                            <% if (products.image && products.image.data) { %>
+                                                <img src="data:<%= products.image.contentType %>;base64,<%= products.image.data.toString('base64') %>" alt="Products Image">
+                                            <% } else { %>
+                                                NA
+                                            <% } %>
+                                        </td>
+                                        <td><%= products.productName %></td>
+                                        <td><%= products.productPrice %></td>
+                                        <td><%= products.productShipping %></td>
+                                        <td><%= products.productCategory %></td>
+                                        <td><%= products.productBrand %></td>
+                                        <td data-label="Profile">
+                                            <!-- Edit Button -->
+                                            <input type="button" value="Edit" class="btn btn-primary btn-sm edit-button" data-product-id="<%= products._id %>">
+                                            <!-- Delete Button -->
+                                            <input type="button" value="Delete" class="btn btn-danger btn-sm delete-button" data-product-id="<%= products._id %>">
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="8" class="text-center">You are yet to have products with KorexStyleHub</td>
+                                </tr>
+                            <% } %>
                         </tbody>
                     </table>
+                    <div class="pagination">
+                        <% for (let i=1; i <=totalPages; i++) { %>
+                            <a href="/merchant/products?page=<%= i %>"
+                                class="<%= currentPage === i ? 'active' : '' %>">
+                                <%= i %>
+                            </a>
+                        <% } %>
+                    </div>
                 </div>
             </div>
         </div>
@@ -320,21 +447,19 @@
 								
                                     <br>
                                     <label>Product Description</label>
-                                    <textarea  name="productDescription" class="form-control input-lg" rows="5">
-                                        Enter product description
-                                    </textarea>
+                                    <textarea name="productDescription" class="form-control input-lg" rows="5" onfocus="if(this.value === 'Enter product description') { this.value = ''; }">Enter product description</textarea>
                                     <div id="productDescriptionError" class="error"></div>
                                     <br>
 
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label for="size">Product Price ($)</label>
-                                            <input type="number" name="productPrice" class="form-control" placeholder="Item price." >
+                                            <input type="number" name="productPrice" class="form-control" placeholder="Example 100." >
                                             <div id="productPriceError" class="error"></div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="color">Product Shipping ($)</label>
-                                            <input type="number" name="productShipping" class="form-control" placeholder="Enter Shipping Fees." >
+                                            <input type="number" name="productShipping" class="form-control" placeholder="Example 90" >
                                             <div id="productShippingError" class="error"></div>
                                         </div>
                                     </div>
@@ -344,7 +469,6 @@
 					         	<!-- Tab 2 -->
 						    <div class="tab-pane fade" id="step2">
                                 <div class="well">
-
                                     <div class="row">
                                         <div class="col-md-6">
                                             <% const productCategory = ["Baby Dress","Blazers", "Dresses","Jackets","Jeans","Jumpsuits","loafers", "Shirts","Sleepwears","Sneakers","Sportwears","Swimwears"]; %>
@@ -365,34 +489,29 @@
                                     </div>
 
                                     <div class="row">
-                                        <div class="col-md-6">
-                                            <% const productSize = ["XS","S", "M", "L", "XL", "2XL", "3XL", "4XL"]; %>
-                                            <label for="size">Sizes</label>
-                                            <select id="size" name="productSize" class="form-control backColor">
-                                                <option value="">Select Product Sizes</option>
-                                                <% productSize.forEach((size )=> { %>
-                                                    <option value="<%- size  %>"><%- size  %></option>
-                                                    <% }) %>
-                                                </select>
+                                        <div class="col-md-6 multiSelect">
+                                            <select name="productSize[]" class="multiSelect_field" data-placeholder="Select Sizes" multiple>
+                                                <option value="XS">XS</option>
+                                                <option value="S">S</option>
+                                                <option value="M">M</option>
+                                                <option value="L">L</option>
+                                                <option value="XL">XL</option>
+                                                <option value="2XL">2XL</option>
+                                            </select>
                                                 <div id="productSizeError" class="error"></div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <% const productColor = ["Black", "Rusty Red", "Olive Green", "Dark Green",
-                                                "Navy Blue", "Indigo", "Charcoal", "Maroon", "Neon Orange","Khaki","Forest Green",
-                                                "Dark Cyan","Blue","Slate Blue", "Gray", "Red", "Orange","Lime Green", "Sage Green",
-                                                "Sky Blue", "Royal Blue","Purple", "Dark Gray", "Pink","Yellow","Light Yellow", 
-                                                "Light Green","Light Blue", "Light Sky Blue","Silver","Light Pink","Peach",
-                                                "Pale Yellow", "Light Lime","Light Cyan", "Light Purple", "White" ]; %>
-                                                <label for="color">Colors</label>
-                                                <select name="productColor" class="form-control backColor">
-                                                    <option value="">Select product color</option>
-                                                    <% productColor.forEach((colors )=> { %>
-                                                        <option value="<%- colors  %>"><%- colors  %></option>
-                                                    <% }) %>
-                                                </select>
-                                                <div id="productColorError" class="error"></div>
-                                            </div>
-                                        </div><br>
+                                        </div>
+                                        <div class="col-md-6 multiSelect">
+                                            <select name="productColor[]" class="multiSelect_field" data-placeholder="Select Colors" multiple>
+                                                <option value="Black">Black</option>
+                                                <option value="Blue">Blue</option>
+                                                <option value="Green">Green</option>
+                                                <option value="Purple">Purple</option>
+                                                <option value="White">White</option>
+                                                <option value="Pink">Pink</option>
+                                            </select>
+                                            <div id="productColorError" class="error"></div>
+                                        </div>
+                                    </div><br>
 
                                         <div class="row">
                                              <!-- <div class="col-md-6">
@@ -411,8 +530,9 @@
                                                 <div id="productQuantityError" class="error"></div>
                                             </div>
                                         </div>
-                                    </div>
                                 </div>
+                            </div>
+                           
 
 						         <!-- Tab 3 -->
 						        <div class="tab-pane fade" id="step3">
@@ -674,6 +794,89 @@
 
     </script>
 
+                            <script>
+                                      //Select Multiple input filed script  
+                                    
+    jQuery(function() {
+        jQuery('.multiSelect').each(function(e) {
+            let self = jQuery(this);
+            let field = self.find('.multiSelect_field');
+            let fieldOption = field.find('option');
+            let placeholder = field.attr('data-placeholder');
+
+            field.hide().after(`<div class="multiSelect_dropdown"></div>
+            <span class="multiSelect_placeholder">` + placeholder + `</span>
+            <ul class="multiSelect_list"></ul>
+            <span class="multiSelect_arrow"></span>`);
+
+            fieldOption.each(function(e) {
+                let optionValue = jQuery(this).val();
+                let optionText = jQuery(this).text();
+                self.find('.multiSelect_list').append(`<li class="multiSelect_option" data-value="${optionValue}">
+                    <a class="multiSelect_text">${optionText}</a>
+                </li>`);
+            });
+
+            let dropdown = self.find('.multiSelect_dropdown');
+            let list = self.find('.multiSelect_list');
+            let option = self.find('.multiSelect_option');
+            let optionText = self.find('.multiSelect_text');
+
+            dropdown.attr('data-multiple', 'true');
+            list.css('top', dropdown.height() + 5);
+
+            option.click(function(e) {
+                let self = jQuery(this);
+                e.stopPropagation();
+                self.addClass('-selected');
+                field.find('option:contains(' + self.children().text() + ')').prop('selected', true);
+                dropdown.append(function(e) {
+                    return jQuery('<span class="multiSelect_choice">'+ self.children().text() +'<svg class="multiSelect_deselect -iconX"><use href="#iconX"></use></svg></span>').click(function(e) {
+                        let self = jQuery(this);
+                        e.stopPropagation();
+                        self.remove();
+                        list.find('.multiSelect_option:contains(' + self.text() + ')').removeClass('-selected');
+                        list.css('top', dropdown.height() + 5).find('.multiSelect_noselections').remove();
+                        field.find('option:contains(' + self.text() + ')').prop('selected', false);
+                        if (dropdown.children(':visible').length === 0) {
+                            dropdown.removeClass('-hasValue');
+                        }
+                    });
+                }).addClass('-hasValue');
+                list.css('top', dropdown.height() + 5);
+                if (!option.not('.-selected').length) {
+                    list.append('<h5 class="multiSelect_noselections">No Selections</h5>');
+                }
+            });
+
+            dropdown.click(function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                dropdown.toggleClass('-open');
+                list.toggleClass('-open').scrollTop(0).css('top', dropdown.height() + 5);
+            });
+
+            jQuery(document).on('click touch', function(e) {
+                if (dropdown.hasClass('-open')) {
+                    dropdown.toggleClass('-open');
+                    list.removeClass('-open');
+                }
+            });
+        });
+    });
+</script>
+
+
+
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="iconX">
+        <g stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        </g>
+    </symbol>
+</svg>
 
 </body>
 

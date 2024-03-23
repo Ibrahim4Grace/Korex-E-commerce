@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 const phoneNumber = process.env.COMPANY_NUMBER;
 const emailAddress = process.env.COMPANY_EMAIL;
 
-const productRegistrationMsg = async (newProduct) =>{
+const productRegistrationMsg = async (newProduct, merchant) =>{
     const msg = `
     <p><img src="cid:companyLogo" alt="companyLogo" style="width: 100%; max-width: 600px; height: auto;"/></p><br>
     <p>Dear ${merchant.merchantFirstName} ${merchant.merchantLastName},</p>

@@ -13,6 +13,7 @@ const User = require('../models/User');
 const Merchant = require('../models/merchant');
 const userSchema = require('../middleware/userValidation');
 const merchantSchema = require('../middleware/merchantValidation');
+// const ErrorHandler = require('../middleware/errorHandler');
 
 const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
 const {merchantRegistrationMsg,merchantVerifyEmailMsg,merchantRequestVerifyMsg,merchantForgetPswdMsg,merchantResetPswdMsg} = require('../services/merchantAuthMsgMailer');
@@ -21,35 +22,35 @@ const {merchantRegistrationMsg,merchantVerifyEmailMsg,merchantRequestVerifyMsg,m
 const MAX_FAILED_ATTEMPTS = process.env.MAX_FAILED_ATTEMPTS;
 
 
-// Registration attempt
+                                                     // User Registration attempt
 const registerUser = (req, res) => {
     res.render('auth/register')
 };
 
-const registerUserPost = async (req, res) => {
+const registerUserPost = async (req, res, next) => {
     try {
-
         // Validate user input against Joi schema
         const userResult = await userSchema.validateAsync(req.body, {abortEarly: false});
 
-        // Check if user with the same email or username already exists
         const userExists = await User.findOne({
             $or: [
                 { customerEmail: userResult.customerEmail },
                 { customerUsername: userResult.customerUsername }
             ]
         });
+
         console.log('user found in db:', userExists)
         if (userExists) {
             if (userExists.customerEmail === userResult.customerEmail) {
                 return res.status(409).json({ success: false, errors: [{ msg: 'Email already registered' }] });
+             
             }
             if (userExists.customerUsername === userResult.customerUsername) {
                 return res.status(409).json({ success: false, errors: [{ msg: 'Username already registered' }] });
+               
             }
         }
 
-        // If validation passes and user does not exist, proceed with registration
         const hashedPassword = await bcrypt.hash(userResult.customerPassword, 10);
         // Generate a unique verification token
         const verificationToken = {
@@ -84,7 +85,6 @@ const registerUserPost = async (req, res) => {
         await userRegistrationMsg(newUser,verificationLink);
 
         console.log('User registered successfully:', newUser);
-        // Send success response to the client
         res.status(201).json({ success: true ,  message: 'Registeration successful please verify your email' });
     }  catch (error) {
         let errors; // Declare errors variable
@@ -96,16 +96,15 @@ const registerUserPost = async (req, res) => {
             }));
             console.error('Joi validation error:', errors);
             return res.status(400).json({ success: false, errors });
-
+            
         } else {
-            // Other error occurred
-            console.error('An error occurred while processing the request:', error);
-            return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
-        }
+           next(error);
+        }  
     }
 };
 
-const checkExistingUser = async (req, res) => {
+                                                   //async email and user validating 
+const checkExistingUser = async (req, res, next) => {
     try {
         const { field, value } = req.query;
         let user;
@@ -124,13 +123,12 @@ const checkExistingUser = async (req, res) => {
             res.json({ exists: false });
         }
     } catch (error) {
-        console.error('Error checking existing user:', error);
-        res.status(500).json({ error: 'An error occurred while checking existing user' });
+        next(error);
     }
 };
 
-// Verifify  Email Address
-const verifyEmail = async (req, res) => {
+                                                  // Verifify  Email Address
+const verifyEmail = async (req, res, next) => {
     console.log('Verification Email Controller Method Called');
     const { id, token } = req.params;
     try {
@@ -167,18 +165,16 @@ const verifyEmail = async (req, res) => {
         return res.redirect(`/auth/login?successMessage=${encodeURIComponent(successMessage)}`);
 
     } catch (error) {
-        // Handle database errors or other issues
-        console.error('Error in verifyEmail:', error);
-        return res.status(500).render('auth/requestVerification', { message: 'An error occurred during email verification. Please try again or contact support.' });
+        next(error);
     }
 };
 
-//Request new verification  link 
+                                                //Request new verification  link 
 const requestVerification = (req, res) =>{
     res.render('auth/requestVerification')
 };
 
-const requestVerificationPost = async (req, res) => {
+const requestVerificationPost = async (req, res, next) => {
     const { customerEmail } = req.body;
 
     try {
@@ -188,7 +184,6 @@ const requestVerificationPost = async (req, res) => {
             return res.status(400).json({ success: false, message: 'No user found with this email' });
         }
 
-        // Check if the user is already verified
         if (user.isVerified) {
             return res.status(400).json({ success: false, message: 'Email is already verified.' });
         }
@@ -199,7 +194,6 @@ const requestVerificationPost = async (req, res) => {
             expires: new Date(Date.now() + (30 * 60 * 1000)) // 1hr expiration
         };
 
-            // Save the verification token and expiration time to the user's document
         user.verificationToken = {
             token: verificationToken.token,
             expires: verificationToken.expires 
@@ -214,29 +208,27 @@ const requestVerificationPost = async (req, res) => {
         
         return res.status(200).json({ success: true, message: 'Verification email resent successfully. Please check your inbox.' });
     } catch (error) {
-        console.error('Error in requestVerificationPost:', error);
-        return res.status(500).json({ error: 'An error occurred during email verification. Please try again or contact support.' });
+        next(error);
     }
 };
 
-//verification link expired
+                                                //verification link expired
 const verificationFailed = (req, res) =>{
     res.render('auth/verification-failed')
 };
 
-// Forget Password
+                                                // Forget Password
 const forgetPassword = (req, res) =>{
     const errorMessage = req.query.errorMessage;
     res.render('auth/forgetPassword', { errorMessage });
 };
 
-const forgetPasswordPost = async (req, res) => {
+const forgetPasswordPost = async (req, res, next) => {
     const { customerEmail } = req.body;
 
     try {
         const user = await User.findOne({ customerEmail });
         if (!user) {
-            // If email is not found, respond with a 404 status and message
             return res.status(404).json({ success: false, message: 'Email not found' });
         }
 
@@ -252,13 +244,12 @@ const forgetPasswordPost = async (req, res) => {
         // Once email is sent successfully, respond with a 200 status and success message
         return res.status(200).json({ success: true, message: 'Password reset link sent successfully' });
     } catch (error) {
-        console.log('Error in forgetPasswordPost:', error);
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        next(error);
     }
 };
 
-//  RESET PASSWORD SECTION
-const resetPassword = async (req, res) => {
+                                               //  RESET PASSWORD SECTION
+const resetPassword = async (req, res, next) => {
     const { resetToken } = req.params;
     try {
         // Hash the reset token for comparison
@@ -279,15 +270,13 @@ const resetPassword = async (req, res) => {
         res.render('auth/resetPassword');
 
     } catch (error) {
-        console.error('Error in resetPassword:', error);
-        return res.status(500).json({ success: false, message: 'An error occurred while processing your request' });
+        next(error);
     }
 };
 
-const resetPasswordPost = async (req, res) => {
+const resetPasswordPost = async (req, res, next) => {
     const { customerPassword, confirmPassword } = req.body;
     const { resetToken } = req.params;
-    console.log("my token", resetToken)
 
       if (customerPassword.length < 6) {
         return res.status(400).json({ success: false, message: 'Minimum passwords must be 6 character' });
@@ -298,8 +287,6 @@ const resetPasswordPost = async (req, res) => {
     }
 
     try {
-
-         // Hash the reset token for comparison
          const hashedResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
         // Find the user with the provided reset token and check if it's still valid
@@ -322,12 +309,11 @@ const resetPasswordPost = async (req, res) => {
 
         return res.status(200).json({ success: true, message: 'Password reset successfully please login' });
     } catch (error) {
-        console.error('Error in resetPassword:', error);
-        return res.status(500).json({ success: false, message: 'An error occurred while resetting the password' });
+        next(error);
     }
 };
 
-//Google Auth sign in
+                                  //Google Auth sign in
 const googleAuthController = (req, res)=>{
     passport.authenticate('google', { scope: ['profile', 'email'] })(req, res)
 };
@@ -339,12 +325,12 @@ const googleAuthCallback = (req, res, next)=>{
     })(req, res, next);
 };
 
-// User login
+                               // User login
 const loginUser = (req, res) =>{
     res.render('auth/login')
 };
 
-const userLoginPost = async (req, res) => {
+const userLoginPost = async (req, res, next) => {
     try {
         const { customerUsername, customerPassword } = req.body;
         console.log(req.body);
@@ -432,9 +418,7 @@ const userLoginPost = async (req, res) => {
          console.log('Login successful');
 
     } catch (error) {
-         // If an error occurs during the login process, return a 500 error response
-         console.error('Error during login:', error);
-         return res.status(500).json({ success: false, message: 'Login failed' });
+        next(error);
     }
 };
 
@@ -445,9 +429,8 @@ const merchantRegisteration = (req, res) => {
     res.render('auth/merchantRegistration')
 };
 
-const merchantRegisterationPost = async(req, res) =>{
+const merchantRegisterationPost = async(req, res, next) =>{
     try {
-
         // Validate user input against Joi schema
         const merchantResult = await merchantSchema.validateAsync(req.body, {abortEarly: false});
 
@@ -518,14 +501,13 @@ const merchantRegisterationPost = async(req, res) =>{
 
         } else {
             // Other error occurred
-            console.error('An error occurred while processing the request:', error);
-            return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+            next(error);
         }
     } 
 };
 
-//Aysnronous request to check the email and username
-const checkExistingMerchant = async (req, res) => {
+                                       //Aysnronous request to check the email and username
+const checkExistingMerchant = async (req, res, next) => {
     try {
         const { field, value } = req.query;
         let merchant;
@@ -544,13 +526,12 @@ const checkExistingMerchant = async (req, res) => {
             res.json({ exists: false });
         }
     } catch (error) {
-        console.error('Error checking existing merchant:', error);
-        res.status(500).json({ error: 'An error occurred while checking existing merchant' });
+        next(error);
     }
 };
 
-//Verify email address
-const merchantVerifyEmail =async (req, res) => {
+                                       //Verify email address
+const merchantVerifyEmail =async (req, res, next) => {
     console.log(' Merchant Verification Email Controller Method Called');
     const { id, token } = req.params;
     try {
@@ -587,17 +568,16 @@ const merchantVerifyEmail =async (req, res) => {
 
     } catch (error) {
         // Handle database errors or other issues
-        console.error('Error in verifyEmail:', error);
-        return res.status(500).render('auth/merchantrequestVerifyLink', { message: 'An error occurred during email verification. Please try again or contact support.' });
+        next(error);
     }
 };
 
-//Request new verification  link 
+                                      //Request new verification  link 
 const merchantRequestVerification = (req, res) =>{
     res.render('auth/merchantrequestVerifyLink')
 };
 
-const merchantRequestVerificationPost = async (req, res) => {
+const merchantRequestVerificationPost = async (req, res, next) => {
     const { merchantEmail } = req.body;
 
     try {
@@ -633,23 +613,22 @@ const merchantRequestVerificationPost = async (req, res) => {
         
         return res.status(200).json({ success: true, message: 'Verification email resent successfully. Please check your inbox.' });
     } catch (error) {
-        console.error('Error in requestVerificationPost:', error);
-        return res.status(500).json({ error: 'An error occurred during email verification. Please try again or contact support.' });
+        next(error);
     }
 };
 
-//verification link expired
+                                //verification link expired
 const merchantVerificationFailed = (req, res) =>{
     res.render('auth/merchantVerificationFailed')
 };
 
-// Merchant Forget Password
+                                   // Merchant Forget Password
 const merchantForgetPassword = (req, res) =>{
     const errorMessage = req.query.errorMessage;
     res.render('auth/merchantForgetPassword', { errorMessage });
 };
 
-const merchantForgetPasswordPost = async (req, res) => {
+const merchantForgetPasswordPost = async (req, res, next) => {
     const { merchantEmail } = req.body;
 
     try {
@@ -670,13 +649,12 @@ const merchantForgetPasswordPost = async (req, res) => {
         // Once email is sent successfully, respond with a 200 status and success message
         return res.status(200).json({ success: true, message: 'Password reset link sent successfully' });
     } catch (error) {
-        console.log('Error in forgetPasswordPost:', error);
-        return res.status(500).json({ success: false, message: 'Internal server error' });
+        next(error);
     }
 };
 
-//   MERCHANT RESET PASSWORD SECTION
-const merchantResetPassword = async (req, res) => {
+                            //   MERCHANT RESET PASSWORD SECTION
+const merchantResetPassword = async (req, res, next) => {
     const { resetToken } = req.params;
     try {
         // Hash the reset token for comparison
@@ -697,15 +675,13 @@ const merchantResetPassword = async (req, res) => {
         res.render('auth/merchantResetPassword');
 
     } catch (error) {
-        console.error('Error in resetPassword:', error);
-        return res.status(500).json({ success: false, message: 'An error occurred while processing your request' });
+        next(error);
     }
 };
 
-const merchantResetPasswordPost = async (req, res) => {
+const merchantResetPasswordPost = async (req, res, next) => {
     const { merchantPassword, confirmMerchantPassword } = req.body;
     const { resetToken } = req.params;
-    console.log("my token", resetToken)
 
       if (merchantPassword.length < 6) {
         return res.status(400).json({ success: false, message: 'Minimum passwords must be 6 character' });
@@ -716,7 +692,6 @@ const merchantResetPasswordPost = async (req, res) => {
     }
 
     try {
-
          // Hash the reset token for comparison
          const hashedRresetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
@@ -740,20 +715,16 @@ const merchantResetPasswordPost = async (req, res) => {
 
         return res.status(200).json({ success: true, message: 'Password reset successfully please login' });
     } catch (error) {
-        console.error('Error in resetPassword:', error);
-        return res.status(500).json({ success: false, message: 'An error occurred while resetting the password' });
+        next(error);
     }
 };
 
-// Merchant login Page
+                              // Merchant login Page
 const merchantLogin = (req, res) =>{
     res.render('auth/merchantLogin')
 };
 
-// const errorMessage = req.query.errorMessage;
-// res.render('auth/forgetPassword', { errorMessage });
-
-const merchantLoginPost = async (req, res) => {
+const merchantLoginPost = async (req, res, next) => {
     try {
         const { merchantUsername, merchantPassword } = req.body;
         console.log(req.body);
@@ -840,9 +811,7 @@ const merchantLoginPost = async (req, res) => {
         console.log('Login successful');
         return res.status(200).json({ success: true, message: 'Login successful' });
     } catch (error) {
-        // If an error occurs during the login process, return a 500 error response
-        console.error('Error during login:', error);
-        return res.status(500).json({ success: false, message: 'Login failed' });
+        next(error);
     }
 };
 

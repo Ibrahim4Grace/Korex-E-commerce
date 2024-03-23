@@ -15,14 +15,14 @@ const Product = require('../models/product');
 const userSchema = require('../middleware/userValidation');
 const productSchema = require('../middleware/productValidation');
 const paginatedResults = require('../utils/pagination');
-const {productRegistrationMsg,} = require('../services/merchantProductMsgMailer');
+const {productRegistrationMsg} = require('../services/merchantProductMsgMailer');
 // const {userRegistrationMsg,verifyEmailMsg,requestVerificationMsg,forgetPasswordMsg,resetPasswordMsg} = require('../services/userAuthMsgMailer');
 
 
 
 
-//Merchant Landing page
-const welcomeMerchant = async (req, res) => {
+                            //Merchant Landing page
+const welcomeMerchant = async (req, res, next) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
         if (!merchant) {
@@ -31,8 +31,7 @@ const welcomeMerchant = async (req, res) => {
 
         res.render('merchant/index', { merchant });
     } catch (error) {
-        console.error('Error retrieving user information:', error);
-        return res.status(500).json({ success: false, errors: [{ msg: 'Error retrieving merchant information' }] });
+        next(error);
     }
 };
 
@@ -72,13 +71,12 @@ const uploadMerchantImage = async (req, res, next) => {
         await merchant.save();
         return res.status(200).json({ success: true, message: 'File uploaded successfully' });
     } catch (error) {
-        console.error('Error uploading file:', error);
-        res.status(500).json({ message: 'Error uploading file' });
+        next(error);
     }
 };
 
             //   PRODUCT SECTION
-const merchantProducts = async (req, res) => {
+const merchantProducts = async (req, res, next) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
         if (!merchant) {
@@ -90,26 +88,35 @@ const merchantProducts = async (req, res) => {
 
         res.render('merchant/products', { merchant, ourProducts: res.paginatedResults.results,currentPage, totalPages });
     } catch (error) {
-        console.error('Error retrieving user information:', error);
-        return res.status(500).json({ success: false, errors: [{ msg: 'Error retrieving merchant information' }] });
+        next(error);
     }
 };
 
-// Merchant Uploading new product and Images
-const stor = multer.diskStorage({
+                                   // Merchant Uploading new product and Images
+// const stor = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         if (!file.mimetype.startsWith('image')) {
+//             return cb(new Error('Only images are allowed'));
+//         }
+//         cb(null, './public/productImage/');
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, file.fieldname + '_' + Date.now())
+//     }
+// });
+
+let stor = multer.diskStorage({
     destination: (req, file, cb) => {
-        if (!file.mimetype.startsWith('image')) {
-            return cb(new Error('Only images are allowed'));
-        }
-        cb(null, './public/productImage/');
+        cb(null, './public/productImage/')
     },
     filename: (req, file, cb) => {
         cb(null, file.fieldname + '_' + Date.now())
     }
 });
+
 const upl = multer({ storage: stor });
 
-const merchantProductsPost = async (req, res) => {
+const merchantProductsPost = async (req, res, next) => {
 try {
                 // Find the merchant who is posting the product
         const merchant = await Merchant.findById(req.user.id);
@@ -132,19 +139,23 @@ try {
                 productSize: productResult.productSize,
                 productColor: productResult.productColor,
                 productQuantity: productResult.productQuantity,
-                images: req.files.map(file => ({
-                    data: fs.readFileSync(file.path),
-                    contentType: file.mimetype,
-                })),
+                // images: req.files.map(file => ({
+                //     data: fs.readFileSync(file.path),
+                //     contentType: file.mimetype,
+                // })),
+                images: {
+                    data: fs.readFileSync(path.join(__dirname, '../public/productImage/' + req.file.filename)),
+                    contentType: 'image/png',
+                },
                 MerchantId: merchant._id,
                 date_added: Date.now(),
             });
             await newProduct.save();
 
              // After successfully product registering the merchant, call the email sending function
-             await productRegistrationMsg(newProduct);
+             await productRegistrationMsg(newProduct, merchant);
 
-             console.log('Product successfully registered:', newUser);
+             console.log('Product successfully registered:', newProduct);
              // Send success response to the client
              res.status(201).json({ success: true ,  message: 'Product successfully registered' });
     }catch (error) {
@@ -159,9 +170,7 @@ try {
             return res.status(400).json({ success: false, errors });
 
         } else {
-                      // Other error occurred
-            console.error('An error occurred while processing the request:', error);
-            return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+            next(error);
         }
     }
 };
@@ -186,7 +195,7 @@ try {
 //     }
 // };
 
-const editProduct = async (req, res) => {
+const editProduct = async (req, res, next) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
         if (!merchant) {
@@ -200,12 +209,11 @@ const editProduct = async (req, res) => {
 
         res.render(`merchant/editProduct`, { productInfo, merchant });
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+        next(error);
     }
 };
 
-const editProductPost = async (req, res) => {
+const editProductPost = async (req, res, next) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
         if (!merchant) {
@@ -215,7 +223,6 @@ const editProductPost = async (req, res) => {
         const productInfo = req.params.productId;
 
         // Validate user input against Joi schema
-        // Ensure productSchema is defined and imported correctly
         const productResult = await productSchema.validateAsync(req.body, {abortEarly: false});
 
         // Check if a new image was uploaded
@@ -265,15 +272,13 @@ const editProductPost = async (req, res) => {
             return res.status(400).json({ success: false, errors });
 
         } else {
-            // Other error occurred
-            console.error('An error occurred while processing the request:', error);
-            return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+            next(error);
         }
     }
 };
 
 
-const deleteProduct = async (req, res) => {
+const deleteProduct = async (req, res, next) => {
     try {
         // Check if the merchant exists and has permission to delete products
         const merchant = await Merchant.findById(req.user.id);
@@ -289,13 +294,11 @@ const deleteProduct = async (req, res) => {
         // Delete the product
         await Product.findByIdAndDelete(req.params.productId);
         
-        console.log('Product delete successfully:');
+        console.log('Product deleted successfully:');
         
-        // // Redirect to a suitable route after deletion
-        // res.redirect(`/merchant/allAdmin`);
+        res.status(200).json({ success: true, message: 'Product deleted successfully' });
     } catch (error) {
-        console.error('Error deleting product:', error);
-        return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
+        next(error);
     }
 };
 

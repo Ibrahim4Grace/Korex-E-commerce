@@ -53,13 +53,13 @@ const imagesMessages = {
 // Define a Joi schema for the product data
 const productSchema = Joi.object({
     productName: Joi.string().required().messages(productNameMessages),
-    productDescription: Joi.string().min(2).max(250).required().messages(productDescriptionMessages),
+    productDescription: Joi.string().min(1).max(250).required().messages(productDescriptionMessages),
     productPrice: Joi.number().min(1).required().messages(productPriceMessages),
     productShipping: Joi.number().min(1).required().messages(productShippingMessages),  
     productCategory: Joi.string().required().messages(productCategoryMessages),
     productBrand: Joi.string().required().messages(productBrandMessages),
-    productSize: Joi.string().required().messages(productSizeMessages),
-    productColor: Joi.string().required().messages(productColorMessages), 
+    productSize: Joi.array().required().messages(productSizeMessages),
+    productColor: Joi.array().required().messages(productColorMessages), 
     productQuantity: Joi.number().min(0).required().messages(productQuantityMessages), 
     productInStock: Joi.string().optional(),
     productLowStock: Joi.string().optional(),

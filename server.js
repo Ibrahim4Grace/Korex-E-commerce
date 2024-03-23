@@ -19,6 +19,7 @@ if (process.env.NODE_ENV !== 'production'){
   const nodemon = require('nodemon');
   const http = require('http');
   const socketIO = require('socket.io');
+  const ErrorHandler = require('./middleware/errorHandler');
 //   const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
 //   const chatIoSetup = require("./sockets/socket");
 //   const notificationIoSetup = require("./sockets/notification");
@@ -152,3 +153,5 @@ if (process.env.NODE_ENV !== 'production'){
 //   app.use('/', require('./route/adminRoute'));//declared endpoint
   
   
+  // Use the ErrorHandler middleware as the last middleware
+  app.use(ErrorHandler);
