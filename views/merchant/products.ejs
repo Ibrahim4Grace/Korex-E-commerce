@@ -94,12 +94,14 @@
                                     <tr class="center">
                                         <th scope="col"><input class="form-check-input" type="checkbox"></th>
                                         <td>
-                                            <% if (products.image && products.image.data) { %>
-                                                <img src="data:<%= products.image.contentType %>;base64,<%= products.image.data.toString('base64') %>" alt="Products Image">
+                                            <% if (products.images && products.images.length > 0) { %>
+                                                <% products.images.forEach(image => { %>
+                                                    <img class="imageSize" src="data:<%= image.contentType %>;base64,<%= image.data.toString('base64') %>" alt="Product Image">
+                                                <% }) %>
                                             <% } else { %>
                                                 NA
                                             <% } %>
-                                        </td>
+                                        </td>                                        
                                         <td><%= products.productName %></td>
                                         <td><%= products.productPrice %></td>
                                         <td><%= products.productShipping %></td>
@@ -442,24 +444,24 @@
 						    <div class="tab-pane fade in active" id="step1">
                                 <div class="well">
                                     <label>Product Name</label>
-                                    <input type="text" class="form-control" name="productName" placeholder="Enter product name" required>
+                                    <input type="text" class="form-control" name="productName" placeholder="Enter product name" required autocomplete="no">
                                     <div id="productNameError" class="error"></div>
 								
                                     <br>
                                     <label>Product Description</label>
-                                    <textarea name="productDescription" class="form-control input-lg" rows="5" onfocus="if(this.value === 'Enter product description') { this.value = ''; }">Enter product description</textarea>
+                                    <textarea name="productDescription" class="form-control input-lg" rows="5" maxlength="250" onfocus="if(this.value === 'Enter product description') { this.value = ''; }">Enter product description</textarea>
                                     <div id="productDescriptionError" class="error"></div>
                                     <br>
 
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label for="size">Product Price ($)</label>
-                                            <input type="number" name="productPrice" class="form-control" placeholder="Example 100." >
+                                            <input type="number" name="productPrice" class="form-control" placeholder="Example 100." autocomplete="no">
                                             <div id="productPriceError" class="error"></div>
                                         </div>
                                         <div class="col-md-6">
                                             <label for="color">Product Shipping ($)</label>
-                                            <input type="number" name="productShipping" class="form-control" placeholder="Example 90" >
+                                            <input type="number" name="productShipping" class="form-control" placeholder="Example 90" autocomplete="no">
                                             <div id="productShippingError" class="error"></div>
                                         </div>
                                     </div>
@@ -483,7 +485,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <label for="color">Product brand</label>
-                                            <input type="text" name="productBrand" class="form-control" placeholder="Enter product brand">
+                                            <input type="text" name="productBrand" class="form-control" placeholder="Enter product brand" autocomplete="no">
                                             <div id="productBrandError" class="error"></div>
                                         </div>
                                     </div>
@@ -526,14 +528,12 @@
                                              </div> -->
                                              <div class="col-md-6">
                                                 <label for="color">Quantity</label>
-                                                <input type="number" name="productQuantity" class="form-control">
+                                                <input type="number" name="productQuantity" class="form-control" autocomplete="no">
                                                 <div id="productQuantityError" class="error"></div>
                                             </div>
                                         </div>
                                 </div>
                             </div>
-                           
-
 						         <!-- Tab 3 -->
 						        <div class="tab-pane fade" id="step3">
                                     <div class="well">
@@ -558,17 +558,11 @@
                                                                     <i class="glyphicon glyphicon-download-alt"></i>
                                                                     <p>Choose an image file or drag it here.</p>
                                                                 </div>
-                                                                <input type="file" name="images" class="dropzone" multiple>
+                                                                <input type="file" name="images" class="dropzone" multiple accept="image/*">
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                  
-                                                <!-- <div class="row">
-                                                    <div class="col-md-12">
-                                                        <button type="submit" class="btn btn-primary pull-right">Upload</button>
-                                                    </div>
-                                                </div> -->
                                             </div>
                                         </section>
                                     </div>
@@ -675,7 +669,25 @@
         if (!validateStep()) return false;
 
         // Collect form data including files
-        var formData = new FormData(this);
+        let formData = new FormData(this);
+
+
+    
+      // Merge FormData object with images FormData object
+    let imagesFormData = new FormData(); // Create FormData object for images
+    document.querySelectorAll(".dropzone").forEach(dropzone => {
+        Array.from(dropzone.files).forEach(file => {
+            imagesFormData.append('images', file);
+        });
+    });
+
+    // Append images FormData to the main FormData
+    for (const [key, value] of imagesFormData.entries()) {
+        formData.append(key, value);
+    }
+
+    // Log the FormData object just before sending it to the server
+    console.log("FormData object to be sent:", formData);
 
         // Send the data to the server
         $.ajax({
@@ -755,6 +767,8 @@
                     '</div>';
                 let boxZone = $(input).parents('.form-group').find('.preview-zone').find('.box').find('.box-body');
                 boxZone.append(htmlPreview);
+                   // Log the number of images after appending
+                   console.log($('.image-preview').length + " images uploaded");
             };
             reader.readAsDataURL(input.files[0]);
         }
@@ -773,7 +787,7 @@
             }
         }
     });
-
+    
     $('.dropzone-wrapper').on('dragover', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -877,6 +891,44 @@
         </g>
     </symbol>
 </svg>
+
+<script>
+      document.querySelectorAll('.delete-button').forEach(button => {
+    button.addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent default behavior of anchor tag
+        
+        const productId = this.getAttribute('data-product-id');
+        fetch(`/merchant/deleteProduct/${productId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Handle success response
+                showToast('Product deleted successfully', 'success'); // Show toast before redirection if necessary
+                // Redirect to the products page after successful deletion
+                window.location.href = "/merchant/products";
+            } else {
+                // Handle error response
+                if (response.status === 404) {
+                    showToast('Product not found', 'error');
+                } else {
+                    showToast('Error deleting product', 'error');
+                }
+                throw new Error('Network response was not ok.');
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting product:', error.message);
+            // Handle network or server error if needed
+            showToast('Error deleting product: ' + error.message, 'error');
+        });
+    });
+});
+
+</script>
 
 </body>
 

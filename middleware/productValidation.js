@@ -43,10 +43,7 @@ const productQuantityMessages = {
     'number.min': 'Product quantity be greater than {#limit}',
     "any.required": "Product quantity name is required",
 };
-const imagesMessages = {
-    "string.empty": "Product image is required",
-    "any.required": "Product image is required",
-};
+
 
 
 
@@ -61,6 +58,7 @@ const productSchema = Joi.object({
     productSize: Joi.array().required().messages(productSizeMessages),
     productColor: Joi.array().required().messages(productColorMessages), 
     productQuantity: Joi.number().min(0).required().messages(productQuantityMessages), 
+    images: Joi.array().optional(),
     productInStock: Joi.string().optional(),
     productLowStock: Joi.string().optional(),
     productOutOfStock: Joi.string().optional()

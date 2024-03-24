@@ -93,31 +93,26 @@ const merchantProducts = async (req, res, next) => {
 };
 
                                    // Merchant Uploading new product and Images
-// const stor = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         if (!file.mimetype.startsWith('image')) {
-//             return cb(new Error('Only images are allowed'));
-//         }
-//         cb(null, './public/productImage/');
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, file.fieldname + '_' + Date.now())
-//     }
-// });
-
 let stor = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './public/productImage/')
+        cb(null, './public/productImage/');
     },
     filename: (req, file, cb) => {
-        cb(null, file.fieldname + '_' + Date.now())
-    }
+        cb(null, file.fieldname + '_' + Date.now());
+    },
 });
+// const upl = multer({ storage: stor });
+const upl = multer({ storage: stor});
 
-const upl = multer({ storage: stor });
 
 const merchantProductsPost = async (req, res, next) => {
 try {
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ success: false, message: 'No images uploaded' });
+    }
+
+    console.log('Files received:', req.files);
+    
                 // Find the merchant who is posting the product
         const merchant = await Merchant.findById(req.user.id);
         if (!merchant) {
@@ -125,39 +120,37 @@ try {
         }
 
                   // Validate user input against Joi schema
-        // const productResult = await productSchema.validateAsync(req.body, {abortEarly: false});
         const productResult = await productSchema.validateAsync(req.body);
 
+        //Save the user data to the database
+        const images = req.files.map((file) => ({
+          data: fs.readFileSync(path.join(__dirname, '../public/productImage/' + file.filename)),
+          contentType: 'image/png',
+        }));
+       
+
              // Save the user data to the database
-             const newProduct = new Product({
-                productName: productResult.productName,
-                productDescription: productResult.productDescription,
-                productPrice: productResult.productPrice,
-                productShipping: productResult.productShipping,
-                productCategory: productResult.productCategory,
-                productBrand: productResult.productBrand,
-                productSize: productResult.productSize,
-                productColor: productResult.productColor,
-                productQuantity: productResult.productQuantity,
-                // images: req.files.map(file => ({
-                //     data: fs.readFileSync(file.path),
-                //     contentType: file.mimetype,
-                // })),
-                images: {
-                    data: fs.readFileSync(path.join(__dirname, '../public/productImage/' + req.file.filename)),
-                    contentType: 'image/png',
-                },
-                MerchantId: merchant._id,
-                date_added: Date.now(),
-            });
-            await newProduct.save();
+        const newProduct = new Product({
+            productName: productResult.productName,
+            productDescription: productResult.productDescription,
+            productPrice: productResult.productPrice,
+            productShipping: productResult.productShipping,
+            productCategory: productResult.productCategory,
+            productBrand: productResult.productBrand,
+            productSize: productResult.productSize,
+            productColor: productResult.productColor,
+            productQuantity: productResult.productQuantity,
+            images: images,
+            MerchantId: merchant._id,
+            date_added: Date.now(),
+        });
+        await newProduct.save();
 
-             // After successfully product registering the merchant, call the email sending function
-             await productRegistrationMsg(newProduct, merchant);
+                // After successfully product registering the merchant, call the email sending function
+        await productRegistrationMsg(newProduct, merchant);
 
-             console.log('Product successfully registered:', newProduct);
-             // Send success response to the client
-             res.status(201).json({ success: true ,  message: 'Product successfully registered' });
+        console.log('Product successfully registered:', newProduct);
+        res.status(201).json({ success: true ,  message: 'Product successfully registered' });
     }catch (error) {
         let errors; // Declare errors variable
         if (error.isJoi) {
@@ -208,7 +201,7 @@ const editProduct = async (req, res, next) => {
         }
 
         res.render(`merchant/editProduct`, { productInfo, merchant });
-    } catch (err) {
+    } catch (error) {
         next(error);
     }
 };

@@ -1,7 +1,7 @@
 const paginatedResults = (model) => {
     return async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
-        const perPage = 10; // Number of items per page
+        const perPage = 7; // Number of items per page
 
         try {
             const totalItems = await model.countDocuments();

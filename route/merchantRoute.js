@@ -10,11 +10,11 @@ const { welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchant
 
 router.get('/index',authenticateToken,welcomeMerchant);
 //uploading merchant profile image
-router.post('/uploadMerchantImage',upload.single('image'),authenticateToken,uploadMerchantImage);
+router.post('/uploadMerchantImage',authenticateToken, upload.single('image'),uploadMerchantImage);
 //product page
 router.get('/products', authenticateToken, paginatedResults(Product), merchantProducts);
 //uploading new product
-router.post('/merchantProductsPost',upl.array('images'),authenticateToken,merchantProductsPost);
+router.post('/merchantProductsPost', authenticateToken,upl.array('images',10),merchantProductsPost);
 
 router.get('/editProduct/:productId',authenticateToken,editProduct);
 router.post('/editProductPost/:productId',authenticateToken,editProductPost);

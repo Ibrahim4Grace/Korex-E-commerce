@@ -1,6 +1,11 @@
  
 const mongoose = require('mongoose');
 
+const imageSchema = new mongoose.Schema({
+    data: Buffer,
+    contentType: String
+});
+
 const productSchema = new mongoose.Schema({
 
     productName:{
@@ -48,10 +53,7 @@ const productSchema = new mongoose.Schema({
     productOutOfStock:{
         type:String,
     },
-    images:{
-        data:Buffer,
-        contentType:String
-    },
+    images: [imageSchema], // Define images as an array of objects 
     MerchantId: [
         {
             type: mongoose.Schema.Types.ObjectId,
