@@ -29,7 +29,7 @@ const productRegistrationMsg = async (newProduct, merchant) =>{
     const mailOptions = {
         from: process.env.NODEMAILER_EMAIL,
         to: merchant.merchantEmail,
-        subject: 'Password Reset Successful with Korex StyleHub!',
+        subject: 'Your Product is Now on Korex StyleHub',
         html: msg,
         attachments: [
             {
@@ -39,7 +39,6 @@ const productRegistrationMsg = async (newProduct, merchant) =>{
             }
         ]
     };
-
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.log('Email sending error:', error);

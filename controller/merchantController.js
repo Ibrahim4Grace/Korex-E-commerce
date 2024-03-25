@@ -107,18 +107,14 @@ const upl = multer({ storage: stor});
 
 const merchantProductsPost = async (req, res, next) => {
 try {
-    if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ success: false, message: 'No images uploaded' });
-    }
-
-    console.log('Files received:', req.files);
-    
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ success: false, message: 'No images uploaded' });
+        }
                 // Find the merchant who is posting the product
         const merchant = await Merchant.findById(req.user.id);
         if (!merchant) {
             return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
         }
-
                   // Validate user input against Joi schema
         const productResult = await productSchema.validateAsync(req.body);
 
@@ -128,7 +124,6 @@ try {
           contentType: 'image/png',
         }));
        
-
              // Save the user data to the database
         const newProduct = new Product({
             productName: productResult.productName,
@@ -146,7 +141,7 @@ try {
         });
         await newProduct.save();
 
-                // After successfully product registering the merchant, call the email sending function
+            // After successfully product registering the merchant, call the email sending function
         await productRegistrationMsg(newProduct, merchant);
 
         console.log('Product successfully registered:', newProduct);
@@ -168,25 +163,26 @@ try {
     }
 };
 
-// //Merchant viewing product details 
-// const viewProduct = async (req, res) => {
-//     try {
-//         const merchant = await Merchant.findById(req.user.id);
-//         if (!merchant) {
-//             return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
-//         }
+//Merchant viewing product details 
+const viewProduct = async (req, res, next) => {
+    try {
+        const merchant = await Merchant.findById(req.user.id);
+        if (!merchant) {
+            return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
+        }
 
-//         const productInfo = await Product.findOne({ _id: req.params.productId });
-//         if (!productInfo) {
-//             return res.status(404).json({ success: false, errors: [{ msg: 'Product information not found' }] });
-//         }
+        const productInfo = await Product.findOne({ _id: req.params.productId });
+        if (!productInfo) {
+            return res.status(404).json({ success: false, errors: [{ msg: 'Product information not found' }] });
+        }
 
-//         res.render(`merchant/viewProduct`, { productInfo, merchant });
-//     } catch (err) {
-//         console.error(err);
-//         return res.status(500).json({ success: false, errors: [{ msg: 'An error occurred while processing your request.' }] });
-//     }
-// };
+        res.status(201).json({ success: true , productInfo, merchant });
+        
+    } catch (error) {
+        next(error);
+    }
+};
+
 
 const editProduct = async (req, res, next) => {
     try {
@@ -289,7 +285,7 @@ const deleteProduct = async (req, res, next) => {
         
         console.log('Product deleted successfully:');
         
-        res.status(200).json({ success: true, message: 'Product deleted successfully' });
+        res.status(201).json({ success: true , productInfo, merchant, message: 'Product deleted successfully'  });
     } catch (error) {
         next(error);
     }
@@ -372,4 +368,4 @@ const merchantLogout = (req, res) => {
 
 
 
-module.exports = ({ welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchantProductsPost,editProduct,editProductPost,deleteProduct,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout});
+module.exports = ({ welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchantProductsPost,viewProduct,editProduct,editProductPost,deleteProduct,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout});

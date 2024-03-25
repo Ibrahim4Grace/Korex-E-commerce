@@ -6,7 +6,7 @@ const {checkAuthenticated, checkNotAuthenticated} = require ('../middleware/auth
 const {authenticateToken} = require ('../middleware/authMerchantJWT');
 const paginatedResults = require('../utils/pagination');
 
-const { welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchantProductsPost,editProduct,editProductPost,deleteProduct,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout} = require('../controller/merchantController');
+const { welcomeMerchant,upload,uploadMerchantImage,merchantProducts,upl,merchantProductsPost,viewProduct,editProduct,editProductPost,deleteProduct,merchantOrders,merchantReviews,merchantCustomerMsg,merchantSettings,merchantLogout} = require('../controller/merchantController');
 
 router.get('/index',authenticateToken,welcomeMerchant);
 //uploading merchant profile image
@@ -14,7 +14,8 @@ router.post('/uploadMerchantImage',authenticateToken, upload.single('image'),upl
 //product page
 router.get('/products', authenticateToken, paginatedResults(Product), merchantProducts);
 //uploading new product
-router.post('/merchantProductsPost', authenticateToken,upl.array('images',10),merchantProductsPost);
+router.post('/merchantProductsPost', authenticateToken,upl.array('images[]'),merchantProductsPost);
+router.get('/viewProduct/:productId', authenticateToken,viewProduct)
 
 router.get('/editProduct/:productId',authenticateToken,editProduct);
 router.post('/editProductPost/:productId',authenticateToken,editProductPost);

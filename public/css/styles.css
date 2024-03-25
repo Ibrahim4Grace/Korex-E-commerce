@@ -406,74 +406,97 @@
 }
 #myModal .nav-tabs > li:last-child {  margin-right: 0; }
 
-
- .container {
-    padding: 50px 10%;
-  }
-  
-  .box {
-    position: relative;
-    background: #ffffff;
-    width: 100%;
-  }
-  
-  .box-header {
-    color: #444;
-    display: block;
-    padding: 10px;
-    position: relative;
-    border-bottom: 1px solid #f4f4f4;
-    margin-bottom: 10px;
-  }
-  
-  .box-tools {
-    position: absolute;
-    right: 10px;
-    top: 5px;
-  }
-  
-  .dropzone-wrapper {
-    border: 2px dashed #91b0b3;
-    color: #92b0b3;
-    position: relative;
-    height: 150px;
-  }
-  
-  .dropzone-desc {
-    position: absolute;
-    margin: 0 auto;
-    left: 0;
-    right: 0;
-    text-align: center;
-    width: 40%;
-    top: 50px;
-    font-size: 16px;
-  }
-  
-  .dropzone,
-  .dropzone:focus {
-    position: absolute;
-    outline: none !important;
-    width: 100%;
-    height: 150px;
-    cursor: pointer;
-    opacity: 0;
-  }
-  
-  .dropzone-wrapper:hover,
-  .dropzone-wrapper.dragover {
-    background: #ecf0f5;
-  }
-  
-  .preview-zone {
-    text-align: center;
-  }
-  
-  .preview-zone .box {
-    box-shadow: none;
-    border-radius: 0;
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
     margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
   }
+  
+  .btn-success {
+    border: 1px solid #c5dbec;
+    background: #d0e5f5;
+    font-weight: bold;
+    color: #2e6e9e;
+  }
+
+  .fileinput-button {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .fileinput-button input {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    opacity: 0;
+    -ms-filter: "alpha(opacity=0)";
+    font-size: 200px;
+    direction: ltr;
+    cursor: pointer;
+  }
+  
+  .thumb {
+    height: 100px;
+    width: 100px;
+    border: 1px solid #000;
+  }
+  
+  ul.thumb-Images li {
+    width: 120px;
+    float: left;
+    display: inline-block;
+    vertical-align: top;
+    height: 120px;
+  }
+  
+  .img-wrap {
+    position: relative;
+    display: inline-block;
+    font-size: 0;
+  }
+  
+  .img-wrap .close {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 100;
+    background-color: #d0e5f5;
+    padding: 5px 2px 2px;
+    color: #000;
+    font-weight: bolder;
+    cursor: pointer;
+    opacity: 0.5;
+    font-size: 23px;
+    line-height: 10px;
+    border-radius: 50%;
+  }
+  
+  .img-wrap:hover .close {
+    opacity: 1;
+    background-color: #ff0000;
+  }
+  
+  .FileNameCaptionStyle {
+    font-size: 12px;
+  }
+  
+
+
   .backColor{background-color: #fff;}
   .error {
     margin-top: 4px; 
@@ -865,3 +888,68 @@
     color: #6e7277;
     font-size: 13px;
 }
+
+  .viewModals {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s, visibility 0s linear 0.25s;
+    overflow-y: auto; 
+  }
+  
+  .viewModal-content {
+    position: relative; 
+    top: 75%; 
+    left: 58%; 
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 1rem 1.5rem;
+    max-width: 80%; 
+    border-radius: 0.5rem;
+    width: 28rem;
+  }
+  
+  .close-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    background-color: lightgray;
+  }
+  
+  .close-button:hover {
+    background-color: darkgray;
+  }
+  
+  .show-modal {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.25s, visibility 0s;
+  }
+  
+  /* Media queries for responsiveness */
+@media screen and (max-width: 768px) {
+    .viewModal-content {
+      width: 80%;
+      left: 50%;
+      top:84%;
+    }
+  }
+  
+  @media screen and (max-width: 576px) {
+    .viewModal-content {
+      width: 90%;
+      left: 50%;
+      top:84%;
+    }
+  }
+.btnBorder{border: none;}

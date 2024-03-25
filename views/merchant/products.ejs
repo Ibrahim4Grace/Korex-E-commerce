@@ -64,7 +64,7 @@
                    
                 </div>
                 <!-- <button type="button" class="btn btn-primary m-2">+ New Product</button> -->
-                <button type="button" class="btn btn-primary m-2" id="newProductBtn">+ New Product</button>
+                <button type="button" class="btn btn-primary m-2 btnBorder" id="newProductBtn">+ New Product</button>
 
 
 
@@ -79,10 +79,10 @@
                         <thead>
                             <tr class="text-dark">
                                 <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                                <th scope="col">product Image</th>
+                                <th scope="col">Product Images</th>
                                 <th scope="col">Product Name</th>
                                 <th scope="col">Product Price</th>
-                                <th scope="col">shipping Fees</th>
+                                <th scope="col">Shipping Fees</th>
                                 <th scope="col">Product Category</th>
                                 <th scope="col">Product Brand</th>
                                 <th scope="col" style="text-align: center;">Action</th>
@@ -108,10 +108,12 @@
                                         <td><%= products.productCategory %></td>
                                         <td><%= products.productBrand %></td>
                                         <td data-label="Profile">
+                                            <!-- View Button -->
+                                            <input type="button" value="View" class="btn btn-primary btn-sm view-button btnBorder" data-product-id="<%= products._id %>">
                                             <!-- Edit Button -->
-                                            <input type="button" value="Edit" class="btn btn-primary btn-sm edit-button" data-product-id="<%= products._id %>">
+                                            <input type="button" value="Edit" class="btn btn-primary btn-sm edit-button btnBorder" data-product-id="<%= products._id %>">
                                             <!-- Delete Button -->
-                                            <input type="button" value="Delete" class="btn btn-danger btn-sm delete-button" data-product-id="<%= products._id %>">
+                                            <input type="button" value="Delete" class="btn btn-danger btn-sm delete-button btnBorder" data-product-id="<%= products._id %>">
                                         </td>
                                     </tr>
                                 <% }); %>
@@ -134,6 +136,7 @@
             </div>
 
                     <script>
+              
                 // Function to handle the click event of the edit button
                 document.querySelectorAll('.edit-button').forEach(button => {
                     button.addEventListener('click', function() {
@@ -142,16 +145,9 @@
                     });
                 });
             
-                // Function to handle the click event of the delete button
-                document.querySelectorAll('.delete-button').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const productId = this.getAttribute('data-product-id');
-                        window.location.href = "/merchant/deleteProduct/" + productId;
-                    });
-                });
+            
             </script>
                 
-
     
             <div id="In Stock" class="tabcontent">
                 <h3>In Stock</h3>
@@ -390,8 +386,89 @@
             </div>
         </div>
     </div>
-          
             <!-- Product End -->
+
+                              <!-- VIEW PRODUCT INFORMATION -->
+                        <div class="viewModals">
+                            <div class="viewModal-content">
+                                <span class="close-button">×</span>
+                                <h1>Product Details</h1>
+                            
+                                <p>Product Name: <span id="productName"></span></p>
+                                <p>Price: <span id="productPrice"></span></p>
+                                <p>Shipping Fee: <span id="productShipping"></span></p>
+                                <p>Category: <span id="productCategory"></span></p>
+                                <p>Brand: <span id="productBrand"></span></p>
+                                <p>Low Stock: <span id="productSize"></span></p>
+                                <p>Low Stock: <span id="productColor"></span></p>
+                                <p>Low Stock: <span id="productQuantity"></span></p>
+                                <p>Low Stock: <span id="productInStock"></span></p>
+                                <p>Low Stock: <span id="productLowStock"></span></p>
+                                <p>Low Stock: <span id="productOutOfStock"></span></p>
+                                <p>Low Stock: <span id="productDescription"></span></p>
+                                <p>Low Stock: <span id="date_added"></span></p>
+                            </div>
+                        </div>
+                            
+                              <!-- Update the JavaScript code in products.ejs -->
+                        <script>
+                            let modal = document.querySelector(".viewModals");
+                            let closeButton = document.querySelector(".close-button");
+
+                            function toggleModal() {
+                                modal.classList.toggle("show-modal");
+                            }
+
+                            function windowOnClick(event) {
+                                if (event.target === modal) {
+                                    toggleModal();
+                                }
+                            }
+
+                            closeButton.addEventListener("click", toggleModal);
+                            window.addEventListener("click", windowOnClick);
+
+                                     // Function to handle the click event of the view button
+                            document.querySelectorAll('.view-button').forEach(button => {
+                                button.addEventListener('click', function(event) {
+                                    event.preventDefault();
+
+                                     // Fetch the product information and update the modal content here
+                                    const productId = this.getAttribute('data-product-id');
+                                             // Fetch product information using AJAX
+                                    fetch(`/merchant/viewProduct/${productId}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            // Display product information in the modal
+                                            const productInfo = data.productInfo;
+                                            document.getElementById('productName').textContent = productInfo.productName;
+                                            document.getElementById('productPrice').textContent = productInfo.productPrice;
+                                            document.getElementById('productShipping').textContent = productInfo.productShipping;
+                                            document.getElementById('productCategory').textContent = productInfo.productCategory;
+                                            document.getElementById('productBrand').textContent = productInfo.productBrand;
+                                            document.getElementById('productSize').textContent = productInfo.productSize;
+                                            document.getElementById('productColor').textContent = productInfo.productColor;
+                                            document.getElementById('productQuantity').textContent = productInfo.productQuantity;
+                                            document.getElementById('productInStock').textContent = productInfo.productInStock;
+                                            document.getElementById('productLowStock').textContent = productInfo.productLowStock;
+                                            document.getElementById('productOutOfStock').textContent = productInfo.productOutOfStock;
+                                            document.getElementById('productDescription').textContent = productInfo.productDescription;
+                                            document.getElementById('date_added').textContent = productInfo.date_added;
+                                             // Toggle the modal visibility
+                                            toggleModal();
+                                        } else {
+                                            console.error('Failed to fetch product information:', data.errors[0].msg);
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error fetching product information:', error);
+                                    });
+                                });
+                            });
+                        </script>
+                              <!-- END VIEW PRODUCT INFORMATION -->
+
 
         
      <!-- Footer Start -->
@@ -399,7 +476,7 @@
      <!-- Footer End -->
 
      <!-- Modal HTML -->
-     <form id="productForm" action="/merchant/merchantProductsPost" method="post" enctype="multipart/form-data">
+    <form id="productForm" action="/merchant/merchantProductsPost" method="post" enctype="multipart/form-data">
 	<div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -475,7 +552,7 @@
                                         <div class="col-md-6">
                                             <% const productCategory = ["Baby Dress","Blazers", "Dresses","Jackets","Jeans","Jumpsuits","loafers", "Shirts","Sleepwears","Sneakers","Sportwears","Swimwears"]; %>
                                             <label for="color">Product Category</label>
-                                            <select  name="productCategory" class="form-control backColor">
+                                            <select name="productCategory" class="form-control backColor" style="background-color: #fff;">
                                                 <option value="">Select product category</option>
                                                 <% productCategory.forEach((category )=> { %>
                                                     <option value="<%- category  %>"><%- category  %></option>
@@ -516,16 +593,6 @@
                                     </div><br>
 
                                         <div class="row">
-                                             <!-- <div class="col-md-6">
-                                                 <% const genderType = ["Unisex","Male", "Female"]; %>
-                                                 <label for="color">Gender</label>
-                                                 <select id="color" name="productGender" class="form-control">
-                                                     <option value="">Select Country</option>
-                                                     <% genderType.forEach((gender )=> { %>
-                                                         <option value="<%- gender  %>"><%- gender  %></option>
-                                                     <% }) %>
-                                                 </select>
-                                             </div> -->
                                              <div class="col-md-6">
                                                 <label for="color">Quantity</label>
                                                 <input type="number" name="productQuantity" class="form-control" autocomplete="no">
@@ -538,32 +605,29 @@
 						        <div class="tab-pane fade" id="step3">
                                     <div class="well">
                                         <section>
-                                            <div class="container">
+                                            <div class="container my-5" id="form-upload">
+                                                <h3 class="text-center">Multiple Upload Images and Remove Button </h3>
                                                 <div class="row">
-                                                    <div class="col-md-12">
-                                                        <div class="form-group">
-                                                            <label class="control-label">Upload Item Image</label>
-                                                            <div class="preview-zone hidden">
-                                                                <div class="box box-solid">
-                                                                    <div class="box-header with-border">
-                                                                        <div><b>Preview</b></div>
-                                                                        <div class="box-tools pull-right">
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="box-body"></div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="dropzone-wrapper">
-                                                                <div class="dropzone-desc">
-                                                                    <i class="glyphicon glyphicon-download-alt"></i>
-                                                                    <p>Choose an image file or drag it here.</p>
-                                                                </div>
-                                                                <input type="file" name="images" class="dropzone" multiple accept="image/*">
-                                                            </div>
-                                                        </div>
+                                                    <div>
+                                                        <label style="font-size: 14px;">
+                                                            <span style='color:navy;font-weight:bold'>Attachment Instructions :</span>
+                                                        </label>
+                                                        <ul>
+                                                            <li>
+                                                                Allowed only files with extension (jpg, png, gif)
+                                                            </li>
+                                                            <li>
+                                                                Maximum number of allowed files 3 
+                                                            </li>
+                                                        </ul>
+                                                        <span class="btn btn-success fileinput-button">
+                                                            <span>Select Attachment</span>
+                                                            <input type="file" name="images[]" id="files" multiple="multiple accept="image/jpeg, image/png, image/gif,"><br />
+                                                        </span>
+                                                        <output id="Filelist"></output>
                                                     </div>
-                                                </div>
-                                            </div>
+                                                 </div>
+                                              </div>
                                         </section>
                                     </div>
                                 </div>
@@ -585,10 +649,10 @@
              
 		    </div>
 	</div>
-</form>
+    </form>
 
-    
-<script>
+                            <!--   Function to open the modal when the button is clicked  Start -->
+    <script>
     $(document).ready(function() {
     // Function to open the modal when the button is clicked
     $("#newProductBtn").click(function() {
@@ -670,21 +734,16 @@
 
         // Collect form data including files
         let formData = new FormData(this);
-
-
     
-      // Merge FormData object with images FormData object
-    let imagesFormData = new FormData(); // Create FormData object for images
-    document.querySelectorAll(".dropzone").forEach(dropzone => {
-        Array.from(dropzone.files).forEach(file => {
-            imagesFormData.append('images', file);
+    // Remove any existing images from formData
+    formData.delete('images[]');
+
+    // Append each image file to formData separately
+    document.querySelectorAll("input[type='file']").forEach(fileInput => {
+        Array.from(fileInput.files).forEach(file => {
+            formData.append('images[]', file);
         });
     });
-
-    // Append images FormData to the main FormData
-    for (const [key, value] of imagesFormData.entries()) {
-        formData.append(key, value);
-    }
 
     // Log the FormData object just before sending it to the server
     console.log("FormData object to be sent:", formData);
@@ -752,65 +811,227 @@
     });
 });
 
-</script>
-     <!-- Item image uploading using file reader  -->
-     <script>
-        $(document).ready(function() {
-    function readFile(input) {
-        if (input.files && input.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let htmlPreview =
-                    '<div class="image-preview">' +
-                        '<img width="100" src="' + e.target.result + '" />' +
-                        '<button type="button" class="btn btn-danger btn-sm remove-image">Remove</button>' +
-                    '</div>';
-                let boxZone = $(input).parents('.form-group').find('.preview-zone').find('.box').find('.box-body');
-                boxZone.append(htmlPreview);
-                   // Log the number of images after appending
-                   console.log($('.image-preview').length + " images uploaded");
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }reset
+    </script>
+                                    <!--   Function to open the modal when the button is clicked End   -->
 
-    function reset(e) {
-        e.wrap('<form>').closest('form').get(0).reset();
-        e.unwrap();
+                                     <!--   uploading image using file reader start   -->
+    <script>
+//I added event handler for the file upload control to access the files properties.
+document.addEventListener("DOMContentLoaded", init, false);
+
+//To save an array of attachments
+let AttachmentArray = [];
+
+//counter for attachment array
+let arrCounter = 0;
+
+//to make sure the error message for number of files will be shown only one time.
+let filesCounterAlertStatus = false;
+
+//un ordered list to keep attachments thumbnails
+let ul = document.createElement("ul");
+ul.className = "thumb-Images";
+ul.id = "imgList";
+
+function init() {
+  //add javascript handlers for the file upload event
+  document
+    .querySelector("#files")
+    .addEventListener("change", handleFileSelect, false);
+}
+
+//the handler for file upload event
+function handleFileSelect(e) {
+  //to make sure the user select file/files
+  if (!e.target.files) return;
+
+  //To obtaine a File reference
+  let files = e.target.files;
+
+  // Loop through the FileList and then to render image files as thumbnails.
+  for (let i = 0, f; (f = files[i]); i++) {
+    //instantiate a FileReader object to read its contents into memory
+    let fileReader = new FileReader();
+
+    // Closure to capture the file information and apply validation.
+    fileReader.onload = (function(readerEvt) {
+      return function(e) {
+        //Apply the validation rules for attachments upload
+        ApplyFileValidationRules(readerEvt);
+
+        //Render attachments thumbnails.
+        RenderThumbnail(e, readerEvt);
+
+        //Fill the array of attachment
+        FillAttachmentArray(e, readerEvt);
+      };
+    })(f);
+
+    fileReader.readAsDataURL(f);
+  }
+  document
+    .getElementById("files")
+    .addEventListener("change", handleFileSelect, false);
+}
+
+//To remove attachment once user click on x button
+jQuery(function($) {
+  $("div").on("click", ".img-wrap .close", function() {
+    let id = $(this)
+      .closest(".img-wrap")
+      .find("img")
+      .data("id");
+
+    //to remove the deleted item from array
+    let elementPos = AttachmentArray.map(function(x) {
+      return x.FileName;
+    }).indexOf(id);
+    if (elementPos !== -1) {
+      AttachmentArray.splice(elementPos, 1);
     }
 
-    $(".dropzone").change(function() {
-        let input = this;
-        if (input.files && input.files[0]) {
-            for (let i = 0; i < input.files.length; i++) {
-                readFile(input);
-            }
-        }
-    });
-    
-    $('.dropzone-wrapper').on('dragover', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        $(this).addClass('dragover');
-    });
+    //to remove image tag
+    $(this).parent().find("img").not().remove();
 
-    $('.dropzone-wrapper').on('dragleave', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        $(this).removeClass('dragover');
-    });
+    //to remove div tag that contain the image
+    $(this).parent().find("div").not().remove();
 
-    $('.preview-zone').on('click', '.remove-image', function() {
-        $(this).parent('.image-preview').remove();
-    });
+    //to remove div tag that contain caption name
+    $(this).parent().parent().find("div").not().remove();
 
+    //to remove li tag
+    let lis = document.querySelectorAll("#imgList li");
+    for (let i = 0; (li = lis[i]); i++) {
+      if (li.innerHTML == "") {
+        li.parentNode.removeChild(li);
+      }
+    }
+  });
 });
 
-    </script>
+//Apply the validation rules for attachments upload
+function ApplyFileValidationRules(readerEvt) {
+  //To check file type according to upload conditions
+  if (CheckFileType(readerEvt.type) == false) {
+    alert(
+      "The file (" +
+        readerEvt.name +
+        ") does not match the upload conditions, You can only upload jpg/png/gif files"
+    );
+    e.preventDefault();
+    return;
+  }
 
-                            <script>
-                                      //Select Multiple input filed script  
-                                    
+  //To check file Size according to upload conditions
+  if (CheckFileSize(readerEvt.size) == false) {
+    alert(
+      "The file (" +
+        readerEvt.name +
+        ") does not match the upload conditions, The maximum file size for uploads should not exceed 300 KB"
+    );
+    e.preventDefault();
+    return;
+  }
+
+  //To check files count according to upload conditions
+  if (CheckFilesCount(AttachmentArray) == false) {
+    if (!filesCounterAlertStatus) {
+      filesCounterAlertStatus = true;
+      alert(
+        "You have added more than 3 files. According to upload conditions you can upload 3 files maximum"
+      );
+    }
+    e.preventDefault();
+    return;
+  }
+}
+
+//To check file type according to upload conditions
+function CheckFileType(fileType) {
+  if (fileType == "image/jpeg") {
+    return true;
+  } else if (fileType == "image/png") {
+    return true;
+  } else if (fileType == "image/gif") {
+    return true;
+  } else if (fileType == "image/jpg") {
+    return true;
+  }else {
+    return false;
+  }
+  return true;
+}
+
+//To check file Size according to upload conditions
+function CheckFileSize(fileSize) {
+  if (fileSize < 300000) {
+    return true;
+  } else {
+    return false;
+  }
+  return true;
+}
+
+//To check files count according to upload conditions
+function CheckFilesCount(AttachmentArray) {
+  //Since AttachmentArray.length return the next available index in the array,
+  //I have used the loop to get the real length
+  let len = 0;
+  for (let i = 0; i < AttachmentArray.length; i++) {
+    if (AttachmentArray[i] !== undefined) {
+      len++;
+    }
+  }
+  //To check the length does not exceed 3 files maximum
+  if (len > 2) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+//Render attachments thumbnails.
+function RenderThumbnail(e, readerEvt) {
+  let li = document.createElement("li");
+  ul.appendChild(li);
+  li.innerHTML = [
+    '<div class="img-wrap"> <span class="close">&times;</span>' +
+      '<img class="thumb" src="',
+    e.target.result,
+    '" title="',
+    escape(readerEvt.name),
+    '" data-id="',
+    readerEvt.name,
+    '"/>' + "</div>"
+  ].join("");
+
+  let div = document.createElement("div");
+  div.className = "FileNameCaptionStyle";
+  li.appendChild(div);
+  div.innerHTML = [readerEvt.name].join("");
+  document.getElementById("Filelist").insertBefore(ul, null);
+}
+
+//Fill the array of attachment
+function FillAttachmentArray(e, readerEvt) {
+  AttachmentArray[arrCounter] = {
+    AttachmentType: 1,
+    ObjectType: 1,
+    FileName: readerEvt.name,
+    FileDescription: "Attachment",
+    NoteText: "",
+    MimeType: readerEvt.type,
+    Content: e.target.result.split("base64,")[1],
+    FileSizeInBytes: readerEvt.size
+  };
+  arrCounter = arrCounter + 1;
+}
+
+    </script>
+                                         <!--   uploading image using file reader end   -->
+
+                                         <!-- Start Select Multiple input filed script   -->
+    <script>                            
     jQuery(function() {
         jQuery('.multiSelect').each(function(e) {
             let self = jQuery(this);
@@ -878,7 +1099,8 @@
             });
         });
     });
-</script>
+    </script>
+                                                <!-- End Select Multiple input filed script   -->
 
 
 
@@ -892,11 +1114,13 @@
     </symbol>
 </svg>
 
+                    <!-- Function to handle the click event of the delete button -->
 <script>
-      document.querySelectorAll('.delete-button').forEach(button => {
+ // Function to handle the click event of the delete button
+document.querySelectorAll('.delete-button').forEach(button => {
     button.addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent default behavior of anchor tag
-        
+        event.preventDefault(); // Prevent default behavior of button click
+
         const productId = this.getAttribute('data-product-id');
         fetch(`/merchant/deleteProduct/${productId}`, {
             method: 'GET',
@@ -907,8 +1131,8 @@
         .then(response => {
             if (response.ok) {
                 // Handle success response
-                showToast('Product deleted successfully', 'success'); // Show toast before redirection if necessary
-                // Redirect to the products page after successful deletion
+                // Show toast before redirection if necessary
+                showToast('Product deleted successfully', 'success');
                 window.location.href = "/merchant/products";
             } else {
                 // Handle error response
