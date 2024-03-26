@@ -177,13 +177,12 @@ const viewProduct = async (req, res, next) => {
         }
 
         res.status(201).json({ success: true , productInfo, merchant });
-        
     } catch (error) {
         next(error);
     }
 };
 
-
+//Merchant edit product details 
 const editProduct = async (req, res, next) => {
     try {
         const merchant = await Merchant.findById(req.user.id);
@@ -191,12 +190,12 @@ const editProduct = async (req, res, next) => {
             return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
         }
 
-        const productInfo = await Product.findById(req.params.productId);
-        if (!productInfo) {
+        const editProduct = await Product.findById(req.params.productId);
+        if (!editProduct) {
             return res.status(404).json({ success: false, errors: [{ msg: 'Product information not found' }] });
         }
 
-        res.render(`merchant/editProduct`, { productInfo, merchant });
+        res.status(201).json({ success: true , editProduct, merchant });
     } catch (error) {
         next(error);
     }
@@ -208,61 +207,35 @@ const editProductPost = async (req, res, next) => {
         if (!merchant) {
             return res.status(404).json({ success: false, errors: [{ msg: 'Merchant not found' }] });
         }
+         // Ensure that productInfo is a valid MongoDB ObjectId
+        const productInfo = mongoose.Types.ObjectId(req.params.productId);
 
-        const productInfo = req.params.productId;
+        const { productName, productDescription, productPrice, productShipping, productCategory, productBrand, productSize, productColor, productQuantity,productInStock,productLowStock,productOutOfStock } = req.body;
 
-        // Validate user input against Joi schema
-        const productResult = await productSchema.validateAsync(req.body, {abortEarly: false});
-
-        // Check if a new image was uploaded
-        let newImages = {};
-        if (req.file && req.file.filename) {
-            newImages = {
-                data: fs.readFileSync(path.join(__dirname, '../public/productImage/' + req.file.filename)),
-                contentType: 'image/png',
-            };
-        }
-
-        // Find the existing product
-        const existingProduct = await Product.findById(productInfo);
-
-        // Retain the existing image or use the new image
-        const productImage = req.file ? newImages : (existingProduct ? existingProduct.images : {});
-
-        // Update the product document
+         // Update the product document
         await Product.findByIdAndUpdate(productInfo, {
             $set: {
-                productName: productResult.productName,
-                productDescription: productResult.productDescription,
-                productPrice: productResult.productPrice,
-                productShipping: productResult.productShipping,
-                productCategory: productResult.productCategory,
-                productBrand: productResult.productBrand,
-                productSize: productResult.productSize,
-                productColor: productResult.productColor,
-                productQuantity: productResult.productQuantity,
-                images: productImage,
-                MerchantId: merchant._id, 
+                productName,
+                productDescription,
+                productPrice,
+                productShipping,
+                productCategory,
+                productBrand,
+                productSize,
+                productColor,
+                productQuantity,
+                productInStock,
+                productLowStock,
+                productOutOfStock,
+                MerchantId: merchant._id,
             }
         });
 
         console.log('Product successfully updated:');
         // Send success response to the client
-        res.status(201).json({ success: true ,  message: 'Product successfully updated' });
+        res.status(201).json({ success: true, message: 'Product successfully updated' });
     } catch (error) {
-        let errors; // Declare errors variable
-        if (error.isJoi) {
-            // Joi validation error
-            errors = error.details.map(err => ({
-                key: err.path[0],
-                msg: err.message
-            }));
-            console.error('Joi validation error:', errors);
-            return res.status(400).json({ success: false, errors });
-
-        } else {
-            next(error);
-        }
+        next(error);
     }
 };
 
